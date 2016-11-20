@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+<!--        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />-->
+        <meta name="viewport" content="user-scalable=1", content="width=device-width" />
+        <title>Push Out — friends competition game</title>
+        <meta name="description" content="one device multiplayer, hot seat game, sumo battle, split screen, 4 players game, indie, giraffe, hand drawn, pencil, mlp, hardcore">
+        <link rel="stylesheet" href="style.css">
+        <link href='http://fonts.googleapis.com/css?family=Noto+Sans:700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+        <link rel="shortcut icon" href="favicon.png" type="image/png">
+        
+        <meta property="og:title" content="Push Out — соревнование друзей"/>
+        <meta property="og:description" content="Соревнуйся с друзьями — до четырёх игроков на одном экране. А нарисованная от руки графика и живая гитарная музыка не дадут заскучать. Доступно для iPhone, iPad и iPod touch."/>
+        <meta property="og:image" content="apple-touch-icon.png"/>
+        <script type="text/javascript" src="http://vk.com/js/api/share.js?90" charset="windows-1251"></script>
+    </head>
+    <body>
+    
+    <map name="giraffes">
+        <area shape="poly" coords="118,170,604,143,615,370,130,390" href="https://itunes.apple.com/us/app/push-out-friends-competition/id899582393?ls=1&mt=8" alt="Download on the App Store!">
+    </map>
+    
+<!--       <div id="paralax">11</div>-->
+       <div id="sea"></div>
+        <div id="empty">
+            <div id="rope"></div>
+            <div id="rope-reflection"></div>            
+            <div id="board-shadow"></div>            
+            <div id="board">
+                <iframe id="video" width="560" height="315" src="//www.youtube.com/embed/-lYyybNpL7s" frameborder="0" allowfullscreen>
+                </iframe>
+            </div>               
+            <div id="label-shadow"></div>
+            <div id="label"></div>
+
+            <div id="giraffes-shadow"></div>            
+           
+            <div id="giraffes" usemap="#giraffes">
+                <img src="img/pixel.png" alt="Петя!" usemap="#giraffes">
+            </div>
+
+            <div id="island">
+                <div id="social">
+                    <a id="twitter" href="http://twitter.com/share?url=pushout.info&text=Check out this game!&via=PushOutGame&hashtags=pushOutGame,IndieGame,IndieDev&dnt=true">
+                        <div>                    
+                        </div>
+                    </a>
+                    <div onmouseover="facebookLike()" onclick="facebookLike()" ontouchstart="facebookLike()" id="facebook" title="Like">
+                    </div>
+                    <script type="text/javascript">document.write(VK.Share.button({url: "http://pushout.info/"},{type: "custom", text: "<img src=\"img/social/vk-share-button.png\" width=\"105\" height=\"120\" />", eng: 1}));
+                    </script>
+               </div>                
+           </div>
+            
+            <iframe onmouseout="facebookHide()" id="facebook-like" <iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2Fpushoutofficial&amp;width&amp;height=100&amp;colorscheme=light&amp;show_faces=false&amp;header=false&amp;stream=false&amp;show_border=true" scrolling="no" frameborder="0"  allowTransparency="true">
+            </iframe>
+            
+            <div id="land">
+                <div id="text">
+                   
+                    <p>Giddy adventures are calling for YOU!</p>
+                    <br>
+                    
+                    <p id="rating-stars">*****</p>
+                    <p id="rating-resource"><a href="http://www.theiphoneappreview.com/2014/10/push-out-ipad-game/">TheiPhoneAppReview.com — 4 1/2 from 5</a></p>
+                    <p id="rating-quote">You get the feeling that you’ll have fun with this game before you do anything, and believe us, you will!</p>
+                    <br>
+                    <p id="rating-stars">*****</p>
+                    <p>iHeartThisApp — APP OF THE WEEK</p>
+                    <br>
+                    
+                    <p>Grab your friends and make a journey to the magic islands with mysterious inhabitants. They can't solve who's the best: Mr. Crab or Vulcan, Mrs. Bird or Mr. Whale? Help them! And you can do it by yourself or with friends — there could be two, three or four players on screen at once!</p><br>    
+                    <p>There, on tropical islands, also lives Mr. Lion, who dreams to become the fastest lion in the whole world. He stands in need of your help! Explore every nook and cranny of the island and set up new world record!</p><br>
+                    <p>Except all named characters you could also meet there a lot of giraffes-the-dummies and Crocodile-the-director.</p><br>
+                    <p>Both, amazing cartoon island and live guitar soundtrack, won't let you stay indifferent, doesn't matter what age you are.</p><br>
+                   
+                    <div id="island-rocks"></div>
+                   
+                    <p><a href="html/story.html">Game story</a></p>
+                    <p><a href="html/contacts.html">Contacts</a></p>
+                    <p><a href="html/privacy.html">Privacy policy</a></p>
+                    <p id="trottoir-link"><a href="html/trottoir.html">Trottoir</a></p>
+                    
+                    <div id="bottom-links-group">
+                        <div class="bottom-links" id="you-tube-link"><a href="https://www.youtube.com/channel/UCbOi7hhvDkziy5AmFwvWKaw">YouTube<br>channel</a></div>
+                        <div class="bottom-links" id="follow-us-link"><a href="https://twitter.com/intent/user?screen_name=PushOutGame">Follow<br>@PushOutGame</a></div>
+                        <div class="bottom-links" id="facebook-link"><a href="https://www.facebook.com/pushoutofficial">We are on<br>Facebook</a></div>
+                        <div class="bottom-links" id="vk-link"><a href="http://vk.com/pushoutgame">We are on<br>VK</a></div>
+                    </div>
+
+               </div>
+                
+            </div>
+        </div>            
+        
+        <script src="js/Device.js"></script>
+        <script src="js/script.min.js"></script>     
+    </body>
+</html>

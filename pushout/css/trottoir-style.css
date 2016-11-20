@@ -1,0 +1,77 @@
+*{
+    padding: 0;
+    margin: 0;   
+}
+
+html, body {
+    max-width: 100%;
+    min-width: 800px;
+    height: 100%;
+}
+
+body {    
+    background-color: #999;
+    overflow-x: hidden;
+    font-family: 'Noto Sans';
+    color: #eeeeee;
+    font-size: 16px;
+    background-image: url(../img/trottoir/asphalt.png);
+    background-position: center top;
+}
+
+#text {
+    width: 40em;
+    margin: 0 auto;
+    font-style: italic;
+    font-size: 20px;
+    text-align: center;
+    padding-bottom: 2em;
+}
+
+a {
+    color: #8de0d4;
+}
+a:hover {
+    color: #eeeeff;
+}
+
+p {
+    padding-top: 0.5em;
+}
+
+#trottoir-logo {
+    background-image: url(../img/trottoir/trottoir-logo.png);
+    width: 500px;
+    height: 324px;
+    
+    margin: 1.5em auto;
+    background-size: contain;
+    background-repeat:no-repeat;
+    background-position:center;
+}
+
+#video {
+    margin: 1.5em auto 1em;
+}
+
+#get-on-the-store {
+    background: url(../img/trottoir/store.svg);
+    background-size: 270px 80px;
+    width: 270px;
+    height: 80px;
+    margin: 1em auto 1em;
+}
+
+#white-stripe {
+    background-image: url(../img/trottoir/white-stripe.png);
+    width: 244px;
+    height: 15px;
+    margin: 1.5em auto 1em;
+}
+
+#sheep {
+    background-image: url(../img/trottoir/sheep.png);
+    width: 300px;
+    height: 345px;
+    margin: 1.5em auto 1em;
+}

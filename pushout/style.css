@@ -1,0 +1,281 @@
+*{
+    padding: 0;
+    margin: 0;   
+}
+
+body
+{    
+    background-color: #dfeaf6;  
+    overflow-x: hidden;
+    font-family: 'Noto Sans';
+    color: #674323;
+    font-size: 16px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+html, body {
+    max-width: 100%;
+    min-width: 800px;
+    height: 100%;
+}
+area {
+    background-color: #f00;
+}
+
+#sea {
+    position: absolute;
+    width: 100%;
+    min-height: 1500px;
+    height: 100%;
+    background-image: url(img/sea-background-square.png);
+    background-position: center;
+}
+
+#empty {
+    position: relative;
+    min-height: 1370px;
+}
+
+#label, #label-shadow {    
+    position: absolute;
+    top: -190px;
+    left: 50%;
+    margin-left: -400px;
+    width: 800px;
+    height: 521px;  
+    background-repeat: no-repeat;
+    
+}
+
+#label {
+    background-image: url(img/push-out-label.png);
+}
+
+#label-shadow {
+    background-image: url(img/push-out-label-shadow.png);
+}
+
+#rope, #rope-reflection {    
+    background-image: url(img/board-rope.png);
+    position: absolute;
+    left: 50%;
+    width: 50px;
+    height: 380px;
+    background-repeat: no-repeat;
+    top: 0px;
+}
+
+#rope {
+    margin-left: -320px;
+}
+
+#rope-reflection {
+    margin-left: 270px;
+   
+    -webkit-transform: scaleX(-1);
+	-moz-transform: scaleX(-1);
+	-o-transform: scaleX(-1);
+	-ms-transform: scaleX(-1);
+	transform: scaleX(-1);
+}
+
+#board, #board-shadow {    
+    position: absolute;
+    top: 300px;
+    left: 50%;
+    margin-left: -20.9375em;
+    width: 670px;
+    height: 420px;  
+    background-repeat: no-repeat;
+    color: #fff;
+}
+
+#board {
+    background-image: url(img/board.png);
+    padding-top: 50px;
+    text-align: center;
+    //font-size: 40px;
+}
+
+#board-shadow {
+    background-image: url(img/board-shadow.png);
+}
+
+#video {
+/*
+    margin-left: 52px;
+    margin-top: 50px;
+*/
+    margin-left: -5px;        
+}
+
+#giraffes, #giraffes-shadow{
+    position: absolute;
+    top: 690px;
+    left: 50%;
+    margin-left: -400px;
+    width: 800px;
+    height: 501px;  
+    background-repeat: no-repeat;    
+}
+#giraffes {
+    background-image: url(img/giraffes-app-store-link.png);
+}
+
+#giraffes>img {
+     width: 800px;
+    height: 501px;  
+}
+
+#giraffes-shadow {
+    background-image: url(img/giraffes-app-store-link-shadow.png);
+}
+
+#island {
+    position: absolute;
+    top: 1060px;
+    left: 0px;
+    width: 100%;
+    height: 240px;
+    background-image: url(img/island.png);
+    background-position: center bottom;
+    background-repeat: repeat-x; 
+}
+
+#social{
+    margin: 5em auto 0;
+    width: 22.5em;
+}
+
+#twitter>div, #facebook, #vk>div{
+    width: 120px;
+    height: 120px;
+    background-position: center center;
+    background-repeat: no-repeat;     
+    display: inline-block;
+    float:left; 
+}
+
+#twitter>div {
+    background-image: url(img/social/tweet-button.png);   
+}
+
+#facebook {
+    background-image: url(img/social/facebook-like-button.png);  
+    margin-right: 7px;
+}
+
+#vk>div {
+    background-image: url(img/social/vk-share-button.png);
+}
+
+#land {
+    position: absolute;
+    top: 1300px;
+    width: 100%;
+  
+    height: 66.0em;
+    background-image: url(img/island-background.png);
+    background-position: center top;
+}
+
+
+#text {
+    width: 40em;
+    margin: 0 auto;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 20px;
+    text-align: center;
+    -webkit-touch-callout: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+#text>img {    
+    margin: 0 auto;   
+}
+
+#facebook-like
+{
+    height: 68px;
+    width: 310px;
+    z-index: 1;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    overflow:hidden;
+    position: absolute;
+    text-align:center;
+    top: 1264px;
+    left: 50%;
+    margin-left: -155px;
+    visibility: hidden;
+}
+
+a {
+    color: #674323;
+}
+a:hover {
+    color: #00f;
+}
+
+.bottom-links {
+    width: 160px;
+    text-align: center;
+    float: left;
+    height: 2em;
+}
+
+#you-tube-link>a:hover {
+     color: #cd201f;
+}
+
+#follow-us-link>a:hover {
+     color: #3cf;
+}
+
+#facebook-link>a:hover {
+     color: #3b5998;
+}
+
+#vk-link>a:hover {
+     color: #36638e;
+}
+
+#bottom-links-group {
+    margin-top: 2em;
+    height: 2em;
+    padding-left: 80px;
+}
+
+#island-rocks {
+    background-image: url(img/island-rocks.png);
+    width: 226px;
+    height: 60px;
+    margin: 0 auto 2em;
+}
+
+#trottoir-link {
+    margin-top: 1em;
+}
+
+#trottoir-link>a {
+    color: #080;
+}
+#trottoir-link>a:hover {
+    color: #faa;
+}
+
+#rating-quote {
+    margin-top: 1em;
+    font-weight: lighter;
+    font-style: italic;
+}

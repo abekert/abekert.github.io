@@ -1,0 +1,57 @@
+*{
+    padding: 0;
+    margin: 0;   
+}
+
+html, body {
+    max-width: 100%;
+    min-width: 800px;
+    height: 100%;
+}
+
+body
+{    
+    background-color: #f9f399;  
+    overflow-x: hidden;
+    font-family: 'Noto Sans';
+    color: #674323;
+    font-size: 16px;
+    background-image: url(../img/island-background.png);
+    background-position: center bottom;
+}
+
+#text {
+    width: 40em;
+    margin: 0 auto;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 20px;
+    text-align: center;
+    padding-bottom: 2em;
+}
+
+#text>img {    
+    margin: 0 auto;   
+}
+
+a {
+    color: #674323;
+}
+a:hover {
+    color: #00f;
+}
+
+h2 {
+    padding-top: 1em;
+}
+
+h3 {
+    padding-bottom: 0.5em;
+}
+
+#island-rocks {
+    background-image: url(../img/island-rocks.png);
+    width: 226px;
+    height: 60px;
+    margin: 1.5em auto 1em;
+}
