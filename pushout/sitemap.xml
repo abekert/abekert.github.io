@@ -3,105 +3,105 @@
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" 
   xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url> 
-    <loc>http://pushout.info/</loc> 
-    <lastmod>2014-07-30</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://win2l.github.io/pushout/</loc> 
+    <lastmod>2016-11-20</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>1</priority>
     <image:image>
-       <image:loc>http://pushout.info/apple-touch-icon.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/apple-touch-icon.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/favicon.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/favicon.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/board-rope.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/board-rope.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/board-shadow.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/board-shadow.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/board.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/board.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/giraffes-app-store-link-shadow.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/giraffes-app-store-link-shadow.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/giraffes-app-store-link.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/giraffes-app-store-link.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/island-background.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/island-background.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/island-rocks.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/island-rocks.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/island.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/island.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/pixel.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/pixel.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/push-out-label-shadow.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/push-out-label-shadow.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/push-out-label.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/push-out-label.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/sea-background-square.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/sea-background-square.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/facebook-like-button.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/facebook-like-button.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/tweet-button.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/tweet-button.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/vk-share-button.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/vk-share-button.png</image:loc> 
     </image:image>
   </url>
   <url> 
-    <loc>http://pushout.info/html/contacts.html</loc> 
+    <loc>https://win2l.github.io/pushout/html/contacts.html</loc> 
     <lastmod>2014-07-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
-       <image:loc>http://pushout.info/img/island-rocks.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/island-rocks.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/island-background.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/island-background.png</image:loc> 
     </image:image> 
   </url>
   <url> 
-    <loc>http://pushout.info/html/privacy.html</loc> 
+    <loc>https://win2l.github.io/pushout/html/privacy.html</loc> 
     <lastmod>2014-07-29</lastmod>
     <changefreq>never</changefreq>
     <priority>0.5</priority>
     <image:image>
-       <image:loc>http://pushout.info/img/island-rocks.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/island-rocks.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/island-background.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/island-background.png</image:loc> 
     </image:image> 
   </url>
   <url> 
-    <loc>http://pushout.info/html/story.html</loc> 
+    <loc>https://win2l.github.io/pushout/html/story.html</loc> 
     <lastmod>2014-07-30</lastmod>
     <changefreq>never</changefreq>
     <priority>0.9</priority>
     <image:image>
-       <image:loc>http://pushout.info/img/island-rocks.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/island-rocks.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/island-background.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/island-background.png</image:loc> 
     </image:image>
     <image:image>
-       <image:loc>http://pushout.info/img/alexander-bekert-photo.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/alexander-bekert-photo.png</image:loc> 
     </image:image> 
     <image:image>
-       <image:loc>http://pushout.info/img/push-out-first-prototype.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/push-out-first-prototype.png</image:loc> 
     </image:image> 
     <image:image>
-       <image:loc>http://pushout.info/img/sketches.png</image:loc> 
+       <image:loc>https://win2l.github.io/pushout/img/sketches.png</image:loc> 
     </image:image> 
   </url>
 
