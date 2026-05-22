@@ -131,6 +131,10 @@ h3 {
   font-weight: 700;
 }
 
+.headline-break {
+  display: block;
+}
+
 .company-mark {
   display: inline-flex;
   align-items: center;

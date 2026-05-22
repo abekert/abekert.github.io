@@ -2,22 +2,20 @@
   <title id="title">Alexander Bekert</title>
   <desc id="desc">Senior Software Engineer focused on mobile product and platform engineering for Apple platforms.</desc>
   <defs>
-    <clipPath id="portraitClip">
-      <circle cx="964" cy="276" r="98"/>
-    </clipPath>
+    <mask id="portraitMask">
+      <rect width="1200" height="630" fill="black"/>
+      <circle cx="960" cy="276" r="98" fill="white"/>
+    </mask>
   </defs>
   <rect width="1200" height="630" fill="#f7f8fb"/>
   <rect x="68" y="68" width="1064" height="494" rx="32" fill="#ffffff" stroke="#dbe3ea"/>
-  <text x="104" y="198" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="18" font-weight="800" letter-spacing="2" fill="#0057c2">SENIOR SOFTWARE ENGINEER AT</text>
-  <image href="meta-logo.svg" x="430" y="172" width="32" height="22" preserveAspectRatio="xMidYMid meet"/>
-  <text x="472" y="198" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="18" font-weight="800" letter-spacing="2" fill="#0057c2">META</text>
+  <text x="104" y="198" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="18" font-weight="800" letter-spacing="2" fill="#0057c2">SENIOR SOFTWARE ENGINEER AT META</text>
   <text x="104" y="302" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="88" font-weight="850" fill="#17202a">Alexander Bekert</text>
-  <text x="104" y="374" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="38" font-weight="750" fill="#26333f">Mobile Product &amp; Platform Engineering</text>
-  <text x="104" y="426" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="38" font-weight="750" fill="#26333f">Apple Platforms</text>
-  <text x="104" y="498" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" fill="#5c6670">iOS · Apple Platforms · Mobile Product Engineering · Developer Tooling</text>
-  <circle cx="964" cy="276" r="98" fill="#e8f1ff"/>
-  <image href="alexander-bekert.jpg" x="866" y="178" width="196" height="196" preserveAspectRatio="xMidYMid slice" clip-path="url(#portraitClip)"/>
-  <circle cx="964" cy="276" r="98" fill="none" stroke="#dbe3ea"/>
-  <rect x="820" y="432" width="292" height="54" rx="27" fill="#0064e0"/>
-  <text x="966" y="467" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="750" fill="#ffffff">abekert.github.io</text>
+  <text x="104" y="374" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="31" font-weight="750" fill="#26333f">Mobile Product Engineering · iOS &amp; Apple Platforms</text>
+  <text x="104" y="430" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="26" font-weight="650" fill="#5c6670">London, UK</text>
+  <circle cx="960" cy="276" r="98" fill="#e8f1ff"/>
+  <image href="alexander-bekert.jpg" x="808" y="150" width="316" height="316" preserveAspectRatio="xMidYMid slice" mask="url(#portraitMask)"/>
+  <circle cx="960" cy="276" r="98" fill="none" stroke="#dbe3ea"/>
+  <rect x="852" y="432" width="216" height="54" rx="27" fill="#0064e0"/>
+  <text x="960" y="467" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="20" font-weight="750" fill="#ffffff">abekert.github.io</text>
 </svg>
