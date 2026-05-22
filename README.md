@@ -34,6 +34,31 @@ The root favicon lives in `favicon.svg`, with install metadata in `site.webmanif
 
 The legacy Push Out page remains available at `/pushout/`.
 
+## Maintenance notes for AI/editor passes
+
+Keep the homepage and social preview in sync. When updating the hero/header
+positioning in `index.html`, also review and update `images/og-image.svg`:
+
+- name/title
+- current company or role wording
+- headline/subheader
+- location
+- profile image treatment
+
+After editing `images/og-image.svg`, regenerate `images/og-image.png`. The
+homepage metadata points social platforms at the PNG, while the SVG is the
+maintainable source artwork.
+
+Current OG portrait settings:
+
+- mask: `circle cx="960" cy="276" r="98"`
+- photo: `x="808" y="150" width="316" height="316"`
+- `preserveAspectRatio="xMidYMid slice"`
+- the mask is applied directly to the photo with `mask="url(#portraitMask)"`
+
+These settings intentionally zoom the homepage portrait around the face while
+keeping the full face/head visible inside the circular frame.
+
 ## Deployment
 
 GitHub Pages serves this repository directly. Push changes to the default branch:
