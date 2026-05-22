@@ -29,6 +29,8 @@ Homepage assets live in `images/`:
 - `meta-logo.svg`
 - `og-image.svg`
 
+The root favicon lives in `favicon.svg`, with install metadata in `site.webmanifest`.
+
 The legacy Push Out page remains available at `/pushout/`.
 
 ## Deployment
@@ -36,7 +38,7 @@ The legacy Push Out page remains available at `/pushout/`.
 GitHub Pages serves this repository directly. Push changes to the default branch:
 
 ```sh
-git add .gitignore index.html assets/css/main.css README.md images/alexander-bekert.jpg images/meta-logo.svg images/og-image.svg
+git add .gitignore index.html assets/css/main.css README.md favicon.svg site.webmanifest images/alexander-bekert.jpg images/meta-logo.svg images/og-image.svg
 git commit -m "Refresh personal homepage"
 git push origin master
 ```

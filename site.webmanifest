@@ -1,0 +1,15 @@
+{
+  "name": "Alexander Bekert",
+  "short_name": "AB",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#f7f8fb",
+  "background_color": "#f7f8fb",
+  "display": "standalone"
+}
