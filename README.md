@@ -32,7 +32,9 @@ Homepage assets live in `images/`:
 
 The root favicon lives in `favicon.svg`, with install metadata in `site.webmanifest`.
 
-The legacy Push Out page remains available at `/pushout/`.
+The legacy Push Out page remains available at `/pushout/`. Its page structure,
+visual layering, parallax behavior, and rewrite pitfalls are documented in
+`pushout/README.md`.
 
 ## Maintenance notes for AI/editor passes
 
