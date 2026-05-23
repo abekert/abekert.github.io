@@ -183,11 +183,9 @@ a:focus-visible {
     z-index: 4;
     min-height: 240px;
     margin-top: -156px;
-    padding: 150px 18px 14px;
     background: url("img/island.png") center top repeat-x;
 }
 
-.social-links,
 .page-links,
 .network-links {
     display: flex;
@@ -196,35 +194,10 @@ a:focus-visible {
     gap: 14px;
 }
 
-.social-links {
-    transform: translateY(-22px);
-}
-
-.social-link {
-    display: grid;
-    width: 120px;
-    height: 120px;
-    overflow: hidden;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    text-indent: 130%;
-    white-space: nowrap;
-}
-
-.social-link--twitter {
-    background-image: url("img/social/tweet-button.png");
-}
-
-.social-link--facebook {
-    background-image: url("img/social/facebook-like-button.png");
-}
-
-.social-link--vk {
-    background-image: url("img/social/vk-share-button.png");
-}
-
 .content {
+    position: relative;
+    z-index: 5;
+    margin-top: -144px;
     padding: clamp(8px, 2.5vw, 28px) clamp(18px, 4vw, 56px) 56px;
     background: #f9f399 url("img/island-background.png") center top repeat;
 }
@@ -273,6 +246,40 @@ a:focus-visible {
     gap: 16px;
 }
 
+.highlights,
+.archive-note {
+    margin-top: 30px;
+}
+
+.highlights h2,
+.archive-note h2 {
+    margin: 0 0 12px;
+    font-size: clamp(1.25rem, 3vw, 1.65rem);
+    line-height: 1.18;
+}
+
+.highlights ul {
+    display: grid;
+    gap: 8px;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+}
+
+.highlights li::before {
+    content: "* ";
+}
+
+.archive-note p {
+    max-width: 620px;
+    margin: 0 auto;
+}
+
+.archive-note p + p {
+    margin-top: 8px;
+}
+
 .page-links {
     margin-top: 30px;
     font-size: 1.05rem;
@@ -313,18 +320,8 @@ a:focus-visible {
 
     .island-band {
         margin-top: -146px;
-        padding-top: 140px;
-        padding-bottom: 8px;
     }
 
-    .social-link {
-        width: 88px;
-        height: 88px;
-    }
-
-    .social-links {
-        transform: translateY(-16px);
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {

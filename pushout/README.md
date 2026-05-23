@@ -4,10 +4,24 @@ This folder contains the legacy static website for **Push Out**, an indie iOS ga
 
 These notes are written for future humans and AI coding agents who may need to maintain or rewrite the site in a modern stack.
 
+## Product Intent
+
+Treat this site as a preserved 2014 indie iOS project, not as a modern portfolio case study. The goal is a careful restoration:
+
+- Keep the handmade, nostalgic, slightly odd island-game feeling.
+- Preserve the original artwork, characters, video board, giraffe App Store artwork, quotes, and textured backgrounds.
+- Improve broken navigation, weak English copy, privacy-sensitive contact details, and archive context.
+- Do not make the page sterile, corporate, card-heavy, or visually unrelated to the original game site.
+
+The first-time visitor should understand two things quickly:
+
+1. Push Out was a real native iOS game built around local multiplayer on one shared screen.
+2. The site is intentionally preserved as an archive of an indie project from 2014.
+
 ## Pages
 
 - `index.html` is the main Push Out landing page.
-  - Hero sea area with the Push Out logo, hanging video board, App Store giraffe artwork, social buttons, island transition, reviews, product copy, and navigation.
+  - Hero sea area with the Push Out logo, hanging video board, App Store giraffe artwork, island transition, reviews, product copy, archive note, highlights, and navigation.
   - Styling lives in `style.css`.
   - Parallax behavior lives in `js/parallax.js`.
 
@@ -16,8 +30,9 @@ These notes are written for future humans and AI coding agents who may need to m
   - Includes publication metadata, a small portrait figure, prototype/sketch artwork, and YouTube videos.
   - Styling lives in `css/story-style.css`.
 
-- `html/contacts.html` and `html/privacy.html` are secondary text pages.
+- `html/contacts.html` is the Credits & Contact page. `html/privacy.html` is the archived privacy policy.
   - Styling lives in `css/secondary-style.css`.
+  - Credits should list team roles, not expose old personal contact/social links for every contributor.
 
 - `html/trottoir.html` is a small cross-link page for the Trottoir game.
   - Styling lives in `css/trottoir-style.css`.
@@ -30,7 +45,7 @@ These notes are written for future humans and AI coding agents who may need to m
 - `img/push-out-label.png` - main Push Out logo artwork.
 - `img/board.png` - wooden video board frame.
 - `img/giraffes-app-store-link.png` - App Store sign with giraffes.
-- `img/social/*.png` - hand-drawn social buttons.
+- `img/social/*.png` - archived hand-drawn social button assets. They are not currently shown on the main page.
 - `img/push-out-first-prototype.png`, `img/sketches.png`, `img/alexander-bekert-photo.png` - story page media.
 
 ## Main Page Layering
@@ -49,6 +64,16 @@ Layer order in the hero:
 8. Island-background content section.
 
 The island strip must use `img/island.png` with its transparent top. It should overlap the giraffe/App Store art enough that the giraffes do not appear to float above the ground. The transparent part should reveal the sea/giraffe layer below, not a solid color fill.
+
+Current spacing model:
+
+- `.island-band` renders the full `img/island.png` strip at `240px` high.
+- `.island-band` overlaps the hero with a negative top margin so the giraffes peek from behind the grass shoreline.
+- `.content` is pulled up with a negative top margin so the first text starts closer to the shoreline without cutting off `island.png`.
+- Do not reduce `.island-band` below the image height. That crops the PNG in the transparent/sea part and creates a visible blue gap between the grass edge and yellow island texture.
+- Do not put text, captions, notices, buttons, or other content between `.app-store-link` and `.island-band`. Text in that zone will appear inside the sea/shore transition and break the illusion that the giraffes are emerging from the island.
+
+If you add notes about App Store availability or archive status, put them in the content area below the reviews/copy, not in the hero transition.
 
 ## Parallax
 
@@ -108,20 +133,38 @@ The story content starts after the shoreline, but should not have excessive empt
 
 Internal links should be relative so they work from `file://`, localhost, and GitHub Pages:
 
-- From pages inside `html/`, use `../index.html` or `../` to go back to Push Out.
+- From pages inside `html/`, use `../` to go back to Push Out.
 - From pages inside `html/`, use `../../` to return to the main personal site.
 - Avoid hard-coded old `win2l.github.io` links in Push Out HTML.
+- Keep `html/trottoir.html` reachable from the main page unless the page is intentionally removed. It is a small related-game cross-link and should be verified in browser/CI after navigation changes.
+- Keep external social links minimal. Old Twitter/Facebook/VK links age the page and are not part of the main archival story unless intentionally moved into a clearly labeled archive area.
+
+Expected main navigation:
+
+- Game story
+- Credits & Contact
+- Privacy policy
+- Trottoir
+
+Expected footer/network links:
+
+- YouTube channel, if still useful/reachable.
+- Alexander Bekert/main site.
 
 ## Common Pitfalls
 
 - Do not replace the island transition with a solid background color. It breaks the handmade sea-to-island edge.
 - Do not put the island sea texture as a separate opaque layer over the giraffes. The transparent top of `island.png` should allow the giraffe/sea layer to show through.
+- Do not crop `img/island.png` by making `.island-band` too short. Use negative margins on `.content` for vertical tightening instead.
+- Do not place explanatory text directly under the App Store giraffe artwork. It will sit in the sea/shore overlap and make the giraffes look like they are hanging.
 - Do not make the rope layer a repeated sprite. The old `board-rope.png` is a small artifact-prone sprite; the current ropes are CSS-drawn lines with separate blurred CSS shadows.
 - Do not make rope shadows part of the rope line itself. Ropes and rope shadows need independent parallax vectors.
 - Do not use viewport-only heights for board ropes. Use the measured board position from `parallax.js`.
 - Do not remove `overflow: hidden` from `.hero` without checking mobile horizontal overflow from parallax and rotated ropes.
 - Do not rely on `file://` to validate YouTube iframes. Use a local server.
 - Do not add card-like boxes around reviews/story text unless intentionally changing the handmade page style. The design should feel like text printed on the island texture, not a corporate case study.
+- Do not expose old personal emails or social links for every contributor unless there is a clear current reason and consent.
+- Do not update the privacy policy date to the current year unless the policy is actually rewritten for a current app release. This page is an archive of the 2014 release.
 
 ## Future Rewrite Guidance
 
@@ -133,6 +176,8 @@ If this site is rewritten in React, Astro, Svelte, or another modern framework, 
 - Treat the board/video as one framed media component.
 - Treat the island transition as an overlapping transparent PNG layer.
 - Keep the story page nostalgic and handmade, not corporate.
+- Keep archive context visible on the main page.
+- Keep credits and privacy pages simple, text-first, and consistent with the island texture.
 
 Before finishing any future rewrite, verify at least:
 
@@ -142,4 +187,10 @@ Before finishing any future rewrite, verify at least:
 - No horizontal overflow.
 - Ropes reach under the board top and do not leak below the board.
 - Giraffes sit behind/into the island shoreline and do not float.
+- No blue sea gap appears between the grass shoreline and yellow island content texture.
+- Main-page text starts close enough to the shoreline that the top of the island does not feel empty, but not so high that it invades the giraffe/sea transition.
+- Main page includes `Game highlights` and `Archived indie iOS project`.
+- Credits page exposes only the intended current contact email.
+- `Back to Push Out` links return to `/pushout/` or `../` correctly.
+- `html/trottoir.html` returns `200 OK` from the local server and opens from the main page.
 - YouTube embeds work from an HTTP origin.

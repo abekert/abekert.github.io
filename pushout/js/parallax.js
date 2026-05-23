@@ -107,7 +107,7 @@
             return;
         }
 
-        setTarget(event.gamma * 0.85, event.beta * 0.45);
+        setTarget(event.gamma * -0.85, event.beta * -0.45);
     }
 
     function updateRopeHeight() {
