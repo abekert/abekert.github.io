@@ -10,6 +10,7 @@
     var targetY = 0;
     var frame = null;
     var scrollFrame = null;
+    var orientationPermissionRequested = false;
     var heroContent = document.querySelector(".hero__content");
     var videoBoard = document.querySelector(".video-board");
 
@@ -54,14 +55,51 @@
     }
 
     function handlePointerMove(event) {
+        if (event.pointerType === "touch") {
+            return;
+        }
+
         var centerX = window.innerWidth / 2;
         var centerY = window.innerHeight / 2;
 
         setTarget((event.clientX - centerX) / centerX * 30, (event.clientY - centerY) / centerY * 24);
     }
 
+    function handleTouchMove(event) {
+        if (!event.touches || event.touches.length === 0) {
+            return;
+        }
+
+        var touch = event.touches[0];
+        var centerX = window.innerWidth / 2;
+        var centerY = window.innerHeight / 2;
+
+        setTarget((touch.clientX - centerX) / centerX * 30, (touch.clientY - centerY) / centerY * 24);
+    }
+
     function handlePointerLeave() {
         setTarget(0, 0);
+    }
+
+    function requestOrientationPermission() {
+        if (orientationPermissionRequested) {
+            return;
+        }
+
+        orientationPermissionRequested = true;
+
+        if (
+            typeof window.DeviceOrientationEvent !== "undefined" &&
+            typeof window.DeviceOrientationEvent.requestPermission === "function"
+        ) {
+            var permissionRequest = window.DeviceOrientationEvent.requestPermission();
+
+            if (permissionRequest && typeof permissionRequest.catch === "function") {
+                permissionRequest.catch(function () {
+                    orientationPermissionRequested = false;
+                });
+            }
+        }
     }
 
     function handleDeviceOrientation(event) {
@@ -112,5 +150,11 @@
     window.addEventListener("scroll", requestScrollParallax, { passive: true });
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("pointerleave", handlePointerLeave, { passive: true });
+    window.addEventListener("pointerdown", requestOrientationPermission, { passive: true });
+    window.addEventListener("touchstart", requestOrientationPermission, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", handlePointerLeave, { passive: true });
+    window.addEventListener("touchcancel", handlePointerLeave, { passive: true });
+    window.addEventListener("click", requestOrientationPermission, { passive: true });
     window.addEventListener("deviceorientation", handleDeviceOrientation, { passive: true });
 }());
