@@ -9,6 +9,7 @@
     var targetX = 0;
     var targetY = 0;
     var frame = null;
+    var scrollFrame = null;
     var heroContent = document.querySelector(".hero__content");
     var videoBoard = document.querySelector(".video-board");
 
@@ -84,9 +85,31 @@
         hero.style.setProperty("--board-rope-height", ropeHeight.toFixed(0) + "px");
     }
 
+    function updateScrollParallax() {
+        scrollFrame = null;
+
+        var heroRect = hero.getBoundingClientRect();
+        var scrollInsideHero = clamp(-heroRect.top, 0, heroRect.height);
+
+        hero.style.setProperty("--scroll-bg-y", (scrollInsideHero * 0.12).toFixed(2) + "px");
+        hero.style.setProperty("--scroll-logo-y", (scrollInsideHero * 0.24).toFixed(2) + "px");
+        hero.style.setProperty("--scroll-board-y", (scrollInsideHero * 0.10).toFixed(2) + "px");
+    }
+
+    function requestScrollParallax() {
+        if (scrollFrame === null) {
+            scrollFrame = window.requestAnimationFrame(updateScrollParallax);
+        }
+    }
+
     updateRopeHeight();
+    updateScrollParallax();
     window.addEventListener("load", updateRopeHeight);
-    window.addEventListener("resize", updateRopeHeight, { passive: true });
+    window.addEventListener("resize", function () {
+        updateRopeHeight();
+        requestScrollParallax();
+    }, { passive: true });
+    window.addEventListener("scroll", requestScrollParallax, { passive: true });
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("pointerleave", handlePointerLeave, { passive: true });
     window.addEventListener("deviceorientation", handleDeviceOrientation, { passive: true });

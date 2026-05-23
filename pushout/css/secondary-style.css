@@ -11,7 +11,23 @@ body {
     margin: 0;
     overflow-x: hidden;
     color: #674323;
-    background: #f9f399 url("../img/island-background.png") center bottom repeat-x;
+    background-color: #f9f399;
+    background-image:
+        url("../img/island.png"),
+        url("../img/sea-background-square.png"),
+        url("../img/island-background.png");
+    background-position:
+        center top,
+        center top,
+        center 240px;
+    background-repeat:
+        repeat-x,
+        repeat-x,
+        repeat;
+    background-size:
+        auto,
+        auto 240px,
+        auto;
     font-family: "Noto Sans", Arial, sans-serif;
     font-size: 18px;
     line-height: 1.55;
@@ -20,7 +36,7 @@ body {
 #text {
     width: min(760px, calc(100% - 36px));
     margin: 0 auto;
-    padding: clamp(28px, 7vw, 64px) 0 56px;
+    padding: clamp(92px, 16vw, 150px) 0 56px;
     text-align: center;
     font-weight: 700;
     font-style: italic;

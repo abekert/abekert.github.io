@@ -54,6 +54,9 @@ a:focus-visible {
     --parallax-fg-y: 0px;
     --parallax-shadow-x: 18px;
     --parallax-shadow-y: 20px;
+    --scroll-bg-y: 0px;
+    --scroll-logo-y: 0px;
+    --scroll-board-y: 0px;
     --board-rope-height: 560px;
 }
 
@@ -62,7 +65,7 @@ a:focus-visible {
     inset: 0;
     z-index: -1;
     background: url("img/sea-background-square.png") center top repeat;
-    transform: translate3d(var(--parallax-bg-x), var(--parallax-bg-y), 0);
+    transform: translate3d(var(--parallax-bg-x), calc(var(--parallax-bg-y) + var(--scroll-bg-y)), 0);
     will-change: transform;
 }
 
@@ -87,11 +90,11 @@ a:focus-visible {
 }
 
 .board-rope-shadows {
-    transform: translate3d(calc(-50% + var(--parallax-bg-x)), var(--parallax-bg-y), 0);
+    transform: translate3d(calc(-50% + var(--parallax-bg-x)), calc(var(--parallax-bg-y) + var(--scroll-board-y)), 0);
 }
 
 .board-ropes {
-    transform: translate3d(calc(-50% + var(--parallax-fg-x)), var(--parallax-fg-y), 0);
+    transform: translate3d(calc(-50% + var(--parallax-fg-x)), calc(var(--parallax-fg-y) + var(--scroll-board-y)), 0);
 }
 
 .board-rope-shadows::before,
@@ -135,7 +138,7 @@ a:focus-visible {
     width: min(800px, 110vw);
     margin: clamp(-80px, -9vw, -16px) auto clamp(16px, 3vw, 32px);
     filter: drop-shadow(var(--parallax-shadow-x) var(--parallax-shadow-y) 12px rgba(55, 48, 42, 0.36));
-    transform: translate3d(var(--parallax-fg-x), var(--parallax-fg-y), 0);
+    transform: translate3d(var(--parallax-fg-x), calc(var(--parallax-fg-y) + var(--scroll-logo-y)), 0);
     will-change: transform;
 }
 
@@ -147,7 +150,7 @@ a:focus-visible {
     margin: 0 auto;
     background: url("img/board.png") center / 100% 100% no-repeat;
     filter: drop-shadow(var(--parallax-shadow-x) calc(var(--parallax-shadow-y) + 2px) 12px rgba(55, 48, 42, 0.28));
-    transform: translate3d(var(--parallax-fg-x), var(--parallax-fg-y), 0);
+    transform: translate3d(var(--parallax-fg-x), calc(var(--parallax-fg-y) + var(--scroll-board-y)), 0);
     will-change: transform;
 }
 
