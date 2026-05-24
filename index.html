@@ -239,5 +239,75 @@
         </div>
       </section>
     </main>
+    <script>
+      (function () {
+        var themeColor = document.querySelector('meta[name="theme-color"]');
+        var activeColor = null;
+        var frame = null;
+
+        if (!themeColor) {
+          return;
+        }
+
+        function rgbToHex(value) {
+          var match = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([.\d]+))?\)$/);
+
+          if (!match || match[4] === "0") {
+            return null;
+          }
+
+          return "#" + [match[1], match[2], match[3]].map(function (channel) {
+            return Number(channel).toString(16).padStart(2, "0");
+          }).join("");
+        }
+
+        function readBackgroundColor(element) {
+          var current = element;
+
+          while (current && current !== document.documentElement) {
+            var color = rgbToHex(window.getComputedStyle(current).backgroundColor);
+
+            if (color) {
+              return color;
+            }
+
+            current = current.parentElement;
+          }
+
+          return rgbToHex(window.getComputedStyle(document.body).backgroundColor) || "#f7f8fb";
+        }
+
+        function setThemeColor(color) {
+          if (activeColor === color) {
+            return;
+          }
+
+          themeColor.setAttribute("content", color);
+          document.documentElement.style.backgroundColor = color;
+          activeColor = color;
+        }
+
+        function updateThemeColor() {
+          frame = null;
+
+          var sampleX = Math.round(window.innerWidth / 2);
+          var sampleY = Math.min(96, Math.round(window.innerHeight * 0.12));
+          var element = document.elementFromPoint(sampleX, sampleY) || document.body;
+
+          setThemeColor(readBackgroundColor(element));
+        }
+
+        function requestThemeColorUpdate() {
+          if (frame === null) {
+            frame = window.requestAnimationFrame(updateThemeColor);
+          }
+        }
+
+        updateThemeColor();
+        window.addEventListener("load", updateThemeColor);
+        window.addEventListener("resize", requestThemeColorUpdate, { passive: true });
+        window.addEventListener("scroll", requestThemeColorUpdate, { passive: true });
+      }());
+    </script>
   </body>
 </html>

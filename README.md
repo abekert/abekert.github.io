@@ -23,6 +23,17 @@ Homepage content lives in `index.html`, with clear sections for:
 
 Styles live in `assets/css/main.css`.
 
+The homepage has a small inline `theme-color` updater in `index.html`. It samples
+the actual background near the top of the viewport and keeps Safari/mobile
+browser chrome aligned with the visible page surface. The homepage is mostly
+`#f7f8fb`, so the color often stays the same while scrolling; keep the dynamic
+logic anyway so future section/background changes do not create a browser bar
+that cuts visually across the content.
+
+The root `html` element also has `background: var(--bg)` so Safari/iOS
+rubber-band overscroll uses the same page background instead of falling back to
+browser white.
+
 Homepage assets live in `images/`:
 
 - `alexander-bekert.jpg`

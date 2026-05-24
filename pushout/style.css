@@ -4,6 +4,12 @@
 
 html {
     min-height: 100%;
+    --overscroll-background: #dfeaf6 url("img/sea-background-square.png") center top repeat;
+    background: var(--overscroll-background);
+}
+
+html[data-overscroll-zone="island"] {
+    --overscroll-background: #f9f399 url("img/island-background.png") center top repeat;
 }
 
 body {
@@ -11,7 +17,7 @@ body {
     margin: 0;
     overflow-x: hidden;
     color: #674323;
-    background: #dfeaf6;
+    background: var(--overscroll-background);
     font-family: "Noto Sans", Arial, sans-serif;
     font-size: 18px;
     line-height: 1.55;

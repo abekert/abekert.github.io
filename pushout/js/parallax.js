@@ -1,5 +1,60 @@
 (function () {
     var hero = document.querySelector(".hero");
+    var themeColor = document.querySelector('meta[name="theme-color"]');
+    var islandBand = document.querySelector(".island-band");
+    var seaThemeColor = "#dfeaf6";
+    var islandThemeColor = "#f9f399";
+    var activeThemeColor = null;
+    var themeFrame = null;
+    var activeOverscrollZone = null;
+
+    function setThemeColor(color) {
+        if (!themeColor || activeThemeColor === color) {
+            return;
+        }
+
+        themeColor.setAttribute("content", color);
+        activeThemeColor = color;
+    }
+
+    function setOverscrollZone(zone) {
+        if (activeOverscrollZone === zone) {
+            return;
+        }
+
+        document.documentElement.setAttribute("data-overscroll-zone", zone);
+        activeOverscrollZone = zone;
+    }
+
+    function updateThemeColor() {
+        themeFrame = null;
+
+        if (!islandBand) {
+            setThemeColor(seaThemeColor);
+            setOverscrollZone("sea");
+            return;
+        }
+
+        var scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
+        var maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        var islandTop = islandBand.getBoundingClientRect().top;
+        var switchOffset = Math.min(180, window.innerHeight * 0.24);
+
+        setThemeColor(islandTop <= -switchOffset ? islandThemeColor : seaThemeColor);
+        setOverscrollZone(maxScroll - scrollTop <= 2 ? "island" : "sea");
+    }
+
+    function requestThemeColorUpdate() {
+        if (themeFrame === null) {
+            themeFrame = window.requestAnimationFrame(updateThemeColor);
+        }
+    }
+
+    updateThemeColor();
+    window.addEventListener("load", updateThemeColor);
+    window.addEventListener("resize", requestThemeColorUpdate, { passive: true });
+    window.addEventListener("scroll", requestThemeColorUpdate, { passive: true });
+
     if (!hero || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         return;
     }

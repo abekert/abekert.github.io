@@ -75,6 +75,22 @@ Current spacing model:
 
 If you add notes about App Store availability or archive status, put them in the content area below the reviews/copy, not in the hero transition.
 
+## Browser Theme Color
+
+The main page sets `<meta name="theme-color" content="#dfeaf6">` so Safari and mobile browsers use the sea-blue color when the page is at the top. `js/parallax.js` updates that meta tag while scrolling:
+
+- Sea/hero zone: `#dfeaf6`.
+- Island/content zone, after scrolling well into the island: `#f9f399`.
+
+Keep this behavior dynamic. A static yellow browser theme makes the top browser panel look wrong while the visitor is still in the blue sea hero. Do not switch to yellow immediately when `.island-band` touches the top of the viewport; Safari can show a thin yellow browser-chrome edge over the beginning of the content. Keep a small scroll offset before switching.
+
+The same script also updates `html[data-overscroll-zone]` so Safari/iOS rubber-band overscroll uses the right page texture:
+
+- Top overscroll: `img/sea-background-square.png`.
+- Bottom overscroll: `img/island-background.png`.
+
+This is intentionally separate from the visible document layers. The `.site-shell`, `.hero`, `.island-band`, and `.content` elements still own the normal in-page artwork; the root background is for the out-of-range overscroll area.
+
 ## Parallax
 
 `js/parallax.js` drives the parallax effect with CSS custom properties on `.hero`.
@@ -190,6 +206,8 @@ Before finishing any future rewrite, verify at least:
 - No blue sea gap appears between the grass shoreline and yellow island content texture.
 - Main-page text starts close enough to the shoreline that the top of the island does not feel empty, but not so high that it invades the giraffe/sea transition.
 - Main page includes `Game highlights` and `Archived indie iOS project`.
+- Browser `theme-color` is blue at the top of the hero and yellow only after scrolling well into the island/content area.
+- Safari/iOS overscroll above the page shows the sea texture, and overscroll below the page shows the island texture.
 - Credits page exposes only the intended current contact email.
 - `Back to Push Out` links return to `/pushout/` or `../` correctly.
 - `html/trottoir.html` returns `200 OK` from the local server and opens from the main page.
