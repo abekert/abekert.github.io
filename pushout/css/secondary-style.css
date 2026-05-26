@@ -4,6 +4,14 @@
 
 html {
     min-height: 100%;
+    --page-chrome-color: #dfeaf6;
+    --overscroll-background: #dfeaf6 url("../img/sea-background-square.png") center top repeat;
+    background: var(--overscroll-background);
+}
+
+html[data-overscroll-zone="island"] {
+    --page-chrome-color: #f9f399;
+    --overscroll-background: #f9f399 url("../img/island-background.png") center top repeat;
 }
 
 body {
@@ -11,7 +19,7 @@ body {
     margin: 0;
     overflow-x: hidden;
     color: #674323;
-    background-color: #f9f399;
+    background-color: var(--page-chrome-color);
     background-image:
         url("../img/island.png"),
         url("../img/sea-background-square.png"),

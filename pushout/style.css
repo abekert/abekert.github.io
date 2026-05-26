@@ -42,7 +42,7 @@ a:focus-visible {
 
 .site-shell {
     min-height: 100vh;
-    background: #f9f399 url("img/island-background.png") center bottom repeat-x;
+    background: #f9f399 url("img/island-background.png") center top repeat;
 }
 
 .hero {
@@ -85,11 +85,11 @@ a:focus-visible {
 .board-rope-shadows,
 .board-ropes {
     position: absolute;
-    top: 0;
+    top: -96px;
     left: 50%;
     z-index: 0;
     width: min(670px, 100%);
-    height: var(--board-rope-height);
+    height: calc(var(--board-rope-height) + 96px);
     pointer-events: none;
     transform: translate3d(calc(-50% + var(--parallax-fg-x)), var(--parallax-fg-y), 0);
     will-change: transform;
@@ -204,8 +204,7 @@ a:focus-visible {
     position: relative;
     z-index: 5;
     margin-top: -144px;
-    padding: clamp(8px, 2.5vw, 28px) clamp(18px, 4vw, 56px) 56px;
-    background: #f9f399 url("img/island-background.png") center top repeat;
+    padding: clamp(42px, 7vw, 72px) clamp(18px, 4vw, 56px) 56px;
 }
 
 .content__inner {

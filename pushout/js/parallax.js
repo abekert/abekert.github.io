@@ -183,8 +183,9 @@
 
         var heroRect = hero.getBoundingClientRect();
         var scrollInsideHero = clamp(-heroRect.top, 0, heroRect.height);
+        var seaCounterScrollFactor = 0.8;
 
-        hero.style.setProperty("--scroll-bg-y", (scrollInsideHero * 0.12).toFixed(2) + "px");
+        hero.style.setProperty("--scroll-bg-y", (scrollInsideHero * seaCounterScrollFactor).toFixed(2) + "px");
         hero.style.setProperty("--scroll-logo-y", (scrollInsideHero * 0.24).toFixed(2) + "px");
         hero.style.setProperty("--scroll-board-y", (scrollInsideHero * 0.10).toFixed(2) + "px");
     }
