@@ -63,45 +63,28 @@
       }
     </script>
   </head>
-  <body>
+  <body class="is-booting">
     <a class="skip-link" href="#main">Skip to content</a>
 
     <main id="main" class="page-shell">
       <section class="roundel-workbench" aria-labelledby="page-title">
-        <header class="topbar">
-          <a class="home-link" href="/" aria-label="Back to Alexander Bekert homepage">Alexander Bekert</a>
-          <div class="brand-lockup">
-            <span class="roundel-mark" aria-hidden="true"></span>
-            <div>
-              <p class="eyebrow">Unofficial transport-style studio</p>
-              <h1 id="page-title">Roundel Sign Maker</h1>
-            </div>
-          </div>
-          <div class="topbar-actions">
-            <div class="quick-actions" aria-label="Quick actions">
-              <button class="icon-button" id="undo-button" type="button" aria-label="Undo" title="Undo" disabled>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M9 7H4v5" />
-                  <path d="M5 12a8 8 0 1 0 2.3-5.7L4 9.6" />
-                </svg>
-              </button>
-              <button class="icon-button" id="reset-button" type="button" aria-label="Reset current style" title="Reset current style">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M20 12a8 8 0 1 1-2.3-5.7" />
-                  <path d="M20 4v6h-6" />
-                </svg>
-              </button>
-              <button class="icon-button" id="copy-link-button" type="button" aria-label="Copy share link" title="Copy share link">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.2 1.2" />
-                  <path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.2-1.2" />
-                </svg>
-              </button>
-            </div>
-            <p class="export-status" id="export-status" role="status" aria-live="polite"></p>
-            <div class="export-actions" aria-label="Export">
-              <button class="export-button" id="export-button" type="button">PNG</button>
-              <button class="export-button export-button-secondary" id="export-svg-button" type="button">SVG</button>
+        <h1 class="sr-only" id="page-title">Roundel Sign Maker</h1>
+        <header class="hud-actions" aria-label="Roundel actions">
+          <button class="hud-button hud-button-undo icon-button" id="undo-button" type="button" aria-label="Undo" title="Undo" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 7H4v5" />
+              <path d="M5 12a8 8 0 1 0 2.3-5.7L4 9.6" />
+            </svg>
+          </button>
+          <div class="share-cluster">
+            <button class="hud-button share-button" id="share-button" type="button" aria-controls="share-menu" aria-expanded="false">
+              Share
+            </button>
+            <div class="share-menu" id="share-menu" role="dialog" aria-label="Share and export" hidden>
+              <p class="export-status" id="export-status" role="status" aria-live="polite"></p>
+              <button class="menu-action menu-action-secondary" id="copy-link-button" type="button">Copy link</button>
+              <button class="menu-action" id="export-button" type="button">Export PNG</button>
+              <button class="menu-action menu-action-secondary" id="export-svg-button" type="button">Export SVG</button>
             </div>
           </div>
         </header>
@@ -162,11 +145,41 @@
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+            <filter id="neon-red-glow" x="-110%" y="-110%" width="320%" height="320%">
+              <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ff5a3d" flood-opacity="0.78" />
+              <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#ff2d18" flood-opacity="0.36" />
+              <feDropShadow dx="0" dy="0" stdDeviation="34" flood-color="#ff7a30" flood-opacity="0.2" />
+            </filter>
+            <filter id="neon-cyan-glow" x="-110%" y="-110%" width="320%" height="320%">
+              <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#72f8ff" flood-opacity="0.9" />
+              <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#00d9ff" flood-opacity="0.48" />
+              <feDropShadow dx="0" dy="0" stdDeviation="30" flood-color="#264cff" flood-opacity="0.26" />
+            </filter>
+            <filter id="neon-white-glow" x="-120%" y="-120%" width="340%" height="340%">
+              <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#ffffff" flood-opacity="0.9" />
+              <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#ff5a3d" flood-opacity="0.34" />
+              <feDropShadow dx="0" dy="0" stdDeviation="22" flood-color="#00d9ff" flood-opacity="0.26" />
+            </filter>
+            <filter id="neon-art-glow" x="-24%" y="-24%" width="148%" height="148%">
+              <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ff4228" flood-opacity="0.44" />
+              <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#00d9ff" flood-opacity="0.24" />
+              <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000000" flood-opacity="0.58" />
+            </filter>
+            <filter id="neon-text-glow" x="-36%" y="-160%" width="172%" height="420%">
+              <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#ffffff" flood-opacity="0.7" />
+              <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ff5638" flood-opacity="0.36" />
+              <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#00eaff" flood-opacity="0.28" />
+            </filter>
             <linearGradient id="plaque-wash" x1="0" x2="1" y1="0" y2="1">
               <stop offset="0" stop-color="#fffdf2" />
               <stop offset="0.58" stop-color="#eee9d8" />
               <stop offset="1" stop-color="#d7d1be" />
             </linearGradient>
+            <radialGradient id="neon-backdrop-wash" cx="50%" cy="42%" r="72%">
+              <stop offset="0" stop-color="#12101a" />
+              <stop offset="0.52" stop-color="#05070d" />
+              <stop offset="1" stop-color="#000000" />
+            </radialGradient>
             <linearGradient id="plaque-grime" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0" stop-color="#8b8272" stop-opacity="0.16" />
               <stop offset="0.46" stop-color="#ffffff" stop-opacity="0" />
@@ -196,6 +209,9 @@
               <stop offset="0.72" stop-color="#ffbd54" />
               <stop offset="1" stop-color="#bf6d22" />
             </radialGradient>
+            <clipPath id="neon-flag-clip">
+              <path d="M2 54L280 2L320 248L18 224Z" />
+            </clipPath>
           </defs>
           <rect width="1200" height="840" fill="transparent" />
           <g id="plaque-background" style="display: none;">
@@ -289,6 +305,32 @@
               <circle cx="116" cy="210" r="9" />
             </g>
           </g>
+          <g id="neon-layer" style="display: none;" opacity="0" pointer-events="none">
+            <g id="neon-backdrop" style="display: none;">
+              <rect width="1200" height="840" fill="#000000" />
+              <rect x="54" y="60" width="1092" height="720" rx="28" fill="url(#neon-backdrop-wash)" stroke="#1b2134" stroke-width="3" />
+              <circle cx="600" cy="420" r="356" fill="#ff3f25" opacity="0.16" filter="url(#neon-red-glow)" />
+              <rect x="120" y="314" width="960" height="212" rx="20" fill="#00eaff" opacity="0.08" filter="url(#neon-cyan-glow)" />
+            </g>
+            <g id="neon-flags" style="display: none;" opacity="0.78">
+              <g transform="translate(76 214) rotate(-10 160 126)" clip-path="url(#neon-flag-clip)" filter="url(#neon-white-glow)">
+                <path d="M2 54L280 2L320 248L18 224Z" fill="#06184a" />
+                <path d="M-24 34L342 260M-14 244L328 0" stroke="#f6f6f0" stroke-width="38" />
+                <path d="M-14 38L330 250M2 238L316 6" stroke="#d91f2b" stroke-width="18" />
+                <path d="M154 -20L178 272M-20 124L342 112" stroke="#f7f1e4" stroke-width="48" />
+                <path d="M162 -20L170 272M-20 119L342 118" stroke="#d91f2b" stroke-width="24" />
+              </g>
+              <g transform="translate(804 214) rotate(10 160 126)" clip-path="url(#neon-flag-clip)" filter="url(#neon-white-glow)">
+                <path d="M2 54L280 2L320 248L18 224Z" fill="#06184a" />
+                <path d="M-24 34L342 260M-14 244L328 0" stroke="#f6f6f0" stroke-width="38" />
+                <path d="M-14 38L330 250M2 238L316 6" stroke="#d91f2b" stroke-width="18" />
+                <path d="M154 -20L178 272M-20 124L342 112" stroke="#f7f1e4" stroke-width="48" />
+                <path d="M162 -20L170 272M-20 119L342 118" stroke="#d91f2b" stroke-width="24" />
+              </g>
+            </g>
+            <circle cx="600" cy="420" r="332" fill="none" stroke="#ff4d31" stroke-opacity="0.32" stroke-width="18" filter="url(#neon-red-glow)" />
+            <rect x="130" y="322" width="940" height="196" rx="18" fill="none" stroke="#00eaff" stroke-opacity="0.28" stroke-width="12" filter="url(#neon-cyan-glow)" />
+          </g>
           <g id="roundel-art" filter="url(#soft-shadow)">
             <circle id="ring-circle" cx="600" cy="420" r="292" fill="url(#ring-highlight)" mask="url(#ring-mask)" />
             <circle id="center-fill" cx="600" cy="420" r="178" fill="#ffffff" />
@@ -311,7 +353,64 @@
               letter-spacing="0"
             >UNDERGROUND</text>
           </g>
+          <g id="neon-tube-layer" style="display: none;" opacity="0" pointer-events="none">
+            <circle id="neon-outer-tube" cx="600" cy="420" r="304" fill="none" stroke="#fff0dc" stroke-width="8" stroke-opacity="0.92" filter="url(#neon-white-glow)" />
+            <circle id="neon-disc-tube" cx="600" cy="420" r="226" fill="none" stroke="#ffb48c" stroke-width="5" stroke-opacity="0.52" filter="url(#neon-red-glow)" />
+            <path
+              d="M416 256C498 306 700 306 784 256M416 584C498 534 700 534 784 584M600 132V708"
+              fill="none"
+              stroke="#ffd0ac"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-opacity="0.28"
+            />
+            <rect id="neon-bar-tube" x="140" y="322" width="920" height="196" rx="16" fill="none" stroke="#67f8ff" stroke-width="8" stroke-opacity="0.9" filter="url(#neon-cyan-glow)" />
+            <rect id="neon-bar-inner-tube" x="174" y="356" width="852" height="128" rx="8" fill="none" stroke="#f7ffff" stroke-width="3" stroke-opacity="0.7" filter="url(#neon-white-glow)" />
+          </g>
               </svg>
+
+              <button
+                class="hud-panel-trigger hud-panel-colours"
+                data-menu="ring"
+                type="button"
+                aria-controls="menu-ring"
+                aria-expanded="false"
+              >Colours</button>
+              <button
+                class="hud-panel-trigger hud-panel-bar"
+                data-menu="bar"
+                type="button"
+                aria-controls="menu-bar"
+                aria-expanded="false"
+              >Bar</button>
+              <button
+                class="hud-panel-trigger hud-panel-font"
+                data-menu="font"
+                type="button"
+                aria-controls="menu-font"
+                aria-expanded="false"
+              >Font</button>
+              <button
+                class="hud-panel-trigger hud-panel-size"
+                data-menu="text-size"
+                type="button"
+                aria-controls="menu-text-size"
+                aria-expanded="false"
+              >Size</button>
+              <button
+                class="hud-panel-trigger hud-panel-case"
+                data-menu="text-case"
+                type="button"
+                aria-controls="menu-text-case"
+                aria-expanded="false"
+              >Case</button>
+              <button
+                class="hud-panel-trigger hud-panel-surface"
+                data-menu="background"
+                type="button"
+                aria-controls="menu-background"
+                aria-expanded="false"
+              >Surface</button>
 
               <button
                 class="hotspot hotspot-background"
@@ -439,8 +538,8 @@
                 </div>
               </div>
 
-              <div class="floating-menu menu-text" id="menu-text" data-menu-panel="text" role="dialog" aria-label="Text options" hidden>
-                <div class="menu-title">Type</div>
+              <div class="floating-menu menu-font" id="menu-font" data-menu-panel="font" role="dialog" aria-label="Font options" hidden>
+                <div class="menu-title">Font</div>
                 <div class="font-grid" aria-label="Font styles">
                   <button class="font-button" data-font="gill" type="button">Gill Sans</button>
                   <button class="font-button" data-font="avenir" type="button">Avenir</button>
@@ -448,6 +547,10 @@
                   <button class="font-button" data-font="system" type="button">System</button>
                   <button class="font-button" data-font="rounded" type="button">Rounded</button>
                 </div>
+              </div>
+
+              <div class="floating-menu menu-text-size" id="menu-text-size" data-menu-panel="text-size" role="dialog" aria-label="Text size options" hidden>
+                <div class="menu-title">Size</div>
                 <label class="range-field" for="text-size-adjust">
                   <span>Text size</span>
                   <div class="range-row">
@@ -455,6 +558,10 @@
                     <output id="text-size-output" for="text-size-adjust">0</output>
                   </div>
                 </label>
+              </div>
+
+              <div class="floating-menu menu-text-case" id="menu-text-case" data-menu-panel="text-case" role="dialog" aria-label="Text case options" hidden>
+                <div class="menu-title">Case</div>
                 <div class="toggle-grid">
                   <label class="toggle toggle-wide" for="capitalise-text">
                     <input id="capitalise-text" name="capitalise-text" type="checkbox" checked />
@@ -509,17 +616,13 @@
               <span class="style-mini" aria-hidden="true"><span></span></span>
               <span>Night</span>
             </button>
+            <button class="style-button" data-preset="neon" type="button" style="--mini-ring: #ff4b2b; --mini-bar: #1024d6; --mini-hole: #ff4b2b; --mini-glow: #68f8ff;">
+              <span class="style-mini style-mini-neon" aria-hidden="true"><span></span></span>
+              <span>Neon</span>
+            </button>
             <button class="style-button" data-preset="halogen" type="button" style="--mini-ring: #c91e17; --mini-bar: #071454; --mini-hole: #fff3d7; --mini-glow: #ffc86d;">
               <span class="style-mini style-mini-halogen" aria-hidden="true"><span></span></span>
               <span>Halogen</span>
-            </button>
-            <button class="style-button" data-preset="compact" type="button" style="--mini-ring: #dc241f; --mini-bar: #0019a8; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Compact</span>
-            </button>
-            <button class="style-button" data-preset="twoline" type="button" style="--mini-ring: #dc241f; --mini-bar: #0019a8; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Two-line</span>
             </button>
           </div>
         </form>

@@ -21,12 +21,22 @@
   var undoButton = document.getElementById("undo-button");
   var resetButton = document.getElementById("reset-button");
   var copyLinkButton = document.getElementById("copy-link-button");
+  var shareButton = document.getElementById("share-button");
+  var shareMenu = document.getElementById("share-menu");
   var exportStatus = document.getElementById("export-status");
   var svg = document.getElementById("roundel-svg");
   var form = document.getElementById("roundel-form");
   var roundelStage = document.getElementById("roundel-stage");
   var plaqueBackground = document.getElementById("plaque-background");
   var bulbLayer = document.getElementById("bulb-layer");
+  var neonLayer = document.getElementById("neon-layer");
+  var neonBackdrop = document.getElementById("neon-backdrop");
+  var neonFlags = document.getElementById("neon-flags");
+  var neonTubeLayer = document.getElementById("neon-tube-layer");
+  var neonOuterTube = document.getElementById("neon-outer-tube");
+  var neonDiscTube = document.getElementById("neon-disc-tube");
+  var neonBarTube = document.getElementById("neon-bar-tube");
+  var neonBarInnerTube = document.getElementById("neon-bar-inner-tube");
   var artGroup = document.getElementById("roundel-art");
   var ringCircle = document.getElementById("ring-circle");
   var ringHole = document.getElementById("ring-hole");
@@ -49,6 +59,7 @@
   var fontButtons = Array.prototype.slice.call(document.querySelectorAll("[data-font]"));
   var colorButtons = Array.prototype.slice.call(document.querySelectorAll("[data-color]"));
   var menuButtons = Array.prototype.slice.call(document.querySelectorAll("[data-menu]"));
+  var hudPanelTriggers = Array.prototype.slice.call(document.querySelectorAll(".hud-panel-trigger"));
   var menuPanels = Array.prototype.slice.call(document.querySelectorAll("[data-menu-panel]"));
   var barGrips = Array.prototype.slice.call(document.querySelectorAll(".bar-grip"));
   var leftBarGrip = document.querySelector(".bar-grip-left");
@@ -59,6 +70,7 @@
   var exportSvgTriggers = Array.prototype.slice.call(document.querySelectorAll("[data-export-svg]"));
   var copyLinkTriggers = Array.prototype.slice.call(document.querySelectorAll("[data-copy-link]"));
   var dragReadout = document.getElementById("drag-readout");
+  var styleStrip = document.querySelector(".style-strip");
   var measureCanvas = document.createElement("canvas");
   var measureContext = measureCanvas.getContext("2d");
   var svgNamespace = "http://www.w3.org/2000/svg";
@@ -85,6 +97,9 @@
   var maxUndoSteps = 40;
   var isApplyingState = false;
   var activeDrag = null;
+  var previewState = null;
+  var previewPresetKey = "";
+  var introTextTimers = [];
   var fontStacks = {
     gill: "'Gill Sans', 'Gill Sans MT', 'Avenir Next', 'Trebuchet MS', Arial, sans-serif",
     avenir: "'Avenir Next', Avenir, 'Gill Sans', 'Trebuchet MS', Arial, sans-serif",
@@ -566,6 +581,39 @@
       ornamentColor: "#ffffff",
       ornamentOpacity: "0.65"
     },
+    neon: {
+      barWidth: 880,
+      font: "avenir",
+      whiteCenter: false,
+      gradients: true,
+      shadow: true,
+      blueOutline: true,
+      whiteInset: true,
+      plaque: true,
+      neon: true,
+      outerRadius: 286,
+      innerRadius: 0,
+      singleBarHeight: 168,
+      doubleBarHeight: 268,
+      centerFill: "#ff4b2b",
+      ringSolid: "#ed351e",
+      ringGradient: ["#ff7d46", "#ef351f", "#8f130d"],
+      ringOutlineColor: "#ffd5b0",
+      ringOutlineWidth: 7,
+      ringOutlineOpacity: "0.92",
+      barSolid: "#0a168f",
+      barGradient: ["#2636ff", "#101fc6", "#060b48"],
+      barRadius: 8,
+      outlineColor: "#66f7ff",
+      outlineWidth: 12,
+      outlineOpacity: "0.8",
+      insetColor: "#f7ffff",
+      insetWidth: 4,
+      insetOpacity: "0.64",
+      ornaments: "none",
+      ornamentColor: "#ffffff",
+      ornamentOpacity: "0.65"
+    },
     halogen: {
       barWidth: 940,
       font: "gill",
@@ -757,6 +805,34 @@
     }
   }
 
+  function openShareMenu() {
+    if (!shareButton || !shareMenu) {
+      return;
+    }
+
+    shareMenu.hidden = false;
+    shareButton.setAttribute("aria-expanded", "true");
+  }
+
+  function closeShareMenu() {
+    if (!shareButton || !shareMenu) {
+      return;
+    }
+
+    shareMenu.hidden = true;
+    shareButton.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleShareMenu(event) {
+    event.stopPropagation();
+
+    if (!shareMenu || shareMenu.hidden) {
+      openShareMenu();
+    } else {
+      closeShareMenu();
+    }
+  }
+
   function clampToControl(control, value) {
     var minimum = Number(control.getAttribute("min"));
     var maximum = Number(control.getAttribute("max"));
@@ -808,18 +884,9 @@
     }
   }
 
-  function recordUndoState() {
-    var state;
-    var signature;
-    var previous;
-
-    if (isApplyingState) {
-      return;
-    }
-
-    state = getCurrentState();
-    signature = stateSignature(state);
-    previous = undoStack.length ? undoStack[undoStack.length - 1].signature : "";
+  function pushUndoState(state) {
+    var signature = stateSignature(state);
+    var previous = undoStack.length ? undoStack[undoStack.length - 1].signature : "";
 
     if (signature !== previous) {
       undoStack.push({ signature: signature, state: state });
@@ -830,6 +897,17 @@
 
       updateUndoButton();
     }
+  }
+
+  function recordUndoState() {
+    var state;
+
+    if (isApplyingState) {
+      return;
+    }
+
+    state = getCurrentState();
+    pushUndoState(state);
   }
 
   function persistState() {
@@ -964,11 +1042,57 @@
     }
   }
 
+  function clearIntroTextTimers() {
+    introTextTimers.forEach(function (timer) {
+      window.clearTimeout(timer);
+    });
+    introTextTimers = [];
+  }
+
+  function setIntroText(text) {
+    input.value = text;
+    updateRoundel({ suppressPersist: true });
+  }
+
+  function cycleIntroText(duration) {
+    var messages = ["MAKE", "YOUR OWN", "UNDERGROUND"];
+    var interval = Math.max(280, Math.floor(duration / (messages.length + 1)));
+
+    clearIntroTextTimers();
+
+    messages.forEach(function (message, index) {
+      introTextTimers.push(window.setTimeout(function () {
+        setIntroText(message);
+      }, interval * index));
+    });
+
+    introTextTimers.push(window.setTimeout(function () {
+      setIntroText("UNDERGROUND");
+      clearIntroTextTimers();
+    }, duration));
+  }
+
   function playIntro(options) {
+    var duration;
+
     options = options || {};
+    duration = options.guide ? 2600 : 2300;
 
     if (!roundelStage || (reducedMotionQuery && reducedMotionQuery.matches)) {
+      if (options.cycleText) {
+        setIntroText("UNDERGROUND");
+      }
+
+      document.body.classList.remove("is-booting");
       return;
+    }
+
+    if (options.boot) {
+      document.body.classList.add("is-booting");
+    }
+
+    if (options.cycleText) {
+      cycleIntroText(duration - 260);
     }
 
     roundelStage.classList.remove("is-intro", "is-guiding");
@@ -981,18 +1105,20 @@
 
     window.setTimeout(function () {
       roundelStage.classList.remove("is-intro", "is-guiding");
-    }, options.guide ? 2300 : 1700);
+
+      if (options.boot) {
+        document.body.classList.remove("is-booting");
+      }
+    }, duration);
   }
 
   function playFirstRunIntro() {
-    if (hasSeenIntro()) {
-      return;
-    }
+    var shouldGuide = !hasSeenIntro();
 
     window.setTimeout(function () {
-      playIntro({ guide: true });
+      playIntro({ boot: true, cycleText: true, guide: shouldGuide });
       markIntroSeen();
-    }, 450);
+    }, 180);
   }
 
   function showDragReadout(event, label, value) {
@@ -1013,6 +1139,46 @@
     if (dragReadout) {
       dragReadout.classList.remove("is-visible");
     }
+  }
+
+  function clearGripProximity() {
+    barGrips.forEach(function (grip) {
+      grip.classList.remove("is-near");
+    });
+  }
+
+  function getDistanceToRect(x, y, rect) {
+    var dx = Math.max(rect.left - x, 0, x - rect.right);
+    var dy = Math.max(rect.top - y, 0, y - rect.bottom);
+
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  function updateGripProximity(event) {
+    var threshold = 44;
+
+    if (activeDrag || (event.pointerType && event.pointerType === "touch")) {
+      return;
+    }
+
+    barGrips.forEach(function (grip) {
+      var distance = getDistanceToRect(event.clientX, event.clientY, grip.getBoundingClientRect());
+
+      grip.classList.toggle("is-near", distance <= threshold);
+    });
+  }
+
+  function handleGripPointerMove(event) {
+    if (!roundelStage || activeDrag) {
+      return;
+    }
+
+    if (!roundelStage.contains(event.target)) {
+      clearGripProximity();
+      return;
+    }
+
+    updateGripProximity(event);
   }
 
   function applyState(state, options) {
@@ -1054,6 +1220,84 @@
     if (!options.suppressPersist) {
       persistState();
     }
+  }
+
+  function clearStylePreviewState() {
+    presetButtons.forEach(function (button) {
+      button.classList.remove("is-preview");
+    });
+  }
+
+  function previewStyle(key) {
+    if (!presets[key] || activePresetKey === key && !previewState) {
+      return;
+    }
+
+    if (!previewState) {
+      previewState = getCurrentState();
+    } else if (key === previewState.activePreset) {
+      previewPresetKey = key;
+      applyState(previewState, { animate: true, suppressPersist: true });
+      clearStylePreviewState();
+      return;
+    }
+
+    previewPresetKey = key;
+    applyPreset(key, { animate: true, suppressPersist: true });
+    clearStylePreviewState();
+
+    presetButtons.forEach(function (button) {
+      button.classList.toggle("is-preview", button.getAttribute("data-preset") === key);
+    });
+  }
+
+  function cancelStylePreview() {
+    if (!previewState) {
+      clearStylePreviewState();
+      return;
+    }
+
+    applyState(previewState, { animate: true, suppressPersist: true });
+    previewState = null;
+    previewPresetKey = "";
+    clearStylePreviewState();
+  }
+
+  function commitStylePreview(key) {
+    if (previewState) {
+      pushUndoState(previewState);
+      previewState = null;
+      previewPresetKey = "";
+      clearStylePreviewState();
+
+      if (activePresetKey !== key) {
+        applyPreset(key, { animate: true, suppressPersist: true });
+      }
+
+      persistState();
+      return;
+    }
+
+    recordUndoState();
+    applyPreset(key, { animate: true });
+  }
+
+  function handleStylePreviewMove(event) {
+    var button = event.target.closest("[data-preset]");
+
+    if (!button || !styleStrip || !styleStrip.contains(button)) {
+      return;
+    }
+
+    previewStyle(button.getAttribute("data-preset"));
+  }
+
+  function handleStylePreviewGlobalMove(event) {
+    if (!previewState || !styleStrip || styleStrip.contains(event.target)) {
+      return;
+    }
+
+    cancelStylePreview();
   }
 
   function undoLastChange() {
@@ -1174,10 +1418,26 @@
     var barX = centerX - barWidth / 2;
     var barY = centerY - barHeight / 2;
     var inset = 22;
+    var neonInset = 34;
 
     setRect(barFill, barX, barY, barWidth, barHeight, preset.barRadius);
     setRect(barBorder, barX, barY, barWidth, barHeight, preset.barRadius);
     setRect(barInset, barX + inset, barY + inset, Math.max(0, barWidth - inset * 2), Math.max(0, barHeight - inset * 2), 3);
+
+    if (neonBarTube) {
+      setRect(neonBarTube, barX - 6, barY - 6, barWidth + 12, barHeight + 12, preset.barRadius + 10);
+    }
+
+    if (neonBarInnerTube) {
+      setRect(
+        neonBarInnerTube,
+        barX + neonInset,
+        barY + neonInset,
+        Math.max(0, barWidth - neonInset * 2),
+        Math.max(0, barHeight - neonInset * 2),
+        Math.max(3, preset.barRadius)
+      );
+    }
   }
 
   function getSvgScale() {
@@ -1553,6 +1813,14 @@
     centerFill.setAttribute("r", String(preset.innerRadius));
     ringOuterOutline.setAttribute("r", String(preset.outerRadius));
     ringInnerOutline.setAttribute("r", String(preset.innerRadius));
+
+    if (neonOuterTube) {
+      neonOuterTube.setAttribute("r", String(preset.outerRadius + 18));
+    }
+
+    if (neonDiscTube) {
+      neonDiscTube.setAttribute("r", String(preset.innerRadius > 0 ? preset.innerRadius + 42 : Math.round(preset.outerRadius * 0.74)));
+    }
   }
 
   function centerTextToBar() {
@@ -1680,6 +1948,9 @@
     var preset = getActivePreset();
     var scheme = getActiveColorScheme();
     var bulbsVisible = Boolean(preset.bulbs && plaqueToggle.checked);
+    var neonVisible = Boolean(preset.neon);
+    var neonBackdropVisible = Boolean(neonVisible && plaqueToggle.checked);
+    var plaqueVisible = Boolean(plaqueToggle.checked && !neonVisible);
     var centerFillColor = themedValue(scheme, preset, "centerFill");
     var ringSolid = themedValue(scheme, preset, "ringSolid");
     var ringGradient = themedValue(scheme, preset, "ringGradient");
@@ -1694,7 +1965,11 @@
     var insetColor = themedValue(scheme, preset, "insetColor");
     var insetWidth = themedValue(scheme, preset, "insetWidth");
     var insetOpacity = themedValue(scheme, preset, "insetOpacity");
-    var textColor = scheme && scheme.textColor ? scheme.textColor : "#ffffff";
+    var textColor = themedValue(scheme, preset, "textColor") || "#ffffff";
+
+    if (roundelStage) {
+      roundelStage.classList.toggle("is-neon", neonVisible);
+    }
 
     centerFill.style.display = whiteCenterToggle.checked ? "" : "none";
     centerFill.setAttribute("fill", centerFillColor);
@@ -1722,18 +1997,43 @@
     barInset.setAttribute("stroke-width", String(insetWidth));
     barInset.setAttribute("stroke-opacity", insetOpacity);
     textNode.setAttribute("fill", textColor);
-    plaqueBackground.style.display = plaqueToggle.checked ? "" : "none";
-    plaqueBackground.setAttribute("opacity", plaqueToggle.checked ? "1" : "0");
+    textNode.setAttribute("font-style", neonVisible ? "italic" : "normal");
+    plaqueBackground.style.display = plaqueVisible ? "" : "none";
+    plaqueBackground.setAttribute("opacity", plaqueVisible ? "1" : "0");
 
     if (bulbLayer) {
       bulbLayer.style.display = bulbsVisible ? "" : "none";
       bulbLayer.setAttribute("opacity", bulbsVisible ? "1" : "0");
     }
 
+    if (neonLayer) {
+      neonLayer.style.display = neonVisible ? "" : "none";
+      neonLayer.setAttribute("opacity", neonVisible ? "1" : "0");
+    }
+
+    if (neonTubeLayer) {
+      neonTubeLayer.style.display = neonVisible ? "" : "none";
+      neonTubeLayer.setAttribute("opacity", neonVisible ? "1" : "0");
+    }
+
+    if (neonBackdrop) {
+      neonBackdrop.style.display = neonBackdropVisible ? "" : "none";
+    }
+
+    if (neonFlags) {
+      neonFlags.style.display = neonBackdropVisible ? "" : "none";
+    }
+
     if (shadowToggle.checked) {
-      artGroup.setAttribute("filter", "url(#soft-shadow)");
+      artGroup.setAttribute("filter", neonVisible ? "url(#neon-art-glow)" : "url(#soft-shadow)");
     } else {
       artGroup.removeAttribute("filter");
+    }
+
+    if (neonVisible && shadowToggle.checked) {
+      textNode.setAttribute("filter", "url(#neon-text-glow)");
+    } else {
+      textNode.removeAttribute("filter");
     }
   }
 
@@ -1811,7 +2111,7 @@
     updateRoundel(options);
     scrollPresetButtonIntoView(activePresetKey);
 
-    if (preset.bulbs && options && options.animate) {
+    if ((preset.bulbs || preset.neon) && options && options.animate) {
       window.setTimeout(function () {
         playIntro();
       }, 40);
@@ -2018,6 +2318,8 @@
     if (roundelStage) {
       roundelStage.classList.remove("is-dragging");
     }
+
+    updateGripProximity(event);
   }
 
   if (form) {
@@ -2027,11 +2329,21 @@
   }
 
   presetButtons.forEach(function (button) {
+    button.addEventListener("pointerenter", function () {
+      previewStyle(button.getAttribute("data-preset"));
+    });
+    button.addEventListener("focus", function () {
+      previewStyle(button.getAttribute("data-preset"));
+    });
     button.addEventListener("click", function () {
-      recordUndoState();
-      applyPreset(button.getAttribute("data-preset"), { animate: true });
+      commitStylePreview(button.getAttribute("data-preset"));
     });
   });
+
+  if (styleStrip) {
+    styleStrip.addEventListener("pointermove", handleStylePreviewMove);
+    styleStrip.addEventListener("pointerleave", cancelStylePreview);
+  }
 
   fontButtons.forEach(function (button) {
     button.addEventListener("click", function () {
@@ -2064,6 +2376,18 @@
     });
   });
 
+  hudPanelTriggers.forEach(function (button) {
+    ["pointerenter", "mouseenter", "mouseover"].forEach(function (eventName) {
+      button.addEventListener(eventName, function () {
+        openMenu(button.getAttribute("data-menu"));
+      });
+    });
+
+    button.addEventListener("focus", function () {
+      openMenu(button.getAttribute("data-menu"));
+    });
+  });
+
   menuPanels.forEach(function (panel) {
     panel.addEventListener("click", function (event) {
       event.stopPropagation();
@@ -2073,6 +2397,10 @@
   document.addEventListener("click", function (event) {
     if (!roundelStage || !roundelStage.contains(event.target)) {
       closeMenus();
+    }
+
+    if (shareMenu && shareButton && !shareMenu.contains(event.target) && !shareButton.contains(event.target)) {
+      closeShareMenu();
     }
   });
 
@@ -2137,8 +2465,13 @@
   exportButton.addEventListener("click", exportPng);
   exportSvgButton.addEventListener("click", exportSvg);
   undoButton.addEventListener("click", undoLastChange);
-  resetButton.addEventListener("click", resetCurrentStyle);
+  if (resetButton) {
+    resetButton.addEventListener("click", resetCurrentStyle);
+  }
   copyLinkButton.addEventListener("click", copyShareLink);
+  if (shareButton) {
+    shareButton.addEventListener("click", toggleShareMenu);
+  }
   exportTriggers.forEach(function (button) {
     button.addEventListener("click", exportPng);
   });
@@ -2186,9 +2519,15 @@
     grip.addEventListener("pointerdown", startBarDrag);
   });
 
+  document.addEventListener("pointermove", handleStylePreviewGlobalMove);
+  document.addEventListener("pointermove", handleGripPointerMove);
   document.addEventListener("pointermove", moveBarDrag);
   document.addEventListener("pointerup", endBarDrag);
   document.addEventListener("pointercancel", endBarDrag);
+
+  if (roundelStage) {
+    roundelStage.addEventListener("pointerleave", clearGripProximity);
+  }
 
   window.addEventListener("resize", function () {
     updateRoundel({ suppressPersist: true });
