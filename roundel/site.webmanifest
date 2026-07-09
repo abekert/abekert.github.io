@@ -1,0 +1,36 @@
+{
+  "name": "Roundel Sign Maker",
+  "short_name": "Roundel",
+  "description": "Create transport-inspired roundel sign artwork with custom text and export it as PNG.",
+  "start_url": "/roundel/",
+  "scope": "/roundel/",
+  "icons": [
+    {
+      "src": "/roundel/roundel-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/roundel/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/roundel/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/roundel/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#f4f2ed",
+  "background_color": "#f4f2ed",
+  "display": "standalone"
+}

@@ -241,6 +241,38 @@ h3 {
   line-height: 1.45;
 }
 
+.location-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  color: var(--blue);
+  font-weight: 740;
+  text-decoration: none;
+}
+
+.location-link:hover {
+  color: var(--accent-strong);
+}
+
+.location-link:focus-visible {
+  border-radius: 6px;
+  outline: 3px solid rgba(0, 100, 224, 0.22);
+  outline-offset: 3px;
+}
+
+.location-link span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.location-roundel {
+  width: 1.75rem;
+  height: auto;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 1px 1px rgba(24, 37, 51, 0.1));
+}
+
 .section-heading {
   max-width: 780px;
   margin-bottom: 1.75rem;

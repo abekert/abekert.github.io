@@ -47,6 +47,9 @@ The legacy Push Out page remains available at `/pushout/`. Its page structure,
 visual layering, parallax behavior, and rewrite pitfalls are documented in
 `pushout/README.md`.
 
+The roundel sign maker lives at `/roundel/`. It is a standalone static tool with
+its own HTML, CSS, and JS in `roundel/`.
+
 ## Maintenance notes for AI/editor passes
 
 Keep the homepage and social preview in sync. When updating the hero/header

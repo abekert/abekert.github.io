@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Roundel Sign Maker — Create Transport-Style Signs</title>
+    <meta
+      name="description"
+      content="Create unofficial London transport-inspired roundel sign artwork with custom text, colour styles, signboard backgrounds, and PNG export."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Alexander Bekert" />
+    <meta name="application-name" content="Roundel Sign Maker" />
+    <meta name="apple-mobile-web-app-title" content="Roundel" />
+    <meta name="theme-color" content="#f4f2ed" />
+    <link rel="canonical" href="https://abekert.github.io/roundel/" />
+    <link rel="icon" href="/roundel/roundel-icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/roundel/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/roundel/apple-touch-icon.png" />
+    <link rel="manifest" href="/roundel/site.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://abekert.github.io/roundel/" />
+    <meta property="og:site_name" content="Alexander Bekert" />
+    <meta property="og:title" content="Roundel Sign Maker — Create Transport-Style Signs" />
+    <meta
+      property="og:description"
+      content="Create unofficial London transport-inspired roundel sign artwork with custom text, colour styles, signboard backgrounds, and PNG export."
+    />
+    <meta property="og:image" content="https://abekert.github.io/images/roundel-og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Roundel Sign Maker — Create Transport-Style Signs" />
+    <meta
+      name="twitter:description"
+      content="Create unofficial London transport-inspired roundel sign artwork with custom text, colour styles, signboard backgrounds, and PNG export."
+    />
+    <meta name="twitter:image" content="https://abekert.github.io/images/roundel-og.png" />
+    <meta name="twitter:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
+
+    <link rel="stylesheet" href="styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Roundel Sign Maker",
+        "url": "https://abekert.github.io/roundel/",
+        "description": "Create unofficial London transport-inspired roundel sign artwork with custom text, colour styles, signboard backgrounds, and PNG export.",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Any",
+        "isAccessibleForFree": true,
+        "inLanguage": "en-GB",
+        "creator": {
+          "@type": "Person",
+          "name": "Alexander Bekert",
+          "url": "https://abekert.github.io/"
+        },
+        "image": "https://abekert.github.io/images/roundel-og.png"
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <main id="main" class="page-shell">
+      <section class="tool-panel" aria-labelledby="page-title">
+        <div class="tool-copy">
+          <a class="home-link" href="/" aria-label="Back to Alexander Bekert homepage">Alexander Bekert</a>
+          <h1 id="page-title">Roundel Sign Maker</h1>
+          <p>Unofficial transport-style sign generator for playful personal artwork.</p>
+        </div>
+
+        <form class="controls" id="roundel-form">
+          <label class="field" for="style-preset">
+            <span>Preset</span>
+            <select id="style-preset" name="style-preset">
+              <option value="enamel" selected>Enamel screen</option>
+              <option value="classic">Classic flat</option>
+              <option value="platform">Platform sign</option>
+              <option value="heritage">Heritage enamel</option>
+              <option value="redDisc">Solid red disc</option>
+              <option value="museum">Museum black trim</option>
+              <option value="poster">Poster print</option>
+              <option value="night">Night sign</option>
+              <option value="compact">Compact name</option>
+              <option value="twoline">Two-line station</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+
+          <label class="field" for="sign-text">
+            <span>Sign text</span>
+            <textarea
+              id="sign-text"
+              name="sign-text"
+              rows="2"
+              maxlength="64"
+              autocomplete="off"
+              spellcheck="false"
+            >UNDERGROUND</textarea>
+          </label>
+
+          <label class="field range-field" for="bar-width">
+            <span>Bar width</span>
+            <div class="range-row">
+              <input id="bar-width" name="bar-width" type="range" min="280" max="1040" step="10" value="900" />
+              <output id="bar-width-output" for="bar-width">900</output>
+            </div>
+          </label>
+
+          <label class="field" for="font-choice">
+            <span>Font</span>
+            <select id="font-choice" name="font-choice">
+              <option value="gill" selected>Gill Sans</option>
+              <option value="avenir">Avenir Next</option>
+              <option value="trebuchet">Trebuchet MS</option>
+              <option value="system">System sans</option>
+              <option value="rounded">Arial Rounded</option>
+            </select>
+          </label>
+
+          <label class="field" for="color-choice">
+            <span>Colours</span>
+            <select id="color-choice" name="color-choice">
+              <option value="preset" selected>Preset colours</option>
+              <option value="underground">Underground</option>
+              <option value="rail">TfL Rail</option>
+              <option value="elizabeth">Elizabeth line</option>
+              <option value="overground">Overground</option>
+              <option value="dlr">DLR</option>
+              <option value="river">River</option>
+              <option value="trams">Trams</option>
+              <option value="buses">Buses</option>
+              <option value="coaches">Coaches</option>
+              <option value="cycles">Cycles</option>
+              <option value="dial">Dial-a-Ride</option>
+              <option value="taxi">Taxi/private hire</option>
+              <option value="airline">Airline outline</option>
+            </select>
+          </label>
+
+          <fieldset class="option-group" aria-label="Style options">
+            <legend>Style</legend>
+            <label class="toggle" for="white-center">
+              <input id="white-center" name="white-center" type="checkbox" checked />
+              <span>Center fill</span>
+            </label>
+            <label class="toggle" for="use-gradients">
+              <input id="use-gradients" name="use-gradients" type="checkbox" checked />
+              <span>Gradients</span>
+            </label>
+            <label class="toggle" for="use-shadow">
+              <input id="use-shadow" name="use-shadow" type="checkbox" checked />
+              <span>Shadow</span>
+            </label>
+            <label class="toggle" for="blue-outline">
+              <input id="blue-outline" name="blue-outline" type="checkbox" checked />
+              <span>Bar outline</span>
+            </label>
+            <label class="toggle" for="white-inset">
+              <input id="white-inset" name="white-inset" type="checkbox" checked />
+              <span>White inset</span>
+            </label>
+            <label class="toggle" for="use-plaque">
+              <input id="use-plaque" name="use-plaque" type="checkbox" />
+              <span>Signboard bg</span>
+            </label>
+          </fieldset>
+
+          <button class="export-button" id="export-button" type="button">Export PNG</button>
+          <p class="export-status" id="export-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="preview-panel" aria-label="Generated roundel preview">
+        <svg
+          id="roundel-svg"
+          role="img"
+          aria-labelledby="roundel-title"
+          viewBox="0 0 1200 840"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <title id="roundel-title">Roundel sign reading UNDERGROUND</title>
+          <defs>
+            <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+              <feDropShadow dx="0" dy="26" stdDeviation="26" flood-color="#1f2933" flood-opacity="0.2" />
+            </filter>
+            <filter id="plaque-shadow" x="-8%" y="-8%" width="116%" height="116%">
+              <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#1f2933" flood-opacity="0.18" />
+            </filter>
+            <linearGradient id="plaque-wash" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#fffdf2" />
+              <stop offset="0.58" stop-color="#eee9d8" />
+              <stop offset="1" stop-color="#d7d1be" />
+            </linearGradient>
+            <linearGradient id="plaque-grime" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#8b8272" stop-opacity="0.16" />
+              <stop offset="0.46" stop-color="#ffffff" stop-opacity="0" />
+              <stop offset="1" stop-color="#675d50" stop-opacity="0.2" />
+            </linearGradient>
+            <pattern id="plaque-fibers" width="72" height="72" patternUnits="userSpaceOnUse">
+              <path d="M10 0v72M38 0v72M66 0v72" stroke="#8c8678" stroke-opacity="0.07" stroke-width="2" />
+              <path d="M0 17h72M0 52h72" stroke="#ffffff" stroke-opacity="0.24" stroke-width="3" />
+            </pattern>
+            <mask id="ring-mask" maskUnits="userSpaceOnUse">
+              <rect width="1200" height="840" fill="#ffffff" />
+              <circle id="ring-hole" cx="600" cy="420" r="178" fill="#000000" />
+            </mask>
+            <linearGradient id="ring-highlight" x1="0" x2="0" y1="0" y2="1">
+              <stop id="ring-stop-top" offset="0" stop-color="#f03b31" />
+              <stop id="ring-stop-mid" offset="0.54" stop-color="#d61920" />
+              <stop id="ring-stop-bottom" offset="1" stop-color="#b50f19" />
+            </linearGradient>
+            <linearGradient id="bar-highlight" x1="0" x2="0" y1="0" y2="1">
+              <stop id="bar-stop-top" offset="0" stop-color="#1428bd" />
+              <stop id="bar-stop-mid" offset="0.5" stop-color="#0019a8" />
+              <stop id="bar-stop-bottom" offset="1" stop-color="#000f72" />
+            </linearGradient>
+          </defs>
+          <rect width="1200" height="840" fill="transparent" />
+          <g id="plaque-background" style="display: none;">
+            <rect x="72" y="82" width="1056" height="676" rx="8" fill="#d9d2bf" filter="url(#plaque-shadow)" />
+            <rect x="84" y="68" width="1032" height="676" rx="7" fill="url(#plaque-wash)" stroke="#b8af9c" stroke-width="4" />
+            <rect x="104" y="92" width="992" height="628" rx="3" fill="none" stroke="#ffffff" stroke-opacity="0.72" stroke-width="10" />
+            <rect x="96" y="80" width="1008" height="652" rx="5" fill="url(#plaque-fibers)" />
+            <rect x="96" y="80" width="1008" height="652" rx="5" fill="url(#plaque-grime)" />
+            <g opacity="0.18">
+              <path d="M176 102c-10 80-6 170 4 250 8 70 4 160-10 248" fill="none" stroke="#7d7364" stroke-width="9" stroke-linecap="round" />
+              <path d="M330 88c-8 98 6 166 3 244-3 88-18 172-7 372" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" />
+              <path d="M548 90c11 84 3 158-2 220-9 116 14 208 4 386" fill="none" stroke="#7a6f60" stroke-width="6" stroke-linecap="round" />
+              <path d="M828 86c-15 92-8 174 1 258 9 88 2 170-12 350" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" />
+              <path d="M1016 102c-4 92 8 164 2 236-7 80-18 172-10 318" fill="none" stroke="#756b5e" stroke-width="7" stroke-linecap="round" />
+            </g>
+            <g fill="#2d2c29" opacity="0.72">
+              <circle cx="138" cy="108" r="7" />
+              <circle cx="294" cy="82" r="7" />
+              <circle cx="462" cy="82" r="7" />
+              <circle cx="628" cy="82" r="7" />
+              <circle cx="794" cy="82" r="7" />
+              <circle cx="962" cy="82" r="7" />
+              <circle cx="1084" cy="134" r="7" />
+              <circle cx="1068" cy="700" r="7" />
+              <circle cx="124" cy="694" r="7" />
+            </g>
+            <g fill="#ffffff" opacity="0.34">
+              <circle cx="136" cy="106" r="2.2" />
+              <circle cx="292" cy="80" r="2.2" />
+              <circle cx="460" cy="80" r="2.2" />
+              <circle cx="626" cy="80" r="2.2" />
+              <circle cx="792" cy="80" r="2.2" />
+              <circle cx="960" cy="80" r="2.2" />
+              <circle cx="1082" cy="132" r="2.2" />
+              <circle cx="1066" cy="698" r="2.2" />
+              <circle cx="122" cy="692" r="2.2" />
+            </g>
+          </g>
+          <g id="roundel-art" filter="url(#soft-shadow)">
+            <circle id="ring-circle" cx="600" cy="420" r="292" fill="url(#ring-highlight)" mask="url(#ring-mask)" />
+            <circle id="center-fill" cx="600" cy="420" r="178" fill="#ffffff" />
+            <circle id="ring-outer-outline" cx="600" cy="420" r="292" fill="none" stroke="#111111" stroke-width="0" />
+            <circle id="ring-inner-outline" cx="600" cy="420" r="178" fill="none" stroke="#111111" stroke-width="0" />
+            <rect id="bar-fill" x="150" y="329" width="900" height="182" rx="8" fill="url(#bar-highlight)" />
+            <rect id="bar-border" x="150" y="329" width="900" height="182" rx="8" fill="none" stroke="#09105f" stroke-opacity="0.28" stroke-width="8" />
+            <rect id="bar-inset" x="172" y="351" width="856" height="138" rx="3" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="4" />
+            <g id="bar-ornaments" fill="#ffffff"></g>
+            <text
+              id="roundel-text"
+              x="600"
+              y="420"
+              dominant-baseline="central"
+              text-anchor="middle"
+              fill="#ffffff"
+              font-family="'Gill Sans', 'Avenir Next', 'Trebuchet MS', Arial, sans-serif"
+              font-size="116"
+              font-weight="700"
+              letter-spacing="0"
+            >UNDERGROUND</text>
+          </g>
+        </svg>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
