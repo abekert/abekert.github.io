@@ -3,8 +3,13 @@
   var input = document.getElementById("sign-text");
   var barWidthInput = document.getElementById("bar-width");
   var barWidthOutput = document.getElementById("bar-width-output");
+  var barHeightInput = document.getElementById("bar-height-adjust");
+  var barHeightOutput = document.getElementById("bar-height-output");
   var fontChoice = document.getElementById("font-choice");
+  var textSizeInput = document.getElementById("text-size-adjust");
+  var textSizeOutput = document.getElementById("text-size-output");
   var colorChoice = document.getElementById("color-choice");
+  var capitaliseToggle = document.getElementById("capitalise-text");
   var whiteCenterToggle = document.getElementById("white-center");
   var gradientsToggle = document.getElementById("use-gradients");
   var shadowToggle = document.getElementById("use-shadow");
@@ -12,9 +17,16 @@
   var whiteInsetToggle = document.getElementById("white-inset");
   var plaqueToggle = document.getElementById("use-plaque");
   var exportButton = document.getElementById("export-button");
+  var exportSvgButton = document.getElementById("export-svg-button");
+  var undoButton = document.getElementById("undo-button");
+  var resetButton = document.getElementById("reset-button");
+  var copyLinkButton = document.getElementById("copy-link-button");
   var exportStatus = document.getElementById("export-status");
   var svg = document.getElementById("roundel-svg");
+  var form = document.getElementById("roundel-form");
+  var roundelStage = document.getElementById("roundel-stage");
   var plaqueBackground = document.getElementById("plaque-background");
+  var bulbLayer = document.getElementById("bulb-layer");
   var artGroup = document.getElementById("roundel-art");
   var ringCircle = document.getElementById("ring-circle");
   var ringHole = document.getElementById("ring-hole");
@@ -33,6 +45,20 @@
   var barStopBottom = document.getElementById("bar-stop-bottom");
   var textNode = document.getElementById("roundel-text");
   var titleNode = document.getElementById("roundel-title");
+  var presetButtons = Array.prototype.slice.call(document.querySelectorAll("[data-preset]"));
+  var fontButtons = Array.prototype.slice.call(document.querySelectorAll("[data-font]"));
+  var colorButtons = Array.prototype.slice.call(document.querySelectorAll("[data-color]"));
+  var menuButtons = Array.prototype.slice.call(document.querySelectorAll("[data-menu]"));
+  var menuPanels = Array.prototype.slice.call(document.querySelectorAll("[data-menu-panel]"));
+  var barGrips = Array.prototype.slice.call(document.querySelectorAll(".bar-grip"));
+  var leftBarGrip = document.querySelector(".bar-grip-left");
+  var rightBarGrip = document.querySelector(".bar-grip-right");
+  var topBarGrip = document.querySelector(".bar-grip-top");
+  var bottomBarGrip = document.querySelector(".bar-grip-bottom");
+  var exportTriggers = Array.prototype.slice.call(document.querySelectorAll("[data-export]"));
+  var exportSvgTriggers = Array.prototype.slice.call(document.querySelectorAll("[data-export-svg]"));
+  var copyLinkTriggers = Array.prototype.slice.call(document.querySelectorAll("[data-copy-link]"));
+  var dragReadout = document.getElementById("drag-readout");
   var measureCanvas = document.createElement("canvas");
   var measureContext = measureCanvas.getContext("2d");
   var svgNamespace = "http://www.w3.org/2000/svg";
@@ -53,6 +79,12 @@
     return window.performance.now();
   } : Date.now;
   var activePresetKey = "enamel";
+  var storageKey = "roundel-maker-state-v2";
+  var introSeenKey = "roundel-maker-intro-seen-v1";
+  var undoStack = [];
+  var maxUndoSteps = 40;
+  var isApplyingState = false;
+  var activeDrag = null;
   var fontStacks = {
     gill: "'Gill Sans', 'Gill Sans MT', 'Avenir Next', 'Trebuchet MS', Arial, sans-serif",
     avenir: "'Avenir Next', Avenir, 'Gill Sans', 'Trebuchet MS', Arial, sans-serif",
@@ -534,6 +566,39 @@
       ornamentColor: "#ffffff",
       ornamentOpacity: "0.65"
     },
+    halogen: {
+      barWidth: 940,
+      font: "gill",
+      whiteCenter: true,
+      gradients: true,
+      shadow: true,
+      blueOutline: true,
+      whiteInset: true,
+      plaque: true,
+      bulbs: true,
+      outerRadius: 294,
+      innerRadius: 178,
+      singleBarHeight: 174,
+      doubleBarHeight: 278,
+      centerFill: "#fff3d7",
+      ringSolid: "#c91e17",
+      ringGradient: ["#f25d3f", "#c91e17", "#76100d"],
+      ringOutlineColor: "#33210f",
+      ringOutlineWidth: 8,
+      ringOutlineOpacity: "0.72",
+      barSolid: "#071454",
+      barGradient: ["#17296d", "#071454", "#02061e"],
+      barRadius: 3,
+      outlineColor: "#2a1d12",
+      outlineWidth: 14,
+      outlineOpacity: "0.82",
+      insetColor: "#ffe7aa",
+      insetWidth: 3,
+      insetOpacity: "0.46",
+      ornaments: "none",
+      ornamentColor: "#fff0c4",
+      ornamentOpacity: "0.65"
+    },
     compact: {
       barWidth: 460,
       font: "avenir",
@@ -624,6 +689,393 @@
     }
   }
 
+  function setPressed(button, isPressed) {
+    button.classList.toggle("is-active", isPressed);
+    button.setAttribute("aria-pressed", isPressed ? "true" : "false");
+  }
+
+  function scrollPresetButtonIntoView(key) {
+    var button = presetButtons.filter(function (candidate) {
+      return candidate.getAttribute("data-preset") === key;
+    })[0];
+    var strip = button && button.parentElement;
+    var targetLeft;
+
+    if (!button || !strip || strip.scrollWidth <= strip.clientWidth) {
+      return;
+    }
+
+    targetLeft = button.offsetLeft - (strip.clientWidth - button.offsetWidth) / 2;
+    strip.scrollLeft = Math.max(0, Math.min(targetLeft, strip.scrollWidth - strip.clientWidth));
+  }
+
+  function syncControlStates() {
+    presetButtons.forEach(function (button) {
+      setPressed(button, presetChoice.value !== "custom" && button.getAttribute("data-preset") === activePresetKey);
+    });
+
+    fontButtons.forEach(function (button) {
+      setPressed(button, button.getAttribute("data-font") === fontChoice.value);
+    });
+
+    colorButtons.forEach(function (button) {
+      setPressed(button, button.getAttribute("data-color") === colorChoice.value);
+    });
+  }
+
+  function openMenu(name) {
+    menuPanels.forEach(function (panel) {
+      var isOpen = panel.getAttribute("data-menu-panel") === name;
+
+      panel.hidden = !isOpen;
+    });
+
+    menuButtons.forEach(function (button) {
+      var isOpen = button.getAttribute("data-menu") === name;
+
+      button.classList.toggle("is-open", isOpen);
+      button.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+    if (roundelStage) {
+      roundelStage.setAttribute("data-active-menu", name || "");
+    }
+  }
+
+  function closeMenus() {
+    menuPanels.forEach(function (panel) {
+      panel.hidden = true;
+    });
+
+    menuButtons.forEach(function (button) {
+      button.classList.remove("is-open");
+      button.setAttribute("aria-expanded", "false");
+    });
+
+    if (roundelStage) {
+      roundelStage.setAttribute("data-active-menu", "");
+    }
+  }
+
+  function clampToControl(control, value) {
+    var minimum = Number(control.getAttribute("min"));
+    var maximum = Number(control.getAttribute("max"));
+    var step = Number(control.getAttribute("step")) || 1;
+    var number = Number(value);
+
+    if (!Number.isFinite(number)) {
+      return Number(control.value) || 0;
+    }
+
+    number = Math.max(minimum, Math.min(maximum, number));
+    number = Math.round(number / step) * step;
+
+    return number;
+  }
+
+  function setRangeControl(control, value) {
+    control.value = String(clampToControl(control, value));
+  }
+
+  function getCurrentState() {
+    return {
+      version: 2,
+      preset: presetChoice.value === "custom" ? "custom" : activePresetKey,
+      activePreset: activePresetKey,
+      text: input.value,
+      barWidth: getBarWidth(),
+      barHeight: getBarHeightAdjustment(),
+      textSize: getTextSizeAdjustment(),
+      font: fontChoice.value,
+      color: colorChoice.value,
+      capitalise: capitaliseToggle.checked,
+      whiteCenter: whiteCenterToggle.checked,
+      gradients: gradientsToggle.checked,
+      shadow: shadowToggle.checked,
+      blueOutline: blueOutlineToggle.checked,
+      whiteInset: whiteInsetToggle.checked,
+      plaque: plaqueToggle.checked
+    };
+  }
+
+  function stateSignature(state) {
+    return JSON.stringify(state);
+  }
+
+  function updateUndoButton() {
+    if (undoButton) {
+      undoButton.disabled = undoStack.length === 0;
+    }
+  }
+
+  function recordUndoState() {
+    var state;
+    var signature;
+    var previous;
+
+    if (isApplyingState) {
+      return;
+    }
+
+    state = getCurrentState();
+    signature = stateSignature(state);
+    previous = undoStack.length ? undoStack[undoStack.length - 1].signature : "";
+
+    if (signature !== previous) {
+      undoStack.push({ signature: signature, state: state });
+
+      if (undoStack.length > maxUndoSteps) {
+        undoStack.shift();
+      }
+
+      updateUndoButton();
+    }
+  }
+
+  function persistState() {
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(getCurrentState()));
+    } catch (error) {
+      return;
+    }
+  }
+
+  function getStoredState() {
+    try {
+      return JSON.parse(window.localStorage.getItem(storageKey) || "null");
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getBoolParam(params, key, fallback) {
+    if (!params.has(key)) {
+      return fallback;
+    }
+
+    return params.get(key) === "1";
+  }
+
+  function getStateFromUrl() {
+    var params = new URLSearchParams(window.location.search);
+
+    if (!params.has("text") && !params.has("preset")) {
+      return null;
+    }
+
+    return {
+      version: 2,
+      preset: params.get("preset") || "enamel",
+      activePreset: params.get("active") || params.get("preset") || "enamel",
+      text: params.get("text") || "UNDERGROUND",
+      barWidth: params.get("bar"),
+      barHeight: params.get("thick"),
+      textSize: params.get("size"),
+      font: params.get("font"),
+      color: params.get("color"),
+      capitalise: getBoolParam(params, "caps", true),
+      whiteCenter: getBoolParam(params, "center", true),
+      gradients: getBoolParam(params, "grad", true),
+      shadow: getBoolParam(params, "shadow", true),
+      blueOutline: getBoolParam(params, "outline", true),
+      whiteInset: getBoolParam(params, "inset", true),
+      plaque: getBoolParam(params, "plaque", false)
+    };
+  }
+
+  function appendStateParams(state) {
+    var params = new URLSearchParams();
+
+    params.set("text", state.text);
+    params.set("preset", state.preset);
+    params.set("active", state.activePreset);
+    params.set("bar", String(state.barWidth));
+    params.set("thick", String(state.barHeight));
+    params.set("size", String(state.textSize));
+    params.set("font", state.font);
+    params.set("color", state.color);
+    params.set("caps", state.capitalise ? "1" : "0");
+    params.set("center", state.whiteCenter ? "1" : "0");
+    params.set("grad", state.gradients ? "1" : "0");
+    params.set("shadow", state.shadow ? "1" : "0");
+    params.set("outline", state.blueOutline ? "1" : "0");
+    params.set("inset", state.whiteInset ? "1" : "0");
+    params.set("plaque", state.plaque ? "1" : "0");
+
+    return params;
+  }
+
+  function getShareUrl() {
+    var url = new URL(window.location.href);
+
+    url.search = appendStateParams(getCurrentState()).toString();
+    url.hash = "";
+
+    return url.toString();
+  }
+
+  function fallbackCopyText(value) {
+    var fallback;
+
+    fallback = document.createElement("textarea");
+    fallback.value = value;
+    fallback.setAttribute("readonly", "readonly");
+    fallback.style.position = "fixed";
+    fallback.style.left = "-9999px";
+    document.body.appendChild(fallback);
+    fallback.select();
+    document.execCommand("copy");
+    document.body.removeChild(fallback);
+
+    return Promise.resolve();
+  }
+
+  function copyText(value) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(value).catch(function () {
+        return fallbackCopyText(value);
+      });
+    }
+
+    return fallbackCopyText(value);
+  }
+
+  function copyShareLink() {
+    copyText(getShareUrl()).then(function () {
+      exportStatus.textContent = "Link copied.";
+    }).catch(function () {
+      exportStatus.textContent = "Copy failed.";
+    });
+  }
+
+  function hasSeenIntro() {
+    try {
+      return window.localStorage.getItem(introSeenKey) === "1";
+    } catch (error) {
+      return true;
+    }
+  }
+
+  function markIntroSeen() {
+    try {
+      window.localStorage.setItem(introSeenKey, "1");
+    } catch (error) {
+      return;
+    }
+  }
+
+  function playIntro(options) {
+    options = options || {};
+
+    if (!roundelStage || (reducedMotionQuery && reducedMotionQuery.matches)) {
+      return;
+    }
+
+    roundelStage.classList.remove("is-intro", "is-guiding");
+    roundelStage.offsetWidth;
+    roundelStage.classList.add("is-intro");
+
+    if (options.guide) {
+      roundelStage.classList.add("is-guiding");
+    }
+
+    window.setTimeout(function () {
+      roundelStage.classList.remove("is-intro", "is-guiding");
+    }, options.guide ? 2300 : 1700);
+  }
+
+  function playFirstRunIntro() {
+    if (hasSeenIntro()) {
+      return;
+    }
+
+    window.setTimeout(function () {
+      playIntro({ guide: true });
+      markIntroSeen();
+    }, 450);
+  }
+
+  function showDragReadout(event, label, value) {
+    var stageRect;
+
+    if (!dragReadout || !roundelStage) {
+      return;
+    }
+
+    stageRect = roundelStage.getBoundingClientRect();
+    dragReadout.textContent = label + " " + value;
+    dragReadout.style.left = (event.clientX - stageRect.left) + "px";
+    dragReadout.style.top = (event.clientY - stageRect.top) + "px";
+    dragReadout.classList.add("is-visible");
+  }
+
+  function hideDragReadout() {
+    if (dragReadout) {
+      dragReadout.classList.remove("is-visible");
+    }
+  }
+
+  function applyState(state, options) {
+    var presetKey;
+
+    if (!state) {
+      return;
+    }
+
+    options = options || {};
+    presetKey = presets[state.activePreset] ? state.activePreset : state.preset;
+    presetKey = presets[presetKey] ? presetKey : "enamel";
+    isApplyingState = true;
+
+    try {
+      activePresetKey = presetKey;
+      applyPreset(presetKey, { suppressPersist: true });
+      input.value = typeof state.text === "string" ? state.text : "UNDERGROUND";
+      presetChoice.value = state.preset === "custom" ? "custom" : presetKey;
+      setRangeControl(barWidthInput, state.barWidth || presets[presetKey].barWidth);
+      setRangeControl(barHeightInput, state.barHeight || 0);
+      setRangeControl(textSizeInput, state.textSize || 0);
+      fontChoice.value = fontStacks[state.font] ? state.font : presets[presetKey].font;
+      colorChoice.value = colorSchemes[state.color] || state.color === "preset" ? state.color : "preset";
+      capitaliseToggle.checked = state.capitalise !== false;
+      whiteCenterToggle.checked = state.whiteCenter !== false;
+      gradientsToggle.checked = state.gradients !== false;
+      shadowToggle.checked = state.shadow !== false;
+      blueOutlineToggle.checked = state.blueOutline !== false;
+      whiteInsetToggle.checked = state.whiteInset !== false;
+      plaqueToggle.checked = Boolean(state.plaque);
+    } finally {
+      isApplyingState = false;
+    }
+
+    updateRoundel({ animate: options.animate, suppressPersist: options.suppressPersist });
+    scrollPresetButtonIntoView(activePresetKey);
+
+    if (!options.suppressPersist) {
+      persistState();
+    }
+  }
+
+  function undoLastChange() {
+    var entry = undoStack.pop();
+
+    if (!entry) {
+      return;
+    }
+
+    applyState(entry.state, { animate: true });
+    updateUndoButton();
+  }
+
+  function resetCurrentStyle() {
+    var text = input.value;
+
+    recordUndoState();
+    applyPreset(activePresetKey, { animate: true, suppressPersist: true });
+    input.value = text;
+    updateRoundel({ animate: true });
+  }
+
   function clampInputLines() {
     var lines = input.value.replace(/\r/g, "").split("\n");
 
@@ -648,6 +1100,16 @@
     return lines;
   }
 
+  function getDisplayLines(lines) {
+    if (!capitaliseToggle.checked) {
+      return lines;
+    }
+
+    return lines.map(function (line) {
+      return line.toLocaleUpperCase("en-GB");
+    });
+  }
+
   function measureText(value, fontSize) {
     measureContext.font = "700 " + fontSize + "px " + getFontStack();
     return measureContext.measureText(value).width;
@@ -657,10 +1119,30 @@
     return Number(barWidthInput.value) || 896;
   }
 
+  function getTextSizeAdjustment() {
+    return Number(textSizeInput.value) || 0;
+  }
+
+  function getBarHeightAdjustment() {
+    return Number(barHeightInput.value) || 0;
+  }
+
+  function formatSigned(value) {
+    if (value > 0) {
+      return "+" + value;
+    }
+
+    return String(value);
+  }
+
   function getBarHeight(lineCount) {
     var preset = getActivePreset();
+    var baseHeight = lineCount > 1 ? preset.doubleBarHeight : preset.singleBarHeight;
+    var adjustedHeight = baseHeight + getBarHeightAdjustment();
+    var minimumHeight = lineCount > 1 ? 180 : 104;
+    var maximumHeight = lineCount > 1 ? 330 : 220;
 
-    return lineCount > 1 ? preset.doubleBarHeight : preset.singleBarHeight;
+    return Math.max(minimumHeight, Math.min(maximumHeight, adjustedHeight));
   }
 
   function getLineHeight(fontSize, lineCount) {
@@ -696,6 +1178,62 @@
     setRect(barFill, barX, barY, barWidth, barHeight, preset.barRadius);
     setRect(barBorder, barX, barY, barWidth, barHeight, preset.barRadius);
     setRect(barInset, barX + inset, barY + inset, Math.max(0, barWidth - inset * 2), Math.max(0, barHeight - inset * 2), 3);
+  }
+
+  function getSvgScale() {
+    var rect = svg.getBoundingClientRect();
+
+    return {
+      x: rect.width / 1200,
+      y: rect.height / 840
+    };
+  }
+
+  function syncLiveEditor(lines, barWidth, barHeight, fontSize) {
+    var barX = centerX - barWidth / 2;
+    var barY = centerY - barHeight / 2;
+    var scale = getSvgScale();
+    var lineHeight = getLineHeight(fontSize, lines.length) * scale.y;
+    var verticalPadding = Math.max(0, (barHeight * scale.y - lineHeight * lines.length) / 2);
+    var horizontalPadding = Math.max(8, getHorizontalPadding(lines.length, barWidth) * scale.x / 2);
+    var textColor = textNode.getAttribute("fill") || "#ffffff";
+    var gripHeight = Math.max(52, Math.min(92, barHeight * scale.y * 0.58));
+
+    input.style.left = (barX / 1200 * 100) + "%";
+    input.style.top = (barY / 840 * 100) + "%";
+    input.style.width = (barWidth / 1200 * 100) + "%";
+    input.style.height = (barHeight / 840 * 100) + "%";
+    input.style.padding = verticalPadding + "px " + horizontalPadding + "px 0";
+    input.style.fontFamily = getFontStack();
+    input.style.fontSize = Math.max(18, fontSize * scale.x) + "px";
+    input.style.lineHeight = lineHeight + "px";
+    input.style.color = textColor;
+    input.style.caretColor = textColor;
+    input.style.textTransform = capitaliseToggle.checked ? "uppercase" : "none";
+
+    if (leftBarGrip) {
+      leftBarGrip.style.left = ((barX - 18) / 1200 * 100) + "%";
+      leftBarGrip.style.top = (centerY / 840 * 100) + "%";
+      leftBarGrip.style.height = gripHeight + "px";
+    }
+
+    if (rightBarGrip) {
+      rightBarGrip.style.left = ((barX + barWidth + 18) / 1200 * 100) + "%";
+      rightBarGrip.style.top = (centerY / 840 * 100) + "%";
+      rightBarGrip.style.height = gripHeight + "px";
+    }
+
+    if (topBarGrip) {
+      topBarGrip.style.left = (centerX / 1200 * 100) + "%";
+      topBarGrip.style.top = ((barY - 18) / 840 * 100) + "%";
+      topBarGrip.style.width = Math.max(92, Math.min(150, barWidth * scale.x * 0.2)) + "px";
+    }
+
+    if (bottomBarGrip) {
+      bottomBarGrip.style.left = (centerX / 1200 * 100) + "%";
+      bottomBarGrip.style.top = ((barY + barHeight + 18) / 840 * 100) + "%";
+      bottomBarGrip.style.width = Math.max(92, Math.min(150, barWidth * scale.x * 0.2)) + "px";
+    }
   }
 
   function getNumberAttribute(element, name, fallback) {
@@ -1065,8 +1603,20 @@
     }
   }
 
+  function constrainTextToBar(lines, barWidth, fontSize) {
+    var availableWidth = Math.max(24, barWidth - getHorizontalPadding(lines.length, barWidth));
+
+    Array.prototype.forEach.call(textNode.children, function (lineNode, index) {
+      if (measureText(lines[index] || "", fontSize) > availableWidth) {
+        lineNode.setAttribute("textLength", String(availableWidth));
+        lineNode.setAttribute("lengthAdjust", "spacingAndGlyphs");
+      }
+    });
+  }
+
   function fitAndUpdateText(lines, barWidth, barHeight) {
-    var fontSize = lines.length > 1 ? 98 : 116;
+    var baseFontSize = lines.length > 1 ? 98 : 116;
+    var fontSize = baseFontSize + getTextSizeAdjustment();
 
     while (fontSize > minFontSize) {
       updateText(lines, fontSize);
@@ -1079,6 +1629,7 @@
     }
 
     updateText(lines, fontSize);
+    constrainTextToBar(lines, barWidth, fontSize);
     return fontSize;
   }
 
@@ -1128,6 +1679,7 @@
   function updateStyleOptions() {
     var preset = getActivePreset();
     var scheme = getActiveColorScheme();
+    var bulbsVisible = Boolean(preset.bulbs && plaqueToggle.checked);
     var centerFillColor = themedValue(scheme, preset, "centerFill");
     var ringSolid = themedValue(scheme, preset, "ringSolid");
     var ringGradient = themedValue(scheme, preset, "ringGradient");
@@ -1173,6 +1725,11 @@
     plaqueBackground.style.display = plaqueToggle.checked ? "" : "none";
     plaqueBackground.setAttribute("opacity", plaqueToggle.checked ? "1" : "0");
 
+    if (bulbLayer) {
+      bulbLayer.style.display = bulbsVisible ? "" : "none";
+      bulbLayer.setAttribute("opacity", bulbsVisible ? "1" : "0");
+    }
+
     if (shadowToggle.checked) {
       artGroup.setAttribute("filter", "url(#soft-shadow)");
     } else {
@@ -1200,17 +1757,23 @@
 
     clampInputLines();
 
-    var lines = normalizeLines(input.value);
+    var sourceLines = normalizeLines(input.value);
+    var lines = getDisplayLines(sourceLines);
     var barWidth = getBarWidth();
     var barHeight = getBarHeight(lines.length);
+    var fontSize;
     var titleText = lines.join(" / ");
 
     barWidthOutput.textContent = String(barWidth);
+    barHeightOutput.textContent = formatSigned(getBarHeightAdjustment());
+    textSizeOutput.textContent = formatSigned(getTextSizeAdjustment());
     updateRingGeometry();
     updateBarGeometry(barWidth, barHeight);
     updateOrnaments(lines, barWidth, barHeight);
-    fitAndUpdateText(lines, barWidth, barHeight);
+    fontSize = fitAndUpdateText(lines, barWidth, barHeight);
     updateStyleOptions();
+    syncLiveEditor(lines, barWidth, barHeight, fontSize);
+    syncControlStates();
     titleNode.textContent = "Roundel sign reading " + titleText;
 
     if (animateChange) {
@@ -1219,6 +1782,10 @@
     }
 
     hasRendered = true;
+
+    if (!options.suppressPersist && !isApplyingState) {
+      persistState();
+    }
   }
 
   function applyPreset(key, options) {
@@ -1229,18 +1796,32 @@
     }
 
     activePresetKey = key;
+    presetChoice.value = key;
+    colorChoice.value = "preset";
     barWidthInput.value = String(preset.barWidth);
+    barHeightInput.value = "0";
+    textSizeInput.value = "0";
     fontChoice.value = preset.font;
     whiteCenterToggle.checked = preset.whiteCenter;
     gradientsToggle.checked = preset.gradients;
     shadowToggle.checked = preset.shadow;
     blueOutlineToggle.checked = preset.blueOutline;
     whiteInsetToggle.checked = preset.whiteInset;
+    plaqueToggle.checked = Boolean(preset.plaque);
     updateRoundel(options);
+    scrollPresetButtonIntoView(activePresetKey);
+
+    if (preset.bulbs && options && options.animate) {
+      window.setTimeout(function () {
+        playIntro();
+      }, 40);
+    }
   }
 
   function applyColorScheme(key, options) {
     var scheme = colorSchemes[key];
+
+    colorChoice.value = key;
 
     if (scheme) {
       if (Object.prototype.hasOwnProperty.call(scheme, "gradients")) {
@@ -1268,17 +1849,53 @@
     return slug || "underground";
   }
 
-  function exportPng() {
-    updateRoundel();
+  function getExportText() {
+    return getDisplayLines(normalizeLines(input.value)).join(" ");
+  }
 
-    var text = normalizeLines(input.value).join(" ");
-    var serializer = new XMLSerializer();
-    var svgSource = serializer.serializeToString(svg);
+  function getSerializedSvg() {
+    updateRoundel({ suppressPersist: true });
+
+    return new XMLSerializer().serializeToString(svg);
+  }
+
+  function downloadBlob(blob, filename) {
+    var link = document.createElement("a");
+    var url = URL.createObjectURL(blob);
+
+    link.download = filename;
+    link.href = url;
+    link.click();
+
+    window.setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 0);
+  }
+
+  function setExportBusy(isBusy) {
+    exportButton.disabled = isBusy;
+
+    if (exportSvgButton) {
+      exportSvgButton.disabled = isBusy;
+    }
+  }
+
+  function exportSvg() {
+    var text = getExportText();
+    var svgBlob = new Blob([getSerializedSvg()], { type: "image/svg+xml;charset=utf-8" });
+
+    downloadBlob(svgBlob, "roundel-sign-" + slugify(text) + ".svg");
+    exportStatus.textContent = "SVG exported.";
+  }
+
+  function exportPng() {
+    var text = getExportText();
+    var svgSource = getSerializedSvg();
     var svgBlob = new Blob([svgSource], { type: "image/svg+xml;charset=utf-8" });
     var url = URL.createObjectURL(svgBlob);
     var image = new Image();
 
-    exportButton.disabled = true;
+    setExportBusy(true);
     exportStatus.textContent = "Preparing PNG...";
 
     image.onload = function () {
@@ -1301,32 +1918,193 @@
         exportStatus.textContent = "Export failed.";
       } finally {
         URL.revokeObjectURL(url);
-        exportButton.disabled = false;
+        setExportBusy(false);
       }
     };
 
     image.onerror = function () {
       URL.revokeObjectURL(url);
-      exportButton.disabled = false;
+      setExportBusy(false);
       exportStatus.textContent = "Export failed.";
     };
 
     image.src = url;
   }
 
-  presetChoice.addEventListener("change", function () {
-    if (presetChoice.value === "custom") {
+  function updateDragValue(event) {
+    var delta;
+    var nextValue;
+
+    if (!activeDrag) {
       return;
     }
 
-    applyPreset(presetChoice.value, { animate: true });
+    if (Math.abs(event.clientX - activeDrag.startX) > 2 || Math.abs(event.clientY - activeDrag.startY) > 2) {
+      activeDrag.moved = true;
+    }
+
+    if (activeDrag.type === "width-left" || activeDrag.type === "width-right") {
+      delta = activeDrag.type === "width-left" ? activeDrag.startX - event.clientX : event.clientX - activeDrag.startX;
+      nextValue = activeDrag.startWidth + delta / activeDrag.scale.x * 2;
+      setRangeControl(barWidthInput, nextValue);
+      showDragReadout(event, "Width", barWidthInput.value);
+    } else {
+      delta = activeDrag.type === "height-top" ? activeDrag.startY - event.clientY : event.clientY - activeDrag.startY;
+      nextValue = activeDrag.startBarHeight + delta / activeDrag.scale.y * 2;
+      setRangeControl(barHeightInput, nextValue);
+      showDragReadout(event, "Thickness", formatSigned(getBarHeightAdjustment()));
+    }
+
+    markCustom();
+    updateRoundel();
+  }
+
+  function startBarDrag(event) {
+    var dragType = event.currentTarget.getAttribute("data-drag");
+
+    if (!dragType) {
+      return;
+    }
+
+    recordUndoState();
+    openMenu("bar");
+    event.preventDefault();
+
+    activeDrag = {
+      button: event.currentTarget,
+      type: dragType,
+      startX: event.clientX,
+      startY: event.clientY,
+      startWidth: getBarWidth(),
+      startBarHeight: getBarHeightAdjustment(),
+      scale: getSvgScale(),
+      moved: false
+    };
+
+    if (roundelStage) {
+      roundelStage.classList.add("is-dragging");
+    }
+
+    if (event.currentTarget.setPointerCapture) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+  }
+
+  function moveBarDrag(event) {
+    if (!activeDrag) {
+      return;
+    }
+
+    event.preventDefault();
+    updateDragValue(event);
+  }
+
+  function endBarDrag(event) {
+    if (!activeDrag) {
+      return;
+    }
+
+    if (activeDrag.moved) {
+      activeDrag.button.setAttribute("data-skip-click", "true");
+    }
+
+    if (activeDrag.button.releasePointerCapture) {
+      activeDrag.button.releasePointerCapture(event.pointerId);
+    }
+
+    activeDrag = null;
+    hideDragReadout();
+
+    if (roundelStage) {
+      roundelStage.classList.remove("is-dragging");
+    }
+  }
+
+  if (form) {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+    });
+  }
+
+  presetButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      recordUndoState();
+      applyPreset(button.getAttribute("data-preset"), { animate: true });
+    });
   });
-  input.addEventListener("input", updateRoundel);
+
+  fontButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      recordUndoState();
+      fontChoice.value = button.getAttribute("data-font");
+      markCustom();
+      updateRoundel({ animate: true });
+      input.focus();
+    });
+  });
+
+  colorButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      recordUndoState();
+      applyColorScheme(button.getAttribute("data-color"), { animate: true });
+    });
+  });
+
+  menuButtons.forEach(function (button) {
+    button.addEventListener("click", function (event) {
+      if (button.getAttribute("data-skip-click") === "true") {
+        button.removeAttribute("data-skip-click");
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
+      event.stopPropagation();
+      openMenu(button.getAttribute("data-menu"));
+    });
+  });
+
+  menuPanels.forEach(function (panel) {
+    panel.addEventListener("click", function (event) {
+      event.stopPropagation();
+    });
+  });
+
+  document.addEventListener("click", function (event) {
+    if (!roundelStage || !roundelStage.contains(event.target)) {
+      closeMenus();
+    }
+  });
+
+  input.addEventListener("focus", function () {
+    openMenu("text");
+  });
+  input.addEventListener("beforeinput", recordUndoState);
+  input.addEventListener("click", function (event) {
+    event.stopPropagation();
+    openMenu("text");
+  });
+  input.addEventListener("input", function () {
+    markCustom();
+    updateRoundel();
+  });
   barWidthInput.addEventListener("input", function () {
     markCustom();
     updateRoundel();
   });
+  barHeightInput.addEventListener("input", function () {
+    markCustom();
+    updateRoundel();
+  });
   fontChoice.addEventListener("change", function () {
+    markCustom();
+    updateRoundel({ animate: true });
+  });
+  textSizeInput.addEventListener("input", function () {
+    markCustom();
+    updateRoundel();
+  });
+  capitaliseToggle.addEventListener("change", function () {
     markCustom();
     updateRoundel({ animate: true });
   });
@@ -1357,10 +2135,76 @@
     updateRoundel({ animate: true });
   });
   exportButton.addEventListener("click", exportPng);
+  exportSvgButton.addEventListener("click", exportSvg);
+  undoButton.addEventListener("click", undoLastChange);
+  resetButton.addEventListener("click", resetCurrentStyle);
+  copyLinkButton.addEventListener("click", copyShareLink);
+  exportTriggers.forEach(function (button) {
+    button.addEventListener("click", exportPng);
+  });
+  exportSvgTriggers.forEach(function (button) {
+    button.addEventListener("click", exportSvg);
+  });
+  copyLinkTriggers.forEach(function (button) {
+    button.addEventListener("click", copyShareLink);
+  });
+
+  [barWidthInput, barHeightInput, textSizeInput].forEach(function (control) {
+    control.addEventListener("pointerdown", recordUndoState);
+    control.addEventListener("keydown", function (event) {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].indexOf(event.key) !== -1) {
+        recordUndoState();
+      }
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll([
+    "#capitalise-text",
+    "#white-center",
+    "#use-gradients",
+    "#use-shadow",
+    "#blue-outline",
+    "#white-inset",
+    "#use-plaque",
+    "label[for='capitalise-text']",
+    "label[for='white-center']",
+    "label[for='use-gradients']",
+    "label[for='use-shadow']",
+    "label[for='blue-outline']",
+    "label[for='white-inset']",
+    "label[for='use-plaque']"
+  ].join(",")), function (control) {
+    control.addEventListener("pointerdown", recordUndoState);
+    control.addEventListener("keydown", function (event) {
+      if (event.key === " " || event.key === "Enter") {
+        recordUndoState();
+      }
+    });
+  });
+
+  barGrips.forEach(function (grip) {
+    grip.addEventListener("pointerdown", startBarDrag);
+  });
+
+  document.addEventListener("pointermove", moveBarDrag);
+  document.addEventListener("pointerup", endBarDrag);
+  document.addEventListener("pointercancel", endBarDrag);
+
+  window.addEventListener("resize", function () {
+    updateRoundel({ suppressPersist: true });
+  });
 
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(updateRoundel).catch(updateRoundel);
+    document.fonts.ready.then(function () {
+      updateRoundel({ suppressPersist: true });
+    }).catch(function () {
+      updateRoundel({ suppressPersist: true });
+    });
   }
 
-  applyPreset(activePresetKey);
+  applyPreset(activePresetKey, { suppressPersist: true });
+  applyState(getStateFromUrl() || getStoredState(), { suppressPersist: true });
+  persistState();
+  updateUndoButton();
+  playFirstRunIntro();
 }());

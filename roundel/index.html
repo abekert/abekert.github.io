@@ -67,123 +67,80 @@
     <a class="skip-link" href="#main">Skip to content</a>
 
     <main id="main" class="page-shell">
-      <section class="tool-panel" aria-labelledby="page-title">
-        <div class="tool-copy">
+      <section class="roundel-workbench" aria-labelledby="page-title">
+        <header class="topbar">
           <a class="home-link" href="/" aria-label="Back to Alexander Bekert homepage">Alexander Bekert</a>
-          <h1 id="page-title">Roundel Sign Maker</h1>
-          <p>Unofficial transport-style sign generator for playful personal artwork.</p>
-        </div>
-
-        <form class="controls" id="roundel-form">
-          <label class="field" for="style-preset">
-            <span>Preset</span>
-            <select id="style-preset" name="style-preset">
-              <option value="enamel" selected>Enamel screen</option>
-              <option value="classic">Classic flat</option>
-              <option value="platform">Platform sign</option>
-              <option value="heritage">Heritage enamel</option>
-              <option value="redDisc">Solid red disc</option>
-              <option value="museum">Museum black trim</option>
-              <option value="poster">Poster print</option>
-              <option value="night">Night sign</option>
-              <option value="compact">Compact name</option>
-              <option value="twoline">Two-line station</option>
-              <option value="custom">Custom</option>
-            </select>
-          </label>
-
-          <label class="field" for="sign-text">
-            <span>Sign text</span>
-            <textarea
-              id="sign-text"
-              name="sign-text"
-              rows="2"
-              maxlength="64"
-              autocomplete="off"
-              spellcheck="false"
-            >UNDERGROUND</textarea>
-          </label>
-
-          <label class="field range-field" for="bar-width">
-            <span>Bar width</span>
-            <div class="range-row">
-              <input id="bar-width" name="bar-width" type="range" min="280" max="1040" step="10" value="900" />
-              <output id="bar-width-output" for="bar-width">900</output>
+          <div class="brand-lockup">
+            <span class="roundel-mark" aria-hidden="true"></span>
+            <div>
+              <p class="eyebrow">Unofficial transport-style studio</p>
+              <h1 id="page-title">Roundel Sign Maker</h1>
             </div>
-          </label>
+          </div>
+          <div class="topbar-actions">
+            <div class="quick-actions" aria-label="Quick actions">
+              <button class="icon-button" id="undo-button" type="button" aria-label="Undo" title="Undo" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 7H4v5" />
+                  <path d="M5 12a8 8 0 1 0 2.3-5.7L4 9.6" />
+                </svg>
+              </button>
+              <button class="icon-button" id="reset-button" type="button" aria-label="Reset current style" title="Reset current style">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 12a8 8 0 1 1-2.3-5.7" />
+                  <path d="M20 4v6h-6" />
+                </svg>
+              </button>
+              <button class="icon-button" id="copy-link-button" type="button" aria-label="Copy share link" title="Copy share link">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.2 1.2" />
+                  <path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.2-1.2" />
+                </svg>
+              </button>
+            </div>
+            <p class="export-status" id="export-status" role="status" aria-live="polite"></p>
+            <div class="export-actions" aria-label="Export">
+              <button class="export-button" id="export-button" type="button">PNG</button>
+              <button class="export-button export-button-secondary" id="export-svg-button" type="button">SVG</button>
+            </div>
+          </div>
+        </header>
 
-          <label class="field" for="font-choice">
-            <span>Font</span>
-            <select id="font-choice" name="font-choice">
-              <option value="gill" selected>Gill Sans</option>
-              <option value="avenir">Avenir Next</option>
-              <option value="trebuchet">Trebuchet MS</option>
-              <option value="system">System sans</option>
-              <option value="rounded">Arial Rounded</option>
-            </select>
-          </label>
+        <form class="studio-form" id="roundel-form">
+          <input id="style-preset" name="style-preset" type="hidden" value="enamel" />
+          <select id="font-choice" name="font-choice" hidden>
+            <option value="gill" selected>Gill Sans</option>
+            <option value="avenir">Avenir Next</option>
+            <option value="trebuchet">Trebuchet MS</option>
+            <option value="system">System sans</option>
+            <option value="rounded">Arial Rounded</option>
+          </select>
+          <select id="color-choice" name="color-choice" hidden>
+            <option value="preset" selected>Preset colours</option>
+            <option value="underground">Underground</option>
+            <option value="rail">TfL Rail</option>
+            <option value="elizabeth">Elizabeth line</option>
+            <option value="overground">Overground</option>
+            <option value="dlr">DLR</option>
+            <option value="river">River</option>
+            <option value="trams">Trams</option>
+            <option value="buses">Buses</option>
+            <option value="coaches">Coaches</option>
+            <option value="cycles">Cycles</option>
+            <option value="dial">Dial-a-Ride</option>
+            <option value="taxi">Taxi/private hire</option>
+            <option value="airline">Airline outline</option>
+          </select>
 
-          <label class="field" for="color-choice">
-            <span>Colours</span>
-            <select id="color-choice" name="color-choice">
-              <option value="preset" selected>Preset colours</option>
-              <option value="underground">Underground</option>
-              <option value="rail">TfL Rail</option>
-              <option value="elizabeth">Elizabeth line</option>
-              <option value="overground">Overground</option>
-              <option value="dlr">DLR</option>
-              <option value="river">River</option>
-              <option value="trams">Trams</option>
-              <option value="buses">Buses</option>
-              <option value="coaches">Coaches</option>
-              <option value="cycles">Cycles</option>
-              <option value="dial">Dial-a-Ride</option>
-              <option value="taxi">Taxi/private hire</option>
-              <option value="airline">Airline outline</option>
-            </select>
-          </label>
-
-          <fieldset class="option-group" aria-label="Style options">
-            <legend>Style</legend>
-            <label class="toggle" for="white-center">
-              <input id="white-center" name="white-center" type="checkbox" checked />
-              <span>Center fill</span>
-            </label>
-            <label class="toggle" for="use-gradients">
-              <input id="use-gradients" name="use-gradients" type="checkbox" checked />
-              <span>Gradients</span>
-            </label>
-            <label class="toggle" for="use-shadow">
-              <input id="use-shadow" name="use-shadow" type="checkbox" checked />
-              <span>Shadow</span>
-            </label>
-            <label class="toggle" for="blue-outline">
-              <input id="blue-outline" name="blue-outline" type="checkbox" checked />
-              <span>Bar outline</span>
-            </label>
-            <label class="toggle" for="white-inset">
-              <input id="white-inset" name="white-inset" type="checkbox" checked />
-              <span>White inset</span>
-            </label>
-            <label class="toggle" for="use-plaque">
-              <input id="use-plaque" name="use-plaque" type="checkbox" />
-              <span>Signboard bg</span>
-            </label>
-          </fieldset>
-
-          <button class="export-button" id="export-button" type="button">Export PNG</button>
-          <p class="export-status" id="export-status" role="status" aria-live="polite"></p>
-        </form>
-      </section>
-
-      <section class="preview-panel" aria-label="Generated roundel preview">
-        <svg
-          id="roundel-svg"
-          role="img"
-          aria-labelledby="roundel-title"
-          viewBox="0 0 1200 840"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+          <div class="stage-shell">
+            <div class="roundel-stage" id="roundel-stage">
+              <svg
+                id="roundel-svg"
+                role="img"
+                aria-labelledby="roundel-title"
+                viewBox="0 0 1200 840"
+                xmlns="http://www.w3.org/2000/svg"
+              >
           <title id="roundel-title">Roundel sign reading UNDERGROUND</title>
           <defs>
             <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
@@ -191,6 +148,19 @@
             </filter>
             <filter id="plaque-shadow" x="-8%" y="-8%" width="116%" height="116%">
               <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#1f2933" flood-opacity="0.18" />
+            </filter>
+            <filter id="bulb-glow" x="-220%" y="-220%" width="540%" height="540%">
+              <feGaussianBlur stdDeviation="9" result="blur" />
+              <feColorMatrix
+                in="blur"
+                result="warm"
+                type="matrix"
+                values="1 0 0 0 0.9  0 0.72 0 0 0.38  0 0 0.38 0 0.08  0 0 0 0.9 0"
+              />
+              <feMerge>
+                <feMergeNode in="warm" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
             </filter>
             <linearGradient id="plaque-wash" x1="0" x2="1" y1="0" y2="1">
               <stop offset="0" stop-color="#fffdf2" />
@@ -220,6 +190,12 @@
               <stop id="bar-stop-mid" offset="0.5" stop-color="#0019a8" />
               <stop id="bar-stop-bottom" offset="1" stop-color="#000f72" />
             </linearGradient>
+            <radialGradient id="bulb-fill" cx="38%" cy="32%" r="68%">
+              <stop offset="0" stop-color="#fffdf3" />
+              <stop offset="0.34" stop-color="#ffe6a0" />
+              <stop offset="0.72" stop-color="#ffbd54" />
+              <stop offset="1" stop-color="#bf6d22" />
+            </radialGradient>
           </defs>
           <rect width="1200" height="840" fill="transparent" />
           <g id="plaque-background" style="display: none;">
@@ -258,6 +234,61 @@
               <circle cx="122" cy="692" r="2.2" />
             </g>
           </g>
+          <g id="bulb-layer" style="display: none;" opacity="0">
+            <rect x="104" y="92" width="992" height="628" rx="3" fill="none" stroke="#ffcb6c" stroke-opacity="0.18" stroke-width="8" filter="url(#bulb-glow)" />
+            <g class="bulb-glows" fill="#ffc86d" opacity="0.28" filter="url(#bulb-glow)">
+              <circle cx="164" cy="112" r="22" />
+              <circle cx="284" cy="92" r="22" />
+              <circle cx="404" cy="92" r="22" />
+              <circle cx="524" cy="92" r="22" />
+              <circle cx="644" cy="92" r="22" />
+              <circle cx="764" cy="92" r="22" />
+              <circle cx="884" cy="92" r="22" />
+              <circle cx="1004" cy="112" r="22" />
+              <circle cx="1084" cy="210" r="22" />
+              <circle cx="1084" cy="330" r="22" />
+              <circle cx="1084" cy="450" r="22" />
+              <circle cx="1084" cy="570" r="22" />
+              <circle cx="1004" cy="700" r="22" />
+              <circle cx="884" cy="724" r="22" />
+              <circle cx="764" cy="724" r="22" />
+              <circle cx="644" cy="724" r="22" />
+              <circle cx="524" cy="724" r="22" />
+              <circle cx="404" cy="724" r="22" />
+              <circle cx="284" cy="724" r="22" />
+              <circle cx="164" cy="700" r="22" />
+              <circle cx="116" cy="570" r="22" />
+              <circle cx="116" cy="450" r="22" />
+              <circle cx="116" cy="330" r="22" />
+              <circle cx="116" cy="210" r="22" />
+            </g>
+            <g class="bulb-cores" fill="url(#bulb-fill)" stroke="#fff1c7" stroke-width="2.5">
+              <circle cx="164" cy="112" r="9" />
+              <circle cx="284" cy="92" r="9" />
+              <circle cx="404" cy="92" r="9" />
+              <circle cx="524" cy="92" r="9" />
+              <circle cx="644" cy="92" r="9" />
+              <circle cx="764" cy="92" r="9" />
+              <circle cx="884" cy="92" r="9" />
+              <circle cx="1004" cy="112" r="9" />
+              <circle cx="1084" cy="210" r="9" />
+              <circle cx="1084" cy="330" r="9" />
+              <circle cx="1084" cy="450" r="9" />
+              <circle cx="1084" cy="570" r="9" />
+              <circle cx="1004" cy="700" r="9" />
+              <circle cx="884" cy="724" r="9" />
+              <circle cx="764" cy="724" r="9" />
+              <circle cx="644" cy="724" r="9" />
+              <circle cx="524" cy="724" r="9" />
+              <circle cx="404" cy="724" r="9" />
+              <circle cx="284" cy="724" r="9" />
+              <circle cx="164" cy="700" r="9" />
+              <circle cx="116" cy="570" r="9" />
+              <circle cx="116" cy="450" r="9" />
+              <circle cx="116" cy="330" r="9" />
+              <circle cx="116" cy="210" r="9" />
+            </g>
+          </g>
           <g id="roundel-art" filter="url(#soft-shadow)">
             <circle id="ring-circle" cx="600" cy="420" r="292" fill="url(#ring-highlight)" mask="url(#ring-mask)" />
             <circle id="center-fill" cx="600" cy="420" r="178" fill="#ffffff" />
@@ -280,7 +311,218 @@
               letter-spacing="0"
             >UNDERGROUND</text>
           </g>
-        </svg>
+              </svg>
+
+              <button
+                class="hotspot hotspot-background"
+                data-menu="background"
+                type="button"
+                aria-controls="menu-background"
+                aria-expanded="false"
+                aria-label="Open background options"
+              ></button>
+              <button
+                class="hotspot hotspot-ring"
+                data-menu="ring"
+                type="button"
+                aria-controls="menu-ring"
+                aria-expanded="false"
+                aria-label="Open colour and ring options"
+              ></button>
+              <button
+                class="bar-grip bar-grip-left"
+                data-menu="bar"
+                data-drag="width-left"
+                type="button"
+                aria-controls="menu-bar"
+                aria-expanded="false"
+                aria-label="Adjust bar width"
+              ></button>
+              <button
+                class="bar-grip bar-grip-right"
+                data-menu="bar"
+                data-drag="width-right"
+                type="button"
+                aria-controls="menu-bar"
+                aria-expanded="false"
+                aria-label="Adjust bar width"
+              ></button>
+              <button
+                class="bar-grip bar-grip-top bar-grip-thickness"
+                data-menu="bar"
+                data-drag="height-top"
+                type="button"
+                aria-controls="menu-bar"
+                aria-expanded="false"
+                aria-label="Adjust bar thickness"
+              ></button>
+              <button
+                class="bar-grip bar-grip-bottom bar-grip-thickness"
+                data-menu="bar"
+                data-drag="height-bottom"
+                type="button"
+                aria-controls="menu-bar"
+                aria-expanded="false"
+                aria-label="Adjust bar thickness"
+              ></button>
+              <textarea
+                class="live-text-editor"
+                id="sign-text"
+                name="sign-text"
+                rows="2"
+                maxlength="64"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Sign text"
+              >UNDERGROUND</textarea>
+              <div class="drag-readout" id="drag-readout" aria-hidden="true"></div>
+
+              <div class="floating-menu menu-ring" id="menu-ring" data-menu-panel="ring" role="dialog" aria-label="Roundel colours" hidden>
+                <div class="menu-title">Colours</div>
+                <div class="color-grid" aria-label="Colour styles">
+                  <button class="color-button" data-color="preset" type="button" style="--ring: #d61920; --bar: #0019a8; --text-on: #ffffff;">Preset</button>
+                  <button class="color-button" data-color="underground" type="button" style="--ring: #e1251b; --bar: #003688; --text-on: #ffffff;">Underground</button>
+                  <button class="color-button" data-color="rail" type="button" style="--ring: #001f7e; --bar: #003688; --text-on: #ffffff;">TfL Rail</button>
+                  <button class="color-button" data-color="elizabeth" type="button" style="--ring: #7156b8; --bar: #003688; --text-on: #ffffff;">Elizabeth</button>
+                  <button class="color-button" data-color="overground" type="button" style="--ring: #ef7b10; --bar: #003688; --text-on: #ffffff;">Overground</button>
+                  <button class="color-button" data-color="dlr" type="button" style="--ring: #00a4a7; --bar: #003688; --text-on: #ffffff;">DLR</button>
+                  <button class="color-button" data-color="river" type="button" style="--ring: #009bd8; --bar: #003688; --text-on: #ffffff;">River</button>
+                  <button class="color-button" data-color="trams" type="button" style="--ring: #84bd00; --bar: #003688; --text-on: #ffffff;">Trams</button>
+                  <button class="color-button" data-color="buses" type="button" style="--ring: #e1251b; --bar: #e1251b; --text-on: #ffffff;">Buses</button>
+                  <button class="color-button" data-color="coaches" type="button" style="--ring: #fdb913; --bar: #003688; --text-on: #ffffff;">Coaches</button>
+                  <button class="color-button" data-color="cycles" type="button" style="--ring: #e1251b; --bar: #ffffff; --text-on: #e1251b;">Cycles</button>
+                  <button class="color-button" data-color="dial" type="button" style="--ring: #b23a96; --bar: #003688; --text-on: #ffffff;">Dial</button>
+                  <button class="color-button" data-color="taxi" type="button" style="--ring: #7c8bc5; --bar: #003688; --text-on: #ffffff;">Taxi</button>
+                  <button class="color-button" data-color="airline" type="button" style="--ring: #ffffff; --bar: #ffffff; --text-on: #e4002b;">Airline</button>
+                </div>
+                <div class="toggle-grid">
+                  <label class="toggle" for="white-center">
+                    <input id="white-center" name="white-center" type="checkbox" checked />
+                    <span>Center fill</span>
+                  </label>
+                  <label class="toggle" for="use-gradients">
+                    <input id="use-gradients" name="use-gradients" type="checkbox" checked />
+                    <span>Gradients</span>
+                  </label>
+                  <label class="toggle" for="use-shadow">
+                    <input id="use-shadow" name="use-shadow" type="checkbox" checked />
+                    <span>Shadow</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="floating-menu menu-bar" id="menu-bar" data-menu-panel="bar" role="dialog" aria-label="Bar options" hidden>
+                <div class="menu-title">Bar</div>
+                <label class="range-field" for="bar-width">
+                  <span>Width</span>
+                  <div class="range-row">
+                    <input id="bar-width" name="bar-width" type="range" min="280" max="1040" step="10" value="900" />
+                    <output id="bar-width-output" for="bar-width">900</output>
+                  </div>
+                </label>
+                <label class="range-field" for="bar-height-adjust">
+                  <span>Thickness</span>
+                  <div class="range-row">
+                    <input id="bar-height-adjust" name="bar-height-adjust" type="range" min="-28" max="36" step="2" value="0" />
+                    <output id="bar-height-output" for="bar-height-adjust">0</output>
+                  </div>
+                </label>
+                <div class="toggle-grid">
+                  <label class="toggle" for="blue-outline">
+                    <input id="blue-outline" name="blue-outline" type="checkbox" checked />
+                    <span>Bar outline</span>
+                  </label>
+                  <label class="toggle" for="white-inset">
+                    <input id="white-inset" name="white-inset" type="checkbox" checked />
+                    <span>White inset</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="floating-menu menu-text" id="menu-text" data-menu-panel="text" role="dialog" aria-label="Text options" hidden>
+                <div class="menu-title">Type</div>
+                <div class="font-grid" aria-label="Font styles">
+                  <button class="font-button" data-font="gill" type="button">Gill Sans</button>
+                  <button class="font-button" data-font="avenir" type="button">Avenir</button>
+                  <button class="font-button" data-font="trebuchet" type="button">Trebuchet</button>
+                  <button class="font-button" data-font="system" type="button">System</button>
+                  <button class="font-button" data-font="rounded" type="button">Rounded</button>
+                </div>
+                <label class="range-field" for="text-size-adjust">
+                  <span>Text size</span>
+                  <div class="range-row">
+                    <input id="text-size-adjust" name="text-size-adjust" type="range" min="-14" max="14" step="1" value="0" />
+                    <output id="text-size-output" for="text-size-adjust">0</output>
+                  </div>
+                </label>
+                <div class="toggle-grid">
+                  <label class="toggle toggle-wide" for="capitalise-text">
+                    <input id="capitalise-text" name="capitalise-text" type="checkbox" checked />
+                    <span>CAPITALISE</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="floating-menu menu-background" id="menu-background" data-menu-panel="background" role="dialog" aria-label="Background options" hidden>
+                <div class="menu-title">Surface</div>
+                <label class="toggle toggle-wide" for="use-plaque">
+                  <input id="use-plaque" name="use-plaque" type="checkbox" />
+                  <span>Signboard background</span>
+                </label>
+                <button class="menu-action" data-export type="button">Export PNG</button>
+                <button class="menu-action menu-action-secondary" data-export-svg type="button">Export SVG</button>
+                <button class="menu-action menu-action-secondary" data-copy-link type="button">Copy link</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="style-strip" aria-label="Ready-made roundel styles">
+            <button class="style-button" data-preset="enamel" type="button" style="--mini-ring: #d61920; --mini-bar: #0019a8; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Enamel</span>
+            </button>
+            <button class="style-button" data-preset="classic" type="button" style="--mini-ring: #dc241f; --mini-bar: #0019a8; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Classic</span>
+            </button>
+            <button class="style-button" data-preset="platform" type="button" style="--mini-ring: #e94b55; --mini-bar: #394579; --mini-hole: #eef3f6;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Platform</span>
+            </button>
+            <button class="style-button" data-preset="heritage" type="button" style="--mini-ring: #cf130f; --mini-bar: #071454; --mini-hole: #efe8c9;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Heritage</span>
+            </button>
+            <button class="style-button" data-preset="redDisc" type="button" style="--mini-ring: #dc241f; --mini-bar: #12205f; --mini-hole: #dc241f;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Red disc</span>
+            </button>
+            <button class="style-button" data-preset="museum" type="button" style="--mini-ring: #b81613; --mini-bar: #10173d; --mini-hole: #f5f0de;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Museum</span>
+            </button>
+            <button class="style-button" data-preset="poster" type="button" style="--mini-ring: #c92d2a; --mini-bar: #003688; --mini-hole: #fffaf0;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Poster</span>
+            </button>
+            <button class="style-button" data-preset="night" type="button" style="--mini-ring: #d71920; --mini-bar: #061da9; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Night</span>
+            </button>
+            <button class="style-button" data-preset="halogen" type="button" style="--mini-ring: #c91e17; --mini-bar: #071454; --mini-hole: #fff3d7; --mini-glow: #ffc86d;">
+              <span class="style-mini style-mini-halogen" aria-hidden="true"><span></span></span>
+              <span>Halogen</span>
+            </button>
+            <button class="style-button" data-preset="compact" type="button" style="--mini-ring: #dc241f; --mini-bar: #0019a8; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Compact</span>
+            </button>
+            <button class="style-button" data-preset="twoline" type="button" style="--mini-ring: #dc241f; --mini-bar: #0019a8; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Two-line</span>
+            </button>
+          </div>
+        </form>
       </section>
     </main>
 
