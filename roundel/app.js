@@ -8,8 +8,8 @@
   var fontChoice = document.getElementById("font-choice");
   var textSizeInput = document.getElementById("text-size-adjust");
   var textSizeOutput = document.getElementById("text-size-output");
-  var colorChoice = document.getElementById("color-choice");
   var capitaliseToggle = document.getElementById("capitalise-text");
+  var letterRulesToggle = document.getElementById("letter-rules");
   var whiteCenterToggle = document.getElementById("white-center");
   var gradientsToggle = document.getElementById("use-gradients");
   var shadowToggle = document.getElementById("use-shadow");
@@ -34,8 +34,9 @@
   var brickWallFill = document.getElementById("brick-wall-fill");
   var electricBackground = document.getElementById("electric-background");
   var electricReflection = document.getElementById("electric-reflection");
+  var stationFloorBackground = document.getElementById("station-floor-background");
+  var stationFloorReflection = document.getElementById("station-floor-reflection");
   var plaqueBackground = document.getElementById("plaque-background");
-  var bulbLayer = document.getElementById("bulb-layer");
   var neonLayer = document.getElementById("neon-layer");
   var neonBackdrop = document.getElementById("neon-backdrop");
   var neonFlags = document.getElementById("neon-flags");
@@ -64,7 +65,6 @@
   var titleNode = document.getElementById("roundel-title");
   var presetButtons = Array.prototype.slice.call(document.querySelectorAll("[data-preset]"));
   var fontButtons = Array.prototype.slice.call(document.querySelectorAll("[data-font]"));
-  var colorButtons = Array.prototype.slice.call(document.querySelectorAll("[data-color]"));
   var backgroundButtons = Array.prototype.slice.call(document.querySelectorAll("[data-background]"));
   var menuButtons = Array.prototype.slice.call(document.querySelectorAll("[data-menu]"));
   var hudPanelTriggers = Array.prototype.slice.call(document.querySelectorAll(".hud-panel-trigger"));
@@ -112,8 +112,6 @@
   var hudIdleTimer = 0;
   var hudActivityFrame = 0;
   var hudIdleDelay = 2200;
-  var hudConnectorSvg = null;
-  var hudConnectorItems = {};
   var fontStacks = {
     gill: "'Gill Sans', 'Gill Sans MT', 'Avenir Next', 'Trebuchet MS', Arial, sans-serif",
     avenir: "'Avenir Next', Avenir, 'Gill Sans', 'Trebuchet MS', Arial, sans-serif",
@@ -127,6 +125,7 @@
     "brick-yellow": "url(#brick-yellow-pattern)"
   };
   var streetArtTransform = "matrix(0.94 -0.035 0.09 1 13 34)";
+  var stationArtTransform = "translate(132 128) scale(0.78)";
   var colorSchemes = {
     underground: {
       ringSolid: "#e1251b",
@@ -352,6 +351,53 @@
       whiteCenter: true
     }
   };
+
+  function createTransportPreset(scheme, overrides) {
+    var preset = {
+      barWidth: 700,
+      font: "gill",
+      whiteCenter: true,
+      gradients: false,
+      shadow: false,
+      blueOutline: true,
+      whiteInset: false,
+      background: "none",
+      outerRadius: 230,
+      innerRadius: 140,
+      singleBarHeight: 68,
+      doubleBarHeight: 116,
+      centerFill: "#ffffff",
+      ringSolid: "#e1251b",
+      ringGradient: ["#e1251b", "#e1251b", "#e1251b"],
+      ringOutlineColor: "#e1251b",
+      ringOutlineWidth: 0,
+      ringOutlineOpacity: "0",
+      barSolid: "#003688",
+      barGradient: ["#003688", "#003688", "#003688"],
+      barRadius: 0,
+      outlineColor: "#003688",
+      outlineWidth: 0,
+      outlineOpacity: "0",
+      insetColor: "#ffffff",
+      insetWidth: 0,
+      insetOpacity: "0",
+      textColor: "#ffffff",
+      ornaments: "none",
+      ornamentColor: "#ffffff",
+      ornamentOpacity: "0.65"
+    };
+
+    Object.keys(scheme).forEach(function (key) {
+      preset[key] = scheme[key];
+    });
+
+    Object.keys(overrides || {}).forEach(function (key) {
+      preset[key] = overrides[key];
+    });
+
+    return preset;
+  }
+
   var presets = {
     enamel: {
       barWidth: 900,
@@ -570,6 +616,134 @@
       ornamentColor: "#ffffff",
       ornamentOpacity: "0.65"
     },
+    signboard: {
+      barWidth: 860,
+      font: "gill",
+      whiteCenter: false,
+      gradients: true,
+      shadow: true,
+      blueOutline: true,
+      whiteInset: true,
+      background: "plaque",
+      outerRadius: 258,
+      innerRadius: 0,
+      singleBarHeight: 132,
+      doubleBarHeight: 222,
+      centerFill: "#d71920",
+      ringSolid: "#d71920",
+      ringGradient: ["#f33a32", "#d71920", "#9f0c12"],
+      ringOutlineColor: "#742018",
+      ringOutlineWidth: 0,
+      ringOutlineOpacity: "0",
+      barSolid: "#071454",
+      barGradient: ["#172b7d", "#071454", "#030727"],
+      barRadius: 2,
+      outlineColor: "#8b2518",
+      outlineWidth: 14,
+      outlineOpacity: "0.88",
+      insetColor: "#ffffff",
+      insetWidth: 4,
+      insetOpacity: "0.55",
+      ornaments: "none",
+      ornamentColor: "#ffffff",
+      ornamentOpacity: "0.65"
+    },
+    whiteTiles: {
+      barWidth: 930,
+      font: "gill",
+      whiteCenter: true,
+      gradients: true,
+      shadow: true,
+      blueOutline: true,
+      whiteInset: true,
+      background: "brick-white",
+      outerRadius: 294,
+      innerRadius: 176,
+      singleBarHeight: 166,
+      doubleBarHeight: 266,
+      centerFill: "#ffffff",
+      ringSolid: "#dc241f",
+      ringGradient: ["#f3342c", "#dc241f", "#a10c14"],
+      ringOutlineColor: "#bfc4c8",
+      ringOutlineWidth: 10,
+      ringOutlineOpacity: "0.96",
+      barSolid: "#0019a8",
+      barGradient: ["#1533c7", "#0019a8", "#000c5c"],
+      barRadius: 2,
+      outlineColor: "#7b838a",
+      outlineWidth: 14,
+      outlineOpacity: "0.86",
+      insetColor: "#f7ffff",
+      insetWidth: 3,
+      insetOpacity: "0.62",
+      ornaments: "none",
+      ornamentColor: "#ffffff",
+      ornamentOpacity: "0.65"
+    },
+    redTiles: {
+      barWidth: 900,
+      font: "gill",
+      whiteCenter: true,
+      gradients: true,
+      shadow: true,
+      blueOutline: true,
+      whiteInset: true,
+      background: "brick-red",
+      outerRadius: 286,
+      innerRadius: 172,
+      singleBarHeight: 156,
+      doubleBarHeight: 254,
+      centerFill: "#fff4e4",
+      ringSolid: "#f12a20",
+      ringGradient: ["#ff4f36", "#e1251b", "#9c0b10"],
+      ringOutlineColor: "#30231d",
+      ringOutlineWidth: 6,
+      ringOutlineOpacity: "0.62",
+      barSolid: "#071454",
+      barGradient: ["#15276f", "#071454", "#02061f"],
+      barRadius: 1,
+      outlineColor: "#251b17",
+      outlineWidth: 12,
+      outlineOpacity: "0.82",
+      insetColor: "#f6fbff",
+      insetWidth: 3,
+      insetOpacity: "0.44",
+      ornaments: "none",
+      ornamentColor: "#ffffff",
+      ornamentOpacity: "0.65"
+    },
+    yellowBrick: {
+      barWidth: 980,
+      font: "gill",
+      whiteCenter: false,
+      gradients: true,
+      shadow: true,
+      blueOutline: true,
+      whiteInset: true,
+      background: "brick-yellow",
+      outerRadius: 302,
+      innerRadius: 182,
+      singleBarHeight: 176,
+      doubleBarHeight: 278,
+      centerFill: "#efe4c9",
+      ringSolid: "#e4251b",
+      ringGradient: ["#ff3d2e", "#e4251b", "#a81012"],
+      ringOutlineColor: "#c8cdd0",
+      ringOutlineWidth: 12,
+      ringOutlineOpacity: "0.94",
+      barSolid: "#001b7c",
+      barGradient: ["#102fae", "#001b7c", "#050b3a"],
+      barRadius: 1,
+      outlineColor: "#c8cdd0",
+      outlineWidth: 18,
+      outlineOpacity: "0.9",
+      insetColor: "#ffffff",
+      insetWidth: 3,
+      insetOpacity: "0.46",
+      ornaments: "none",
+      ornamentColor: "#ffffff",
+      ornamentOpacity: "0.65"
+    },
     night: {
       barWidth: 920,
       font: "gill",
@@ -601,6 +775,38 @@
       ornamentColor: "#ffffff",
       ornamentOpacity: "0.65"
     },
+    streetSign: {
+      barWidth: 900,
+      font: "gill",
+      whiteCenter: false,
+      gradients: true,
+      shadow: true,
+      blueOutline: true,
+      whiteInset: true,
+      background: "street-post",
+      outerRadius: 278,
+      innerRadius: 166,
+      singleBarHeight: 154,
+      doubleBarHeight: 248,
+      centerFill: "#ffffff",
+      ringSolid: "#df241e",
+      ringGradient: ["#ff4930", "#df241e", "#a50e12"],
+      ringOutlineColor: "#c7ccd2",
+      ringOutlineWidth: 8,
+      ringOutlineOpacity: "0.8",
+      barSolid: "#083282",
+      barGradient: ["#19479f", "#083282", "#031546"],
+      barRadius: 1,
+      outlineColor: "#262b31",
+      outlineWidth: 12,
+      outlineOpacity: "0.86",
+      insetColor: "#ffffff",
+      insetWidth: 3,
+      insetOpacity: "0.42",
+      ornaments: "none",
+      ornamentColor: "#ffffff",
+      ornamentOpacity: "0.65"
+    },
     neon: {
       barWidth: 880,
       font: "avenir",
@@ -612,10 +818,10 @@
       plaque: true,
       neon: true,
       outerRadius: 286,
-      innerRadius: 0,
+      innerRadius: 170,
       singleBarHeight: 168,
       doubleBarHeight: 268,
-      centerFill: "#ff4b2b",
+      centerFill: "#ffffff",
       ringSolid: "#ed351e",
       ringGradient: ["#ff7d46", "#ef351f", "#8f130d"],
       ringOutlineColor: "#ffd5b0",
@@ -632,39 +838,6 @@
       insetOpacity: "0.64",
       ornaments: "none",
       ornamentColor: "#ffffff",
-      ornamentOpacity: "0.65"
-    },
-    halogen: {
-      barWidth: 940,
-      font: "gill",
-      whiteCenter: true,
-      gradients: true,
-      shadow: true,
-      blueOutline: true,
-      whiteInset: true,
-      plaque: true,
-      bulbs: true,
-      outerRadius: 294,
-      innerRadius: 178,
-      singleBarHeight: 174,
-      doubleBarHeight: 278,
-      centerFill: "#fff3d7",
-      ringSolid: "#c91e17",
-      ringGradient: ["#f25d3f", "#c91e17", "#76100d"],
-      ringOutlineColor: "#33210f",
-      ringOutlineWidth: 8,
-      ringOutlineOpacity: "0.72",
-      barSolid: "#071454",
-      barGradient: ["#17296d", "#071454", "#02061e"],
-      barRadius: 3,
-      outlineColor: "#2a1d12",
-      outlineWidth: 14,
-      outlineOpacity: "0.82",
-      insetColor: "#ffe7aa",
-      insetWidth: 3,
-      insetOpacity: "0.46",
-      ornaments: "none",
-      ornamentColor: "#fff0c4",
       ornamentOpacity: "0.65"
     },
     electric: {
@@ -700,69 +873,53 @@
       ornamentColor: "#ffffff",
       ornamentOpacity: "0.65"
     },
-    compact: {
-      barWidth: 460,
-      font: "avenir",
-      whiteCenter: true,
-      gradients: false,
-      shadow: false,
-      blueOutline: false,
-      whiteInset: false,
-      outerRadius: 286,
-      innerRadius: 174,
-      singleBarHeight: 170,
-      doubleBarHeight: 264,
-      centerFill: "#ffffff",
-      ringSolid: "#dc241f",
-      ringGradient: ["#dc241f", "#dc241f", "#dc241f"],
-      ringOutlineColor: "#111111",
-      ringOutlineWidth: 0,
-      ringOutlineOpacity: "0",
-      barSolid: "#0019a8",
-      barGradient: ["#0019a8", "#0019a8", "#0019a8"],
-      barRadius: 2,
-      outlineColor: "#00115f",
-      outlineWidth: 8,
-      outlineOpacity: "0.24",
-      insetColor: "#ffffff",
-      insetWidth: 4,
-      insetOpacity: "0.1",
-      ornaments: "none",
-      ornamentColor: "#ffffff",
-      ornamentOpacity: "0.65"
-    },
-    twoline: {
-      barWidth: 980,
+    stationFloor: {
+      barWidth: 920,
       font: "gill",
       whiteCenter: true,
-      gradients: false,
-      shadow: false,
-      blueOutline: false,
+      gradients: true,
+      shadow: true,
+      blueOutline: true,
       whiteInset: false,
-      outerRadius: 302,
-      innerRadius: 182,
-      singleBarHeight: 182,
-      doubleBarHeight: 296,
+      background: "station-floor",
+      outerRadius: 288,
+      innerRadius: 170,
+      singleBarHeight: 144,
+      doubleBarHeight: 236,
       centerFill: "#ffffff",
-      ringSolid: "#dc241f",
-      ringGradient: ["#dc241f", "#dc241f", "#dc241f"],
-      ringOutlineColor: "#111111",
-      ringOutlineWidth: 0,
-      ringOutlineOpacity: "0",
-      barSolid: "#0019a8",
-      barGradient: ["#0019a8", "#0019a8", "#0019a8"],
-      barRadius: 0,
-      outlineColor: "#00115f",
-      outlineWidth: 8,
-      outlineOpacity: "0.24",
+      ringSolid: "#f52418",
+      ringGradient: ["#ff3a23", "#f52418", "#c40d12"],
+      ringOutlineColor: "#111216",
+      ringOutlineWidth: 9,
+      ringOutlineOpacity: "0.98",
+      barSolid: "#003dca",
+      barGradient: ["#1b54ff", "#003dca", "#00126b"],
+      barRadius: 1,
+      outlineColor: "#0b0d16",
+      outlineWidth: 13,
+      outlineOpacity: "0.96",
       insetColor: "#ffffff",
-      insetWidth: 4,
-      insetOpacity: "0.1",
+      insetWidth: 3,
+      insetOpacity: "0.18",
       ornaments: "none",
       ornamentColor: "#ffffff",
       ornamentOpacity: "0.65"
     }
   };
+
+  Object.keys(colorSchemes).forEach(function (key) {
+    if (presets[key]) {
+      return;
+    }
+
+    presets[key] = createTransportPreset(colorSchemes[key], {
+      barWidth: key === "airline" ? 760 : 700,
+      singleBarHeight: key === "airline" || key === "cycles" ? 76 : 68,
+      doubleBarHeight: key === "airline" || key === "cycles" ? 126 : 116,
+      outerRadius: key === "airline" ? 226 : 230,
+      innerRadius: key === "airline" ? 142 : 140
+    });
+  });
 
   function getFontStack() {
     return fontStacks[fontChoice.value] || fontStacks.gill;
@@ -770,18 +927,6 @@
 
   function getActivePreset() {
     return presets[activePresetKey] || presets.enamel;
-  }
-
-  function getActiveColorScheme() {
-    return colorSchemes[colorChoice.value] || null;
-  }
-
-  function themedValue(scheme, preset, key) {
-    if (scheme && Object.prototype.hasOwnProperty.call(scheme, key)) {
-      return scheme[key];
-    }
-
-    return preset[key];
   }
 
   function markCustom() {
@@ -819,10 +964,6 @@
       setPressed(button, button.getAttribute("data-font") === fontChoice.value);
     });
 
-    colorButtons.forEach(function (button) {
-      setPressed(button, button.getAttribute("data-color") === colorChoice.value);
-    });
-
     backgroundButtons.forEach(function (button) {
       setPressed(button, button.getAttribute("data-background") === getBackgroundChoice());
     });
@@ -848,7 +989,6 @@
       roundelStage.setAttribute("data-active-menu", name || "");
     }
 
-    updateHudConnectors();
   }
 
   function closeMenus() {
@@ -865,7 +1005,6 @@
       roundelStage.setAttribute("data-active-menu", "");
     }
 
-    updateHudConnectors();
   }
 
   function isHudIdleBlocked() {
@@ -904,7 +1043,6 @@
     hudActivityFrame = requestFrame(function () {
       hudActivityFrame = 0;
       showHudChrome();
-      updateHudConnectors();
     });
   }
 
@@ -932,8 +1070,6 @@
         inline: "nearest"
       });
     }
-
-    updateHudConnectors();
   }
 
   function enterMobileTextEditing() {
@@ -951,7 +1087,6 @@
 
   function exitMobileTextEditing() {
     document.body.classList.remove("is-mobile-text-editing");
-    updateHudConnectors();
   }
 
   function openShareMenu() {
@@ -964,8 +1099,6 @@
     closeMenus();
     shareMenu.hidden = false;
     shareButton.setAttribute("aria-expanded", "true");
-    updateHudConnectors();
-    window.setTimeout(updateHudConnectors, 360);
   }
 
   function closeShareMenu() {
@@ -977,8 +1110,6 @@
     shareButton.setAttribute("aria-expanded", "false");
     document.body.classList.remove("is-sharing");
     scheduleHudIdle();
-    updateHudConnectors();
-    window.setTimeout(updateHudConnectors, 360);
   }
 
   function toggleShareMenu(event) {
@@ -1012,7 +1143,7 @@
   }
 
   function normalizeBackgroundChoice(value, legacyPlaque) {
-    if (value === "none" || value === "plaque" || value === "street-post" || value === "electric-exhibit" || Object.prototype.hasOwnProperty.call(backgroundFills, value)) {
+    if (value === "none" || value === "plaque" || value === "street-post" || value === "electric-exhibit" || value === "station-floor" || Object.prototype.hasOwnProperty.call(backgroundFills, value)) {
       return value;
     }
 
@@ -1035,8 +1166,8 @@
       barHeight: getBarHeightAdjustment(),
       textSize: getTextSizeAdjustment(),
       font: fontChoice.value,
-      color: colorChoice.value,
       capitalise: capitaliseToggle.checked,
+      letterRules: letterRulesToggle.checked,
       whiteCenter: whiteCenterToggle.checked,
       gradients: gradientsToggle.checked,
       shadow: shadowToggle.checked,
@@ -1109,6 +1240,9 @@
 
   function getStateFromUrl() {
     var params = new URLSearchParams(window.location.search);
+    var legacyColorPreset = colorSchemes[params.get("color")] ? params.get("color") : "";
+    var requestedPreset = legacyColorPreset || params.get("preset") || "enamel";
+    var requestedActivePreset = legacyColorPreset || params.get("active") || requestedPreset;
 
     if (!params.has("text") && !params.has("preset")) {
       return null;
@@ -1116,21 +1250,21 @@
 
     return {
       version: 2,
-      preset: params.get("preset") || "enamel",
-      activePreset: params.get("active") || params.get("preset") || "enamel",
+      preset: requestedPreset,
+      activePreset: requestedActivePreset,
       text: params.get("text") || "UNDERGROUND",
       barWidth: params.get("bar"),
       barHeight: params.get("thick"),
       textSize: params.get("size"),
       font: params.get("font"),
-      color: params.get("color"),
       capitalise: getBoolParam(params, "caps", true),
+      letterRules: params.has("rules") ? getBoolParam(params, "rules", false) : null,
       whiteCenter: getBoolParam(params, "center", true),
       gradients: getBoolParam(params, "grad", true),
       shadow: getBoolParam(params, "shadow", true),
       blueOutline: getBoolParam(params, "outline", true),
       whiteInset: getBoolParam(params, "inset", true),
-      background: normalizeBackgroundChoice(params.get("bg"), getBoolParam(params, "plaque", false)),
+      background: params.has("bg") || params.has("plaque") ? normalizeBackgroundChoice(params.get("bg"), getBoolParam(params, "plaque", false)) : null,
       plaque: getBoolParam(params, "plaque", false)
     };
   }
@@ -1145,8 +1279,8 @@
     params.set("thick", String(state.barHeight));
     params.set("size", String(state.textSize));
     params.set("font", state.font);
-    params.set("color", state.color);
     params.set("caps", state.capitalise ? "1" : "0");
+    params.set("rules", state.letterRules ? "1" : "0");
     params.set("center", state.whiteCenter ? "1" : "0");
     params.set("grad", state.gradients ? "1" : "0");
     params.set("shadow", state.shadow ? "1" : "0");
@@ -1359,6 +1493,7 @@
   }
 
   function applyState(state, options) {
+    var legacyColorPreset;
     var presetKey;
 
     if (!state) {
@@ -1366,7 +1501,8 @@
     }
 
     options = options || {};
-    presetKey = presets[state.activePreset] ? state.activePreset : state.preset;
+    legacyColorPreset = presets[state.color] ? state.color : "";
+    presetKey = legacyColorPreset || (presets[state.activePreset] ? state.activePreset : state.preset);
     presetKey = presets[presetKey] ? presetKey : "enamel";
     isApplyingState = true;
 
@@ -1379,14 +1515,18 @@
       setRangeControl(barHeightInput, state.barHeight || 0);
       setRangeControl(textSizeInput, state.textSize || 0);
       fontChoice.value = fontStacks[state.font] ? state.font : presets[presetKey].font;
-      colorChoice.value = colorSchemes[state.color] || state.color === "preset" ? state.color : "preset";
       capitaliseToggle.checked = state.capitalise !== false;
+      if (state.letterRules !== null && typeof state.letterRules !== "undefined") {
+        letterRulesToggle.checked = Boolean(state.letterRules);
+      }
       whiteCenterToggle.checked = state.whiteCenter !== false;
       gradientsToggle.checked = state.gradients !== false;
       shadowToggle.checked = state.shadow !== false;
       blueOutlineToggle.checked = state.blueOutline !== false;
       whiteInsetToggle.checked = state.whiteInset !== false;
-      backgroundChoice.value = normalizeBackgroundChoice(state.background, Boolean(state.plaque));
+      if (state.background !== null && typeof state.background !== "undefined") {
+        backgroundChoice.value = normalizeBackgroundChoice(state.background, Boolean(state.plaque));
+      }
     } finally {
       isApplyingState = false;
     }
@@ -1553,7 +1693,7 @@
   }
 
   function isHeritageTypography() {
-    return getActivePreset().ornaments === "letter-rules";
+    return Boolean(letterRulesToggle && letterRulesToggle.checked);
   }
 
   function getHeritageTextParts(line) {
@@ -1703,138 +1843,6 @@
       x: rect.width / 1200,
       y: rect.height / 840
     };
-  }
-
-  function ensureHudConnectors() {
-    var keys = ["ring", "bar", "font", "background"];
-
-    if (hudConnectorSvg) {
-      return;
-    }
-
-    hudConnectorSvg = document.createElementNS(svgNamespace, "svg");
-    hudConnectorSvg.setAttribute("class", "hud-connectors");
-    hudConnectorSvg.setAttribute("aria-hidden", "true");
-    hudConnectorSvg.setAttribute("focusable", "false");
-
-    keys.forEach(function (key) {
-      var line = document.createElementNS(svgNamespace, "line");
-      var dot = document.createElementNS(svgNamespace, "circle");
-
-      line.setAttribute("class", "hud-connector-line hud-connector-" + key);
-      dot.setAttribute("class", "hud-connector-dot hud-connector-dot-" + key);
-      dot.setAttribute("r", "5");
-      hudConnectorSvg.appendChild(line);
-      hudConnectorSvg.appendChild(dot);
-      hudConnectorItems[key] = {
-        line: line,
-        dot: dot
-      };
-    });
-
-    document.body.appendChild(hudConnectorSvg);
-  }
-
-  function getRectPoint(element, xRatio, yRatio) {
-    var rect = element && element.getBoundingClientRect ? element.getBoundingClientRect() : null;
-
-    if (!rect || rect.width <= 0 || rect.height <= 0) {
-      return null;
-    }
-
-    return {
-      x: rect.left + rect.width * xRatio,
-      y: rect.top + rect.height * yRatio
-    };
-  }
-
-  function getHudConnectorSource(button) {
-    var rect = button && button.getBoundingClientRect ? button.getBoundingClientRect() : null;
-    var fromRight;
-
-    if (!rect || rect.width <= 0 || rect.height <= 0) {
-      return null;
-    }
-
-    fromRight = rect.left > window.innerWidth / 2;
-
-    return {
-      x: fromRight ? rect.left - 14 : rect.right + 14,
-      y: rect.top + rect.height / 2
-    };
-  }
-
-  function getHudConnectorTarget(key) {
-    if (key === "ring") {
-      return getRectPoint(ringCircle, 0.36, 0.28);
-    }
-
-    if (key === "bar") {
-      return getRectPoint(barFill, 0.82, 0.5);
-    }
-
-    if (key === "font") {
-      return getRectPoint(input, 0.26, 0.52);
-    }
-
-    if (key === "background") {
-      return getRectPoint(roundelStage, 0.72, 0.84);
-    }
-
-    return null;
-  }
-
-  function setHudConnectorVisible(item, isVisible) {
-    item.line.style.display = isVisible ? "" : "none";
-    item.dot.style.display = isVisible ? "" : "none";
-  }
-
-  function updateHudConnectors() {
-    var activeMenu = roundelStage ? roundelStage.getAttribute("data-active-menu") : "";
-    var connections = [
-      { key: "ring", button: document.querySelector(".hud-panel-colours") },
-      { key: "bar", button: document.querySelector(".hud-panel-bar") },
-      { key: "font", button: document.querySelector(".hud-panel-font") },
-      { key: "background", button: document.querySelector(".hud-panel-surface") }
-    ];
-
-    ensureHudConnectors();
-
-    if (document.body.classList.contains("is-sharing")) {
-      connections.forEach(function (connection) {
-        var item = hudConnectorItems[connection.key];
-
-        if (item) {
-          setHudConnectorVisible(item, false);
-        }
-      });
-      hudConnectorSvg.style.display = "none";
-      return;
-    }
-
-    hudConnectorSvg.style.display = "";
-    hudConnectorSvg.setAttribute("viewBox", "0 0 " + window.innerWidth + " " + window.innerHeight);
-
-    connections.forEach(function (connection) {
-      var item = hudConnectorItems[connection.key];
-      var source = getHudConnectorSource(connection.button);
-      var target = getHudConnectorTarget(connection.key);
-
-      if (!item || connection.key === activeMenu || !source || !target) {
-        if (item) {
-          setHudConnectorVisible(item, false);
-        }
-        return;
-      }
-
-      setHudConnectorVisible(item, true);
-      item.line.setAttribute("x1", String(source.x));
-      item.line.setAttribute("y1", String(source.y));
-      item.line.setAttribute("x2", String(target.x));
-      item.line.setAttribute("y2", String(target.y));
-      item.dot.setAttribute("cx", String(source.x));
-      item.dot.setAttribute("cy", String(source.y));
-    });
   }
 
   function ensureHeritageLiveText() {
@@ -2005,6 +2013,14 @@
     };
   }
 
+  function resolveGradientPaint(fill, stops) {
+    if (fill !== "url(#ring-highlight)" && fill !== "url(#bar-highlight)") {
+      return fill;
+    }
+
+    return stops[1] || stops[0] || "#000000";
+  }
+
   function captureOutlineCircle(element) {
     return {
       r: getNumberAttribute(element, "r", 0),
@@ -2054,9 +2070,24 @@
   function captureVisualState() {
     var centerVisible = isVisible(centerFill);
     var plaqueVisible = isVisible(plaqueBackground);
+    var ringStops = [
+      ringStopTop.getAttribute("stop-color") || "#000000",
+      ringStopMid.getAttribute("stop-color") || "#000000",
+      ringStopBottom.getAttribute("stop-color") || "#000000"
+    ];
+    var barStops = [
+      barStopTop.getAttribute("stop-color") || "#000000",
+      barStopMid.getAttribute("stop-color") || "#000000",
+      barStopBottom.getAttribute("stop-color") || "#000000"
+    ];
+    var capturedRingCircle = captureCircle(ringCircle);
+    var capturedBarFill = captureRect(barFill);
+
+    capturedRingCircle.resolvedFill = resolveGradientPaint(capturedRingCircle.fill, ringStops);
+    capturedBarFill.resolvedFill = resolveGradientPaint(capturedBarFill.fill, barStops);
 
     return {
-      ringCircle: captureCircle(ringCircle),
+      ringCircle: capturedRingCircle,
       ringHole: {
         r: getNumberAttribute(ringHole, "r", 0)
       },
@@ -2068,19 +2099,11 @@
       },
       ringOuterOutline: captureOutlineCircle(ringOuterOutline),
       ringInnerOutline: captureOutlineCircle(ringInnerOutline),
-      barFill: captureRect(barFill),
+      barFill: capturedBarFill,
       barBorder: captureStrokeRect(barBorder),
       barInset: captureStrokeRect(barInset),
-      ringStops: [
-        ringStopTop.getAttribute("stop-color") || "#000000",
-        ringStopMid.getAttribute("stop-color") || "#000000",
-        ringStopBottom.getAttribute("stop-color") || "#000000"
-      ],
-      barStops: [
-        barStopTop.getAttribute("stop-color") || "#000000",
-        barStopMid.getAttribute("stop-color") || "#000000",
-        barStopBottom.getAttribute("stop-color") || "#000000"
-      ],
+      ringStops: ringStops,
+      barStops: barStops,
       plaque: {
         opacity: plaqueVisible ? getNumberAttribute(plaqueBackground, "opacity", 1) : 0,
         visible: plaqueVisible
@@ -2187,6 +2210,21 @@
     element.setAttribute("fill", mixPaint(start.fill, end.fill, progress));
   }
 
+  function usesGradientPaint(start, end, gradientUrl) {
+    return start.fill === gradientUrl || end.fill === gradientUrl;
+  }
+
+  function renderFilledCircle(element, start, end, progress, isFinished, gradientUrl) {
+    setNumberAttribute(element, "r", mixNumber(start.r, end.r, progress));
+
+    if (!isFinished && usesGradientPaint(start, end, gradientUrl)) {
+      element.setAttribute("fill", gradientUrl);
+      return;
+    }
+
+    element.setAttribute("fill", isFinished ? end.fill : mixPaint(start.resolvedFill || start.fill, end.resolvedFill || end.fill, progress));
+  }
+
   function renderOutlineCircle(element, start, end, progress) {
     setNumberAttribute(element, "r", mixNumber(start.r, end.r, progress));
     element.setAttribute("stroke", mixPaint(start.stroke, end.stroke, progress));
@@ -2201,6 +2239,21 @@
     setNumberAttribute(element, "height", mixNumber(start.height, end.height, progress));
     setNumberAttribute(element, "rx", mixNumber(start.rx, end.rx, progress));
     element.setAttribute("fill", mixPaint(start.fill, end.fill, progress));
+  }
+
+  function renderFilledRect(element, start, end, progress, isFinished, gradientUrl) {
+    setNumberAttribute(element, "x", mixNumber(start.x, end.x, progress));
+    setNumberAttribute(element, "y", mixNumber(start.y, end.y, progress));
+    setNumberAttribute(element, "width", mixNumber(start.width, end.width, progress));
+    setNumberAttribute(element, "height", mixNumber(start.height, end.height, progress));
+    setNumberAttribute(element, "rx", mixNumber(start.rx, end.rx, progress));
+
+    if (!isFinished && usesGradientPaint(start, end, gradientUrl)) {
+      element.setAttribute("fill", gradientUrl);
+      return;
+    }
+
+    element.setAttribute("fill", isFinished ? end.fill : mixPaint(start.resolvedFill || start.fill, end.resolvedFill || end.fill, progress));
   }
 
   function renderStrokeRect(element, start, end, progress, isFinished) {
@@ -2236,7 +2289,7 @@
     var centerVisible = start.centerFill.visible || end.centerFill.visible;
     var plaqueVisible = start.plaque.visible || end.plaque.visible;
 
-    renderCircle(ringCircle, start.ringCircle, end.ringCircle, progress);
+    renderFilledCircle(ringCircle, start.ringCircle, end.ringCircle, progress, isFinished, "url(#ring-highlight)");
     setNumberAttribute(ringHole, "r", mixNumber(start.ringHole.r, end.ringHole.r, progress));
     centerFill.style.display = centerVisible ? "" : "none";
     setNumberAttribute(centerFill, "r", mixNumber(start.centerFill.r, end.centerFill.r, progress));
@@ -2244,7 +2297,7 @@
     centerFill.setAttribute("fill-opacity", String(mixNumber(start.centerFill.fillOpacity, end.centerFill.fillOpacity, progress)));
     renderOutlineCircle(ringOuterOutline, start.ringOuterOutline, end.ringOuterOutline, progress);
     renderOutlineCircle(ringInnerOutline, start.ringInnerOutline, end.ringInnerOutline, progress);
-    renderRect(barFill, start.barFill, end.barFill, progress);
+    renderFilledRect(barFill, start.barFill, end.barFill, progress, isFinished, "url(#bar-highlight)");
     renderStrokeRect(barBorder, start.barBorder, end.barBorder, progress, isFinished);
     renderStrokeRect(barInset, start.barInset, end.barInset, progress, isFinished);
     ringStopTop.setAttribute("stop-color", mixPaint(start.ringStops[0], end.ringStops[0], progress));
@@ -2582,7 +2635,7 @@
 
     clearOrnaments();
 
-    if (preset.ornaments === "letter-rules") {
+    if (isHeritageTypography()) {
       barOrnaments.setAttribute("fill", "none");
       barOrnaments.setAttribute("stroke", preset.ornamentColor);
       barOrnaments.setAttribute("opacity", preset.ornamentOpacity);
@@ -2590,7 +2643,7 @@
       return;
     }
 
-    if (preset.ornaments !== "diamonds") {
+    if (preset.ornaments !== "diamonds" || preset.ornaments === "letter-rules") {
       return;
     }
 
@@ -2606,35 +2659,34 @@
 
   function updateStyleOptions() {
     var preset = getActivePreset();
-    var scheme = getActiveColorScheme();
     var backgroundKey = getBackgroundChoice();
     var brickVisible = Boolean(Object.prototype.hasOwnProperty.call(backgroundFills, backgroundKey));
     var streetVisible = backgroundKey === "street-post";
     var electricVisible = backgroundKey === "electric-exhibit";
-    var hasPhysicalBackground = backgroundKey !== "none";
-    var bulbsVisible = Boolean(preset.bulbs && hasPhysicalBackground);
+    var stationFloorVisible = backgroundKey === "station-floor";
     var neonVisible = Boolean(preset.neon);
     var neonBackdropVisible = Boolean(neonVisible && backgroundKey === "plaque");
     var plaqueVisible = Boolean(backgroundKey === "plaque" && !neonVisible);
-    var centerFillColor = themedValue(scheme, preset, "centerFill");
-    var ringSolid = themedValue(scheme, preset, "ringSolid");
-    var ringGradient = themedValue(scheme, preset, "ringGradient");
-    var ringOutlineColor = themedValue(scheme, preset, "ringOutlineColor");
-    var ringOutlineWidth = themedValue(scheme, preset, "ringOutlineWidth");
-    var ringOutlineOpacity = themedValue(scheme, preset, "ringOutlineOpacity");
-    var barSolid = themedValue(scheme, preset, "barSolid");
-    var barGradient = themedValue(scheme, preset, "barGradient");
-    var outlineColor = themedValue(scheme, preset, "outlineColor");
-    var outlineWidth = themedValue(scheme, preset, "outlineWidth");
-    var outlineOpacity = themedValue(scheme, preset, "outlineOpacity");
-    var insetColor = themedValue(scheme, preset, "insetColor");
-    var insetWidth = themedValue(scheme, preset, "insetWidth");
-    var insetOpacity = themedValue(scheme, preset, "insetOpacity");
-    var textColor = themedValue(scheme, preset, "textColor") || "#ffffff";
+    var centerFillColor = preset.centerFill;
+    var ringSolid = preset.ringSolid;
+    var ringGradient = preset.ringGradient;
+    var ringOutlineColor = preset.ringOutlineColor;
+    var ringOutlineWidth = preset.ringOutlineWidth;
+    var ringOutlineOpacity = preset.ringOutlineOpacity;
+    var barSolid = preset.barSolid;
+    var barGradient = preset.barGradient;
+    var outlineColor = preset.outlineColor;
+    var outlineWidth = preset.outlineWidth;
+    var outlineOpacity = preset.outlineOpacity;
+    var insetColor = preset.insetColor;
+    var insetWidth = preset.insetWidth;
+    var insetOpacity = preset.insetOpacity;
+    var textColor = preset.textColor || "#ffffff";
 
     if (roundelStage) {
       roundelStage.classList.toggle("is-neon", neonVisible);
       roundelStage.classList.toggle("is-electric", electricVisible);
+      roundelStage.classList.toggle("is-station-floor", stationFloorVisible);
     }
 
     centerFill.style.display = whiteCenterToggle.checked ? "" : "none";
@@ -2664,7 +2716,7 @@
     barInset.setAttribute("stroke-opacity", insetOpacity);
     textNode.setAttribute("fill", textColor);
     textNode.setAttribute("font-style", neonVisible ? "italic" : "normal");
-    artGroup.setAttribute("transform", streetVisible ? streetArtTransform : "");
+    artGroup.setAttribute("transform", streetVisible ? streetArtTransform : stationFloorVisible ? stationArtTransform : "");
     if (streetBackground) {
       streetBackground.style.display = streetVisible ? "" : "none";
       streetBackground.setAttribute("opacity", streetVisible ? "1" : "0");
@@ -2679,18 +2731,21 @@
     }
     if (electricReflection) {
       electricReflection.style.display = electricVisible ? "" : "none";
-      electricReflection.setAttribute("opacity", electricVisible ? "0.48" : "0");
+      electricReflection.setAttribute("opacity", electricVisible ? "0.32" : "0");
+    }
+    if (stationFloorBackground) {
+      stationFloorBackground.style.display = stationFloorVisible ? "" : "none";
+      stationFloorBackground.setAttribute("opacity", stationFloorVisible ? "1" : "0");
+    }
+    if (stationFloorReflection) {
+      stationFloorReflection.style.display = stationFloorVisible ? "" : "none";
+      stationFloorReflection.setAttribute("opacity", stationFloorVisible ? "1" : "0");
     }
     brickBackground.style.display = brickVisible ? "" : "none";
     brickBackground.setAttribute("opacity", brickVisible ? "1" : "0");
     brickWallFill.setAttribute("fill", brickVisible ? backgroundFills[backgroundKey] : backgroundFills["brick-white"]);
     plaqueBackground.style.display = plaqueVisible ? "" : "none";
     plaqueBackground.setAttribute("opacity", plaqueVisible ? "1" : "0");
-
-    if (bulbLayer) {
-      bulbLayer.style.display = bulbsVisible ? "" : "none";
-      bulbLayer.setAttribute("opacity", bulbsVisible ? "1" : "0");
-    }
 
     if (neonLayer) {
       neonLayer.style.display = neonVisible ? "" : "none";
@@ -2711,13 +2766,13 @@
     }
 
     if (shadowToggle.checked) {
-      artGroup.setAttribute("filter", neonVisible || electricVisible ? "url(#neon-art-glow)" : "url(#soft-shadow)");
+      artGroup.setAttribute("filter", electricVisible ? "url(#electric-art-glow)" : neonVisible ? "url(#neon-art-glow)" : stationFloorVisible ? "url(#station-sign-shadow)" : "url(#soft-shadow)");
     } else {
       artGroup.removeAttribute("filter");
     }
 
     if ((neonVisible || electricVisible) && shadowToggle.checked) {
-      textNode.setAttribute("filter", "url(#neon-text-glow)");
+      textNode.setAttribute("filter", electricVisible ? "url(#electric-text-glow)" : "url(#neon-text-glow)");
     } else {
       textNode.removeAttribute("filter");
     }
@@ -2760,7 +2815,6 @@
     updateStyleOptions();
     syncLiveEditor(lines, barWidth, barHeight, fontSize);
     syncControlStates();
-    updateHudConnectors();
     titleNode.textContent = "Roundel sign reading " + titleText;
 
     if (animateChange) {
@@ -2784,7 +2838,6 @@
 
     activePresetKey = key;
     presetChoice.value = key;
-    colorChoice.value = "preset";
     barWidthInput.value = String(preset.barWidth);
     barHeightInput.value = "0";
     textSizeInput.value = "0";
@@ -2794,6 +2847,7 @@
     shadowToggle.checked = preset.shadow;
     blueOutlineToggle.checked = preset.blueOutline;
     whiteInsetToggle.checked = preset.whiteInset;
+    letterRulesToggle.checked = preset.ornaments === "letter-rules";
     backgroundChoice.value = normalizeBackgroundChoice(preset.background, Boolean(preset.plaque));
     updateRoundel(options);
 
@@ -2801,37 +2855,11 @@
       scrollPresetButtonIntoView(activePresetKey);
     }
 
-    if ((preset.bulbs || preset.neon || preset.electric) && options && options.animate) {
+    if ((preset.neon || preset.electric) && options && options.animate) {
       window.setTimeout(function () {
         playIntro();
       }, 40);
     }
-  }
-
-  function applyColorScheme(key, options) {
-    var scheme = colorSchemes[key];
-
-    colorChoice.value = key;
-
-    if (scheme) {
-      if (Object.prototype.hasOwnProperty.call(scheme, "gradients")) {
-        gradientsToggle.checked = scheme.gradients;
-      }
-
-      if (Object.prototype.hasOwnProperty.call(scheme, "blueOutline")) {
-        blueOutlineToggle.checked = scheme.blueOutline;
-      }
-
-      if (Object.prototype.hasOwnProperty.call(scheme, "whiteInset")) {
-        whiteInsetToggle.checked = scheme.whiteInset;
-      }
-
-      if (Object.prototype.hasOwnProperty.call(scheme, "whiteCenter")) {
-        whiteCenterToggle.checked = scheme.whiteCenter;
-      }
-    }
-
-    updateRoundel(options);
   }
 
   function slugify(value) {
@@ -3046,17 +3074,6 @@
     });
   });
 
-  colorButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-      if (previewState) {
-        cancelStylePreview();
-      }
-
-      recordUndoState();
-      applyColorScheme(button.getAttribute("data-color"), { animate: true });
-    });
-  });
-
   backgroundButtons.forEach(function (button) {
     button.addEventListener("click", function () {
       recordUndoState();
@@ -3141,8 +3158,9 @@
     markCustom();
     updateRoundel({ animate: true });
   });
-  colorChoice.addEventListener("change", function () {
-    applyColorScheme(colorChoice.value, { animate: true });
+  letterRulesToggle.addEventListener("change", function () {
+    markCustom();
+    updateRoundel({ animate: true });
   });
   whiteCenterToggle.addEventListener("change", function () {
     markCustom();
@@ -3195,12 +3213,14 @@
 
   Array.prototype.forEach.call(document.querySelectorAll([
     "#capitalise-text",
+    "#letter-rules",
     "#white-center",
     "#use-gradients",
     "#use-shadow",
     "#blue-outline",
     "#white-inset",
     "label[for='capitalise-text']",
+    "label[for='letter-rules']",
     "label[for='white-center']",
     "label[for='use-gradients']",
     "label[for='use-shadow']",
@@ -3241,17 +3261,14 @@
   });
   window.addEventListener("scroll", function () {
     noteHudActivity();
-    updateHudConnectors();
   }, { passive: true });
 
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", function () {
       noteHudActivity();
-      updateHudConnectors();
     });
     window.visualViewport.addEventListener("scroll", function () {
       noteHudActivity();
-      updateHudConnectors();
     });
     window.visualViewport.addEventListener("resize", centerTextEditorInViewport);
     window.visualViewport.addEventListener("scroll", centerTextEditorInViewport);
