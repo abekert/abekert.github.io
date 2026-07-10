@@ -135,6 +135,7 @@
             <option value="street-post">Street post</option>
             <option value="electric-exhibit">Electric exhibit</option>
             <option value="station-floor">Station floor</option>
+            <option value="stone-wall">Stone wall</option>
           </select>
 
           <div class="stage-shell">
@@ -192,13 +193,24 @@
               <feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="#6df7ff" flood-opacity="0.28" />
             </filter>
             <filter id="station-backdrop-blur" x="-8%" y="-8%" width="116%" height="116%">
-              <feGaussianBlur stdDeviation="5.5" />
+              <feGaussianBlur stdDeviation="2.4" />
             </filter>
             <filter id="station-floor-glow" x="-40%" y="-80%" width="180%" height="260%">
               <feGaussianBlur stdDeviation="13" />
             </filter>
             <filter id="station-sign-shadow" x="-22%" y="-20%" width="144%" height="150%">
               <feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#000000" flood-opacity="0.48" />
+            </filter>
+            <filter id="wall-cast-shadow" x="-18%" y="-18%" width="150%" height="150%">
+              <feColorMatrix type="matrix" values="0 0 0 0 0.03 0 0 0 0 0.04 0 0 0 0 0.06 0 0 0 0.76 0" />
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+            <filter id="wall-depth-tone" x="-16%" y="-16%" width="142%" height="142%">
+              <feColorMatrix type="matrix" values="0 0 0 0 0.04 0 0 0 0 0.05 0 0 0 0 0.08 0 0 0 0.58 0" />
+            </filter>
+            <filter id="wall-mounted-art-shadow" x="-16%" y="-16%" width="140%" height="145%">
+              <feDropShadow dx="4" dy="4" stdDeviation="1.8" flood-color="#ffffff" flood-opacity="0.34" />
+              <feDropShadow dx="18" dy="24" stdDeviation="8" flood-color="#070912" flood-opacity="0.34" />
             </filter>
             <linearGradient id="plaque-wash" x1="0" x2="1" y1="0" y2="1">
               <stop offset="0" stop-color="#fffdf2" />
@@ -270,6 +282,16 @@
               <stop offset="0.42" stop-color="#9d9b95" />
               <stop offset="1" stop-color="#f0eee9" />
             </linearGradient>
+            <linearGradient id="station-rear-floor-wash" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#f4f6f5" />
+              <stop offset="0.52" stop-color="#daddda" />
+              <stop offset="1" stop-color="#bfc3c1" />
+            </linearGradient>
+            <linearGradient id="station-foreground-floor-wash" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#59595a" />
+              <stop offset="0.46" stop-color="#77706b" />
+              <stop offset="1" stop-color="#a49c94" />
+            </linearGradient>
             <linearGradient id="station-metal" x1="0" x2="1" y1="0" y2="0">
               <stop offset="0" stop-color="#242a31" />
               <stop offset="0.24" stop-color="#bfc5c9" />
@@ -277,6 +299,16 @@
               <stop offset="0.72" stop-color="#e6e9eb" />
               <stop offset="1" stop-color="#2a3036" />
             </linearGradient>
+            <linearGradient id="stone-wall-wash" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#f5f1e9" />
+              <stop offset="0.44" stop-color="#d8d2c8" />
+              <stop offset="1" stop-color="#bcb5aa" />
+            </linearGradient>
+            <radialGradient id="wall-sun-glow" cx="38%" cy="28%" r="70%">
+              <stop offset="0" stop-color="#ffffff" stop-opacity="0.48" />
+              <stop offset="0.55" stop-color="#ffffff" stop-opacity="0.12" />
+              <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+            </radialGradient>
             <radialGradient id="station-red-reflection" cx="50%" cy="45%" r="58%">
               <stop offset="0" stop-color="#ff2c22" stop-opacity="0.48" />
               <stop offset="0.52" stop-color="#ff2c22" stop-opacity="0.18" />
@@ -322,6 +354,18 @@
                 <circle cx="82" cy="78" r="1.1" fill="#5d5f60" />
               </g>
               <path d="M0 92H92M92 0V92" stroke="#66686a" stroke-opacity="0.2" stroke-width="1" />
+            </pattern>
+            <pattern id="stone-wall-speckle" width="112" height="112" patternUnits="userSpaceOnUse">
+              <rect width="112" height="112" fill="#d7d0c5" />
+              <g opacity="0.42">
+                <circle cx="12" cy="18" r="1.5" fill="#4c4b47" />
+                <circle cx="34" cy="48" r="1.1" fill="#f9f4ea" />
+                <circle cx="66" cy="20" r="1.8" fill="#8f887d" />
+                <circle cx="92" cy="64" r="1.4" fill="#3b3b38" />
+                <circle cx="24" cy="92" r="1.7" fill="#b2aa9f" />
+                <circle cx="74" cy="100" r="1.1" fill="#fffaf1" />
+              </g>
+              <path d="M16 8c22 10 46 6 72 14M6 72c24-7 58-6 96 6" fill="none" stroke="#7d766e" stroke-opacity="0.18" stroke-width="1.3" />
             </pattern>
             <pattern id="brick-white-pattern" width="240" height="96" patternUnits="userSpaceOnUse">
               <rect width="240" height="96" fill="#211f1c" />
@@ -479,46 +523,86 @@
             <ellipse cx="600" cy="536" rx="360" ry="34" fill="#50eaff" opacity="0.08" filter="url(#neon-cyan-glow)" />
           </g>
           <g id="station-floor-background" style="display: none;" opacity="0">
-            <rect width="1200" height="840" fill="#f3f4f3" />
-            <g filter="url(#station-backdrop-blur)" opacity="0.88">
-              <rect width="1200" height="334" fill="#111820" />
-              <path d="M0 0H1200V88H0Z" fill="#11151b" />
-              <path d="M0 118H1200V334H0Z" fill="url(#station-wall-wash)" />
-              <g opacity="0.95" transform="translate(520 112)">
-                <rect x="0" y="0" width="626" height="190" rx="4" fill="#232b31" />
-                <rect x="16" y="18" width="86" height="148" rx="3" fill="#cfd7dc" />
-                <rect x="124" y="18" width="86" height="148" rx="3" fill="#22282f" />
-                <rect x="232" y="18" width="86" height="148" rx="3" fill="#cfd7dc" />
-                <rect x="340" y="18" width="86" height="148" rx="3" fill="#22282f" />
-                <rect x="448" y="18" width="86" height="148" rx="3" fill="#d7dee2" />
-                <rect x="556" y="18" width="56" height="148" rx="3" fill="#252c33" />
-                <path d="M0 178H626" stroke="#e0b300" stroke-width="7" />
-                <path d="M0 0H626M108 0V190M216 0V190M324 0V190M432 0V190M540 0V190" stroke="#68717a" stroke-width="4" opacity="0.72" />
+            <rect width="1200" height="840" fill="#eef1f2" />
+            <rect width="1200" height="354" fill="#111820" />
+            <g filter="url(#station-backdrop-blur)" opacity="0.9">
+              <path d="M0 0H1200V92H0Z" fill="#080b10" />
+              <path d="M0 92H1200V130H0Z" fill="#222930" />
+              <path d="M0 130H1200V354H0Z" fill="url(#station-wall-wash)" />
+              <g opacity="0.62">
+                <path d="M334 40H1138" stroke="#d7f4ff" stroke-width="8" stroke-linecap="round" />
+                <path d="M330 39H1142" stroke="#02050a" stroke-width="20" stroke-linecap="round" opacity="0.55" />
+                <path d="M346 41H456M536 41H666M746 41H876M956 41H1118" stroke="#e6fbff" stroke-width="6" stroke-linecap="round" />
               </g>
-              <g transform="translate(34 -30)">
-                <rect x="0" y="0" width="136" height="390" rx="34" fill="url(#station-metal)" />
-                <path d="M0 166H136" stroke="#003688" stroke-width="24" opacity="0.95" />
-                <path d="M22 0V390" stroke="#ffffff" stroke-opacity="0.28" stroke-width="5" />
+              <g transform="matrix(1 0 -0.075 1 392 120)">
+                <path d="M0 20H842V226H0Z" fill="#2c3339" />
+                <path d="M0 20H842V48H0Z" fill="#131820" />
+                <path d="M0 200H842V220H0Z" fill="#171c22" />
+                <path d="M0 184H842" stroke="#d8b20e" stroke-width="8" opacity="0.92" />
+                <g fill="#c9d3d9" opacity="0.9">
+                  <rect x="28" y="58" width="92" height="108" rx="4" />
+                  <rect x="166" y="58" width="88" height="108" rx="4" />
+                  <rect x="402" y="58" width="92" height="108" rx="4" />
+                  <rect x="544" y="58" width="88" height="108" rx="4" />
+                  <rect x="688" y="58" width="80" height="108" rx="4" />
+                </g>
+                <g fill="#1c2228" opacity="0.92">
+                  <rect x="282" y="50" width="86" height="138" rx="3" />
+                  <rect x="638" y="50" width="36" height="138" rx="3" />
+                </g>
+                <g fill="#9faab2" opacity="0.42">
+                  <rect x="36" y="66" width="38" height="40" />
+                  <rect x="176" y="66" width="36" height="40" />
+                  <rect x="410" y="66" width="38" height="40" />
+                  <rect x="554" y="66" width="36" height="40" />
+                  <rect x="706" y="66" width="32" height="40" />
+                </g>
+                <g fill="#171b20" opacity="0.74">
+                  <rect x="314" y="72" width="28" height="28" />
+                  <rect x="716" y="98" width="34" height="46" />
+                </g>
+                <path d="M140 20V226M274 20V226M378 20V226M514 20V226M630 20V226M684 20V226" stroke="#6c747c" stroke-width="4" opacity="0.62" />
               </g>
-              <g opacity="0.7">
-                <path d="M270 60H1120" stroke="#c9f1ff" stroke-width="8" stroke-linecap="round" />
-                <path d="M306 36H1110" stroke="#0f1318" stroke-width="18" stroke-linecap="round" />
-                <path d="M304 58H432M512 58H640M720 58H850M930 58H1056" stroke="#dff8ff" stroke-width="6" stroke-linecap="round" />
+              <g transform="translate(42 -22)">
+                <rect x="0" y="0" width="136" height="420" rx="36" fill="url(#station-metal)" />
+                <path d="M0 172H136" stroke="#003688" stroke-width="26" opacity="0.95" />
+                <path d="M22 0V420" stroke="#ffffff" stroke-opacity="0.28" stroke-width="5" />
               </g>
             </g>
-            <path d="M0 332C186 342 292 338 420 324C594 304 812 322 1200 302V840H0Z" fill="#d9d8d4" />
-            <path d="M0 394C220 386 440 374 632 368C812 362 1000 364 1200 354V840H0Z" fill="url(#station-floor-wash)" />
-            <path d="M0 394C220 386 440 374 632 368C812 362 1000 364 1200 354" stroke="#ffffff" stroke-opacity="0.56" stroke-width="7" />
-            <path d="M0 518H1200M0 672H1200M178 402L-22 840M416 382L284 840M636 370L608 840M856 362L962 840M1068 354L1260 840" fill="none" stroke="#707276" stroke-opacity="0.2" stroke-width="3" />
-            <rect x="0" y="380" width="1200" height="460" fill="url(#station-floor-speckle)" opacity="0.5" />
-            <rect width="1200" height="840" fill="#000000" opacity="0.08" />
-            <ellipse cx="600" cy="664" rx="320" ry="42" fill="#050507" opacity="0.24" filter="url(#station-floor-glow)" />
+            <path d="M0 336C188 350 370 346 558 328C748 310 950 316 1200 292V840H0Z" fill="url(#station-rear-floor-wash)" />
+            <path d="M0 432C188 420 388 400 604 388C804 376 1008 366 1200 344V840H0Z" fill="url(#station-floor-speckle)" opacity="0.18" />
+            <path d="M0 506C160 468 320 452 500 470C690 490 908 486 1200 430V840H0Z" fill="url(#station-foreground-floor-wash)" />
+            <path d="M0 506C160 468 320 452 500 470C690 490 908 486 1200 430V840H0Z" fill="url(#station-floor-speckle)" opacity="0.38" />
+            <path d="M0 506C160 468 320 452 500 470C690 490 908 486 1200 430" stroke="#f6f4ee" stroke-opacity="0.48" stroke-width="5" />
+            <path d="M0 622H1200M0 746H1200M156 424L-58 840M392 402L258 840M612 388L592 840M832 376L942 840M1062 358L1280 840" fill="none" stroke="#30343a" stroke-opacity="0.2" stroke-width="3" />
+            <path d="M0 418C198 402 410 384 604 374C806 364 1012 350 1200 326" stroke="#ffffff" stroke-opacity="0.46" stroke-width="7" />
+            <rect width="1200" height="840" fill="#000000" opacity="0.09" />
+            <ellipse cx="522" cy="655" rx="308" ry="42" fill="#050507" opacity="0.32" filter="url(#station-floor-glow)" />
           </g>
           <g id="station-floor-reflection" style="display: none;" opacity="0" pointer-events="none" filter="url(#station-floor-glow)">
-            <ellipse cx="600" cy="706" rx="220" ry="70" fill="url(#station-red-reflection)" />
-            <ellipse cx="600" cy="682" rx="258" ry="34" fill="url(#station-blue-reflection)" />
-            <rect x="322" y="654" width="556" height="26" rx="13" fill="#083cff" opacity="0.16" />
-            <ellipse cx="600" cy="650" rx="210" ry="28" fill="#ffffff" opacity="0.08" />
+            <ellipse cx="522" cy="720" rx="220" ry="72" fill="url(#station-red-reflection)" opacity="0.9" />
+            <path d="M404 650C468 682 588 682 646 650C632 690 596 726 524 728C452 726 416 690 404 650Z" fill="#ff2c22" opacity="0.16" />
+            <ellipse cx="522" cy="684" rx="256" ry="33" fill="url(#station-blue-reflection)" />
+            <rect x="250" y="650" width="544" height="28" rx="14" fill="#073bdf" opacity="0.16" />
+            <ellipse cx="522" cy="648" rx="196" ry="24" fill="#ffffff" opacity="0.07" />
+          </g>
+          <g id="stone-wall-background" style="display: none;" opacity="0">
+            <rect width="1200" height="840" fill="url(#stone-wall-wash)" />
+            <g opacity="0.86">
+              <rect x="-16" y="-18" width="1232" height="876" fill="url(#stone-wall-speckle)" />
+              <path d="M0 124H1200M0 338H1200M0 552H1200M0 766H1200" stroke="#8c857d" stroke-opacity="0.34" stroke-width="3" />
+              <path d="M236 0V124M510 0V124M784 0V124M1058 0V124" stroke="#8c857d" stroke-opacity="0.26" stroke-width="2" />
+              <path d="M118 124V338M392 124V338M666 124V338M940 124V338" stroke="#8c857d" stroke-opacity="0.26" stroke-width="2" />
+              <path d="M236 338V552M510 338V552M784 338V552M1058 338V552" stroke="#8c857d" stroke-opacity="0.26" stroke-width="2" />
+              <path d="M118 552V766M392 552V766M666 552V766M940 552V766" stroke="#8c857d" stroke-opacity="0.26" stroke-width="2" />
+              <path d="M0 126H1200M0 340H1200M0 554H1200M0 768H1200" stroke="#ffffff" stroke-opacity="0.38" stroke-width="1" />
+            </g>
+            <rect width="1200" height="840" fill="url(#wall-sun-glow)" />
+            <rect width="1200" height="840" fill="#2f2a25" opacity="0.08" />
+          </g>
+          <g id="wall-mount-shadow" style="display: none;" opacity="0" pointer-events="none">
+            <use href="#roundel-art" transform="translate(80 66)" filter="url(#wall-cast-shadow)" />
+            <use href="#roundel-art" transform="translate(22 20)" filter="url(#wall-depth-tone)" />
           </g>
           <g id="street-sign-rig" style="display: none;" opacity="0" pointer-events="none">
             <g transform="matrix(0.94 -0.035 0.09 1 13 34)">
@@ -806,6 +890,10 @@
                     <span class="background-swatch background-swatch-station" aria-hidden="true"></span>
                     <span>Station floor</span>
                   </button>
+                  <button class="background-button" data-background="stone-wall" type="button" style="--swatch-base: #d8d0c5; --swatch-line: #8c857d;">
+                    <span class="background-swatch background-swatch-wall" aria-hidden="true"></span>
+                    <span>Stone wall</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -867,6 +955,10 @@
             <button class="style-button" data-preset="stationFloor" type="button" style="--mini-ring: #ff2718; --mini-bar: #003dca; --mini-hole: #ffffff;">
               <span class="style-mini style-mini-bg style-mini-station" aria-hidden="true"><span></span></span>
               <span>Station</span>
+            </button>
+            <button class="style-button" data-preset="wallMount" type="button" style="--mini-ring: #f52218; --mini-bar: #0037b8; --mini-hole: #d8d0c5;">
+              <span class="style-mini style-mini-bg style-mini-wall" aria-hidden="true"><span></span></span>
+              <span>Wall</span>
             </button>
             <button class="style-button" data-preset="neon" type="button" style="--mini-ring: #ff4b2b; --mini-bar: #1024d6; --mini-hole: #ff4b2b; --mini-glow: #68f8ff;">
               <span class="style-mini style-mini-neon" aria-hidden="true"><span></span></span>

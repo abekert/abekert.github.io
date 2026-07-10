@@ -1119,7 +1119,8 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
 
 .background-swatch-station {
   background:
-    linear-gradient(180deg, #141b22 0 38%, #e7e7e3 39% 58%, #898984 59% 100%);
+    linear-gradient(90deg, transparent 0 48%, rgba(35, 42, 48, 0.86) 49% 100%) 0 4px / 100% 10px,
+    linear-gradient(180deg, #0f151c 0 36%, #e8e9e6 37% 58%, #585655 59% 100%);
 }
 
 .background-swatch-station::before,
@@ -1150,6 +1151,45 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   box-shadow:
     0 0 0 2px #101217,
     inset 0 -4px 0 #003688;
+}
+
+.background-swatch-wall {
+  background:
+    linear-gradient(var(--swatch-line), var(--swatch-line)) 0 10px / 100% 1px,
+    linear-gradient(var(--swatch-line), var(--swatch-line)) 0 22px / 100% 1px,
+    linear-gradient(90deg, transparent 0 48%, var(--swatch-line) 49% 51%, transparent 52%),
+    linear-gradient(135deg, #f4efe5, var(--swatch-base));
+}
+
+.background-swatch-wall::before,
+.background-swatch-wall::after {
+  content: "";
+  position: absolute;
+}
+
+.background-swatch-wall::before {
+  left: 6px;
+  top: 7px;
+  width: 28px;
+  height: 13px;
+  background:
+    radial-gradient(circle, #d8d0c5 0 31%, transparent 32%),
+    radial-gradient(circle, #ef1f17 0 57%, transparent 58%);
+  box-shadow:
+    7px 7px 0 rgba(19, 22, 30, 0.28),
+    0 0 0 2px #aeb7bf;
+}
+
+.background-swatch-wall::after {
+  left: 3px;
+  right: 3px;
+  top: 11px;
+  height: 7px;
+  background: #0037b8;
+  box-shadow:
+    7px 7px 0 rgba(19, 22, 30, 0.28),
+    0 0 0 2px #aeb7bf,
+    inset 0 0 0 1px rgba(255, 255, 255, 0.72);
 }
 
 .range-field {
@@ -1339,9 +1379,10 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
 
 .style-mini-station {
   background:
-    radial-gradient(ellipse at 50% 83%, rgba(255, 35, 22, 0.36) 0 18%, transparent 48%),
-    radial-gradient(ellipse at 50% 78%, rgba(0, 65, 220, 0.24) 0 20%, transparent 52%),
-    linear-gradient(180deg, #111820 0 34%, #d9d9d5 35% 52%, #8d8c87 53% 100%);
+    radial-gradient(ellipse at 42% 83%, rgba(255, 35, 22, 0.38) 0 17%, transparent 48%),
+    radial-gradient(ellipse at 42% 76%, rgba(0, 65, 220, 0.26) 0 18%, transparent 52%),
+    linear-gradient(92deg, transparent 0 43%, rgba(35, 42, 48, 0.86) 44% 100%) 0 6px / 100% 14px,
+    linear-gradient(180deg, #111820 0 33%, #e7e7e3 34% 55%, #5f5b58 56% 100%);
 }
 
 .style-mini-station::before {
@@ -1354,6 +1395,28 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   box-shadow:
     0 0 0 2px #111216,
     0 4px 7px rgba(0, 0, 0, 0.32);
+}
+
+.style-mini-wall {
+  background:
+    linear-gradient(rgba(130, 122, 112, 0.36), rgba(130, 122, 112, 0.36)) 0 13px / 100% 1px,
+    linear-gradient(rgba(130, 122, 112, 0.28), rgba(130, 122, 112, 0.28)) 0 28px / 100% 1px,
+    linear-gradient(90deg, transparent 0 48%, rgba(130, 122, 112, 0.24) 49% 51%, transparent 52%),
+    linear-gradient(135deg, #f4efe5, #c8c0b5);
+}
+
+.style-mini-wall::before {
+  box-shadow:
+    8px 7px 0 rgba(7, 9, 18, 0.32),
+    0 0 0 2px #aeb7bf,
+    inset 0 0 0 1px rgba(255, 255, 255, 0.32);
+}
+
+.style-mini-wall span {
+  box-shadow:
+    8px 7px 0 rgba(7, 9, 18, 0.32),
+    0 0 0 2px #aeb7bf,
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
 }
 
 .style-mini-outline::before {

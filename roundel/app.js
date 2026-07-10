@@ -36,6 +36,8 @@
   var electricReflection = document.getElementById("electric-reflection");
   var stationFloorBackground = document.getElementById("station-floor-background");
   var stationFloorReflection = document.getElementById("station-floor-reflection");
+  var stoneWallBackground = document.getElementById("stone-wall-background");
+  var wallMountShadow = document.getElementById("wall-mount-shadow");
   var plaqueBackground = document.getElementById("plaque-background");
   var neonLayer = document.getElementById("neon-layer");
   var neonBackdrop = document.getElementById("neon-backdrop");
@@ -124,8 +126,12 @@
     "brick-red": "url(#brick-red-pattern)",
     "brick-yellow": "url(#brick-yellow-pattern)"
   };
+  var identityArtLayout = { x: 0, y: 0, scaleX: 1, scaleY: 1 };
+  var stationArtLayout = { x: 72, y: 136, scaleX: 0.76, scaleY: 0.76 };
+  var wallArtLayout = { x: 54, y: 8, scaleX: 0.91, scaleY: 0.91 };
   var streetArtTransform = "matrix(0.94 -0.035 0.09 1 13 34)";
-  var stationArtTransform = "translate(132 128) scale(0.78)";
+  var stationArtTransform = "translate(" + stationArtLayout.x + " " + stationArtLayout.y + ") scale(" + stationArtLayout.scaleX + ")";
+  var wallArtTransform = "translate(" + wallArtLayout.x + " " + wallArtLayout.y + ") scale(" + wallArtLayout.scaleX + ")";
   var colorSchemes = {
     underground: {
       ringSolid: "#e1251b",
@@ -874,7 +880,7 @@
       ornamentOpacity: "0.65"
     },
     stationFloor: {
-      barWidth: 920,
+      barWidth: 900,
       font: "gill",
       whiteCenter: true,
       gradients: true,
@@ -882,25 +888,57 @@
       blueOutline: true,
       whiteInset: false,
       background: "station-floor",
-      outerRadius: 288,
-      innerRadius: 170,
-      singleBarHeight: 144,
-      doubleBarHeight: 236,
+      outerRadius: 286,
+      innerRadius: 168,
+      singleBarHeight: 134,
+      doubleBarHeight: 224,
       centerFill: "#ffffff",
       ringSolid: "#f52418",
       ringGradient: ["#ff3a23", "#f52418", "#c40d12"],
-      ringOutlineColor: "#111216",
-      ringOutlineWidth: 9,
+      ringOutlineColor: "#090b10",
+      ringOutlineWidth: 10,
       ringOutlineOpacity: "0.98",
-      barSolid: "#003dca",
-      barGradient: ["#1b54ff", "#003dca", "#00126b"],
+      barSolid: "#0033b8",
+      barGradient: ["#1552ec", "#0033b8", "#001463"],
       barRadius: 1,
-      outlineColor: "#0b0d16",
-      outlineWidth: 13,
-      outlineOpacity: "0.96",
+      outlineColor: "#090b10",
+      outlineWidth: 12,
+      outlineOpacity: "0.98",
       insetColor: "#ffffff",
       insetWidth: 3,
       insetOpacity: "0.18",
+      ornaments: "none",
+      ornamentColor: "#ffffff",
+      ornamentOpacity: "0.65"
+    },
+    wallMount: {
+      barWidth: 860,
+      font: "gill",
+      whiteCenter: false,
+      gradients: true,
+      shadow: true,
+      blueOutline: true,
+      whiteInset: true,
+      background: "stone-wall",
+      outerRadius: 276,
+      innerRadius: 164,
+      singleBarHeight: 140,
+      doubleBarHeight: 230,
+      centerFill: "#d8d0c5",
+      ringSolid: "#ef1f17",
+      ringGradient: ["#ff3425", "#ef1f17", "#c20d10"],
+      ringOutlineColor: "#aeb7bf",
+      ringOutlineWidth: 9,
+      ringOutlineOpacity: "0.96",
+      barSolid: "#0037b8",
+      barGradient: ["#174ee6", "#0037b8", "#001873"],
+      barRadius: 1,
+      outlineColor: "#aeb7bf",
+      outlineWidth: 13,
+      outlineOpacity: "0.94",
+      insetColor: "#ffffff",
+      insetWidth: 4,
+      insetOpacity: "0.78",
       ornaments: "none",
       ornamentColor: "#ffffff",
       ornamentOpacity: "0.65"
@@ -1143,7 +1181,7 @@
   }
 
   function normalizeBackgroundChoice(value, legacyPlaque) {
-    if (value === "none" || value === "plaque" || value === "street-post" || value === "electric-exhibit" || value === "station-floor" || Object.prototype.hasOwnProperty.call(backgroundFills, value)) {
+    if (value === "none" || value === "plaque" || value === "street-post" || value === "electric-exhibit" || value === "station-floor" || value === "stone-wall" || Object.prototype.hasOwnProperty.call(backgroundFills, value)) {
       return value;
     }
 
@@ -1845,6 +1883,30 @@
     };
   }
 
+  function getControlArtLayout() {
+    var background = getBackgroundChoice();
+
+    if (background === "station-floor") {
+      return stationArtLayout;
+    }
+
+    if (background === "stone-wall") {
+      return wallArtLayout;
+    }
+
+    return identityArtLayout;
+  }
+
+  function getInteractiveScale() {
+    var scale = getSvgScale();
+    var layout = getControlArtLayout();
+
+    return {
+      x: scale.x * layout.scaleX,
+      y: scale.y * layout.scaleY
+    };
+  }
+
   function ensureHeritageLiveText() {
     if (!heritageLiveText) {
       heritageLiveText = document.createElement("div");
@@ -1931,20 +1993,31 @@
     var barX = centerX - barWidth / 2;
     var barY = centerY - barHeight / 2;
     var scale = getSvgScale();
-    var lineHeight = getLineHeight(fontSize, lines.length) * scale.y;
-    var verticalPadding = Math.max(0, (barHeight * scale.y - lineHeight * lines.length) / 2);
-    var horizontalPadding = Math.max(8, getHorizontalPadding(lines.length, barWidth) * scale.x / 2);
+    var layout = getControlArtLayout();
+    var editorX = layout.x + barX * layout.scaleX;
+    var editorY = layout.y + barY * layout.scaleY;
+    var editorWidth = barWidth * layout.scaleX;
+    var editorHeight = barHeight * layout.scaleY;
+    var editorCenterX = layout.x + centerX * layout.scaleX;
+    var editorCenterY = layout.y + centerY * layout.scaleY;
+    var editorScale = {
+      x: scale.x * layout.scaleX,
+      y: scale.y * layout.scaleY
+    };
+    var lineHeight = getLineHeight(fontSize, lines.length) * editorScale.y;
+    var verticalPadding = Math.max(0, (editorHeight * scale.y - lineHeight * lines.length) / 2);
+    var horizontalPadding = Math.max(8, getHorizontalPadding(lines.length, barWidth) * editorScale.x / 2);
     var textColor = textNode.getAttribute("fill") || "#ffffff";
-    var gripHeight = Math.max(52, Math.min(92, barHeight * scale.y * 0.58));
+    var gripHeight = Math.max(42, Math.min(92, editorHeight * scale.y * 0.58));
     var heritageTypography = isHeritageTypography();
 
-    input.style.left = (barX / 1200 * 100) + "%";
-    input.style.top = (barY / 840 * 100) + "%";
-    input.style.width = (barWidth / 1200 * 100) + "%";
-    input.style.height = (barHeight / 840 * 100) + "%";
+    input.style.left = (editorX / 1200 * 100) + "%";
+    input.style.top = (editorY / 840 * 100) + "%";
+    input.style.width = (editorWidth / 1200 * 100) + "%";
+    input.style.height = (editorHeight / 840 * 100) + "%";
     input.style.padding = verticalPadding + "px " + horizontalPadding + "px 0";
     input.style.fontFamily = getFontStack();
-    input.style.fontSize = Math.max(18, fontSize * scale.x) + "px";
+    input.style.fontSize = Math.max(18, fontSize * editorScale.x) + "px";
     input.style.lineHeight = lineHeight + "px";
     input.style.color = heritageTypography ? "transparent" : textColor;
     input.style.caretColor = textColor;
@@ -1954,7 +2027,7 @@
     roundelStage.classList.toggle("is-heritage-live", heritageTypography);
 
     if (heritageTypography) {
-      syncHeritageLiveText(lines, barX, barY, barWidth, barHeight, fontSize, scale, textColor);
+      syncHeritageLiveText(lines, editorX, editorY, editorWidth, editorHeight, fontSize, editorScale, textColor);
     } else {
       hideHeritageLiveText();
     }
@@ -1968,27 +2041,27 @@
     }
 
     if (leftBarGrip) {
-      leftBarGrip.style.left = ((barX - 18) / 1200 * 100) + "%";
-      leftBarGrip.style.top = (centerY / 840 * 100) + "%";
+      leftBarGrip.style.left = ((editorX - 18) / 1200 * 100) + "%";
+      leftBarGrip.style.top = (editorCenterY / 840 * 100) + "%";
       leftBarGrip.style.height = gripHeight + "px";
     }
 
     if (rightBarGrip) {
-      rightBarGrip.style.left = ((barX + barWidth + 18) / 1200 * 100) + "%";
-      rightBarGrip.style.top = (centerY / 840 * 100) + "%";
+      rightBarGrip.style.left = ((editorX + editorWidth + 18) / 1200 * 100) + "%";
+      rightBarGrip.style.top = (editorCenterY / 840 * 100) + "%";
       rightBarGrip.style.height = gripHeight + "px";
     }
 
     if (topBarGrip) {
-      topBarGrip.style.left = (centerX / 1200 * 100) + "%";
-      topBarGrip.style.top = ((barY - 18) / 840 * 100) + "%";
-      topBarGrip.style.width = Math.max(92, Math.min(150, barWidth * scale.x * 0.2)) + "px";
+      topBarGrip.style.left = (editorCenterX / 1200 * 100) + "%";
+      topBarGrip.style.top = ((editorY - 18) / 840 * 100) + "%";
+      topBarGrip.style.width = Math.max(82, Math.min(150, editorWidth * scale.x * 0.2)) + "px";
     }
 
     if (bottomBarGrip) {
-      bottomBarGrip.style.left = (centerX / 1200 * 100) + "%";
-      bottomBarGrip.style.top = ((barY + barHeight + 18) / 840 * 100) + "%";
-      bottomBarGrip.style.width = Math.max(92, Math.min(150, barWidth * scale.x * 0.2)) + "px";
+      bottomBarGrip.style.left = (editorCenterX / 1200 * 100) + "%";
+      bottomBarGrip.style.top = ((editorY + editorHeight + 18) / 840 * 100) + "%";
+      bottomBarGrip.style.width = Math.max(82, Math.min(150, editorWidth * scale.x * 0.2)) + "px";
     }
   }
 
@@ -2664,6 +2737,7 @@
     var streetVisible = backgroundKey === "street-post";
     var electricVisible = backgroundKey === "electric-exhibit";
     var stationFloorVisible = backgroundKey === "station-floor";
+    var stoneWallVisible = backgroundKey === "stone-wall";
     var neonVisible = Boolean(preset.neon);
     var neonBackdropVisible = Boolean(neonVisible && backgroundKey === "plaque");
     var plaqueVisible = Boolean(backgroundKey === "plaque" && !neonVisible);
@@ -2687,6 +2761,7 @@
       roundelStage.classList.toggle("is-neon", neonVisible);
       roundelStage.classList.toggle("is-electric", electricVisible);
       roundelStage.classList.toggle("is-station-floor", stationFloorVisible);
+      roundelStage.classList.toggle("is-wall-mount", stoneWallVisible);
     }
 
     centerFill.style.display = whiteCenterToggle.checked ? "" : "none";
@@ -2716,7 +2791,7 @@
     barInset.setAttribute("stroke-opacity", insetOpacity);
     textNode.setAttribute("fill", textColor);
     textNode.setAttribute("font-style", neonVisible ? "italic" : "normal");
-    artGroup.setAttribute("transform", streetVisible ? streetArtTransform : stationFloorVisible ? stationArtTransform : "");
+    artGroup.setAttribute("transform", streetVisible ? streetArtTransform : stationFloorVisible ? stationArtTransform : stoneWallVisible ? wallArtTransform : "");
     if (streetBackground) {
       streetBackground.style.display = streetVisible ? "" : "none";
       streetBackground.setAttribute("opacity", streetVisible ? "1" : "0");
@@ -2740,6 +2815,14 @@
     if (stationFloorReflection) {
       stationFloorReflection.style.display = stationFloorVisible ? "" : "none";
       stationFloorReflection.setAttribute("opacity", stationFloorVisible ? "1" : "0");
+    }
+    if (stoneWallBackground) {
+      stoneWallBackground.style.display = stoneWallVisible ? "" : "none";
+      stoneWallBackground.setAttribute("opacity", stoneWallVisible ? "1" : "0");
+    }
+    if (wallMountShadow) {
+      wallMountShadow.style.display = stoneWallVisible ? "" : "none";
+      wallMountShadow.setAttribute("opacity", stoneWallVisible ? "1" : "0");
     }
     brickBackground.style.display = brickVisible ? "" : "none";
     brickBackground.setAttribute("opacity", brickVisible ? "1" : "0");
@@ -2766,7 +2849,7 @@
     }
 
     if (shadowToggle.checked) {
-      artGroup.setAttribute("filter", electricVisible ? "url(#electric-art-glow)" : neonVisible ? "url(#neon-art-glow)" : stationFloorVisible ? "url(#station-sign-shadow)" : "url(#soft-shadow)");
+      artGroup.setAttribute("filter", electricVisible ? "url(#electric-art-glow)" : neonVisible ? "url(#neon-art-glow)" : stationFloorVisible ? "url(#station-sign-shadow)" : stoneWallVisible ? "url(#wall-mounted-art-shadow)" : "url(#soft-shadow)");
     } else {
       artGroup.removeAttribute("filter");
     }
@@ -2995,7 +3078,7 @@
       startY: event.clientY,
       startWidth: getBarWidth(),
       startBarHeight: getBarHeightAdjustment(),
-      scale: getSvgScale(),
+      scale: getInteractiveScale(),
       moved: false
     };
 
