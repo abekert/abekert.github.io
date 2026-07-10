@@ -210,7 +210,7 @@
             </filter>
             <filter id="wall-mounted-art-shadow" x="-16%" y="-16%" width="140%" height="145%">
               <feDropShadow dx="4" dy="4" stdDeviation="1.8" flood-color="#ffffff" flood-opacity="0.34" />
-              <feDropShadow dx="18" dy="24" stdDeviation="8" flood-color="#070912" flood-opacity="0.34" />
+              <feDropShadow dx="4" dy="6" stdDeviation="2.2" flood-color="#070912" flood-opacity="0.26" />
             </filter>
             <linearGradient id="plaque-wash" x1="0" x2="1" y1="0" y2="1">
               <stop offset="0" stop-color="#fffdf2" />
@@ -238,13 +238,13 @@
               <stop offset="1" stop-color="#eef0ec" />
             </linearGradient>
             <linearGradient id="street-building-face" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0" stop-color="#9a9a99" />
-              <stop offset="0.54" stop-color="#d0ccc2" />
-              <stop offset="1" stop-color="#787b80" />
+              <stop offset="0" stop-color="#5d6570" />
+              <stop offset="0.42" stop-color="#c8c2b8" />
+              <stop offset="1" stop-color="#3c434d" />
             </linearGradient>
             <linearGradient id="street-brick-roof" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stop-color="#c07145" />
-              <stop offset="1" stop-color="#7d3c27" />
+              <stop offset="0" stop-color="#8a6a52" />
+              <stop offset="1" stop-color="#4b3328" />
             </linearGradient>
             <linearGradient id="street-pole-fill" x1="0" x2="1" y1="0" y2="0">
               <stop offset="0" stop-color="#061039" />
@@ -252,25 +252,45 @@
               <stop offset="0.58" stop-color="#09195f" />
               <stop offset="1" stop-color="#03081f" />
             </linearGradient>
+            <linearGradient id="street-sign-side-fill" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#3f454b" />
+              <stop offset="0.42" stop-color="#171c24" />
+              <stop offset="1" stop-color="#05070d" />
+            </linearGradient>
+            <linearGradient id="street-sign-side-edge" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0" stop-color="#aeb5bd" stop-opacity="0.72" />
+              <stop offset="0.55" stop-color="#343b43" stop-opacity="0.72" />
+              <stop offset="1" stop-color="#05070d" stop-opacity="0.9" />
+            </linearGradient>
+            <linearGradient id="wall-sign-side-fill" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#5e6670" />
+              <stop offset="0.42" stop-color="#343b45" />
+              <stop offset="1" stop-color="#151a20" />
+            </linearGradient>
+            <linearGradient id="wall-sign-side-shade" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#6f7780" stop-opacity="0.78" />
+              <stop offset="0.48" stop-color="#2e343c" stop-opacity="0.86" />
+              <stop offset="1" stop-color="#080b10" stop-opacity="0.94" />
+            </linearGradient>
             <radialGradient id="street-cloud-soft" cx="50%" cy="50%" r="58%">
               <stop offset="0" stop-color="#ffffff" stop-opacity="0.86" />
               <stop offset="0.62" stop-color="#ffffff" stop-opacity="0.42" />
               <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
             </radialGradient>
+            <radialGradient id="street-vignette" cx="52%" cy="44%" r="76%">
+              <stop offset="0" stop-color="#ffffff" stop-opacity="0" />
+              <stop offset="0.62" stop-color="#2e3a4b" stop-opacity="0.02" />
+              <stop offset="1" stop-color="#101827" stop-opacity="0.32" />
+            </radialGradient>
             <radialGradient id="electric-blue-wash" cx="34%" cy="18%" r="82%">
-              <stop offset="0" stop-color="#0b58ff" stop-opacity="0.84" />
-              <stop offset="0.48" stop-color="#0827a8" stop-opacity="0.78" />
-              <stop offset="1" stop-color="#02040e" stop-opacity="1" />
+              <stop offset="0" stop-color="#0a4eff" stop-opacity="0.72" />
+              <stop offset="0.44" stop-color="#071d62" stop-opacity="0.74" />
+              <stop offset="1" stop-color="#02030a" stop-opacity="1" />
             </radialGradient>
             <linearGradient id="electric-floor-wash" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0" stop-color="#101a3b" />
-              <stop offset="0.48" stop-color="#211743" />
-              <stop offset="1" stop-color="#040511" />
-            </linearGradient>
-            <linearGradient id="electric-reflection-fade" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stop-color="#ffffff" stop-opacity="0.3" />
-              <stop offset="0.38" stop-color="#ffffff" stop-opacity="0.12" />
-              <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+              <stop offset="0" stop-color="#20254a" />
+              <stop offset="0.48" stop-color="#161229" />
+              <stop offset="1" stop-color="#03040d" />
             </linearGradient>
             <linearGradient id="station-wall-wash" x1="0" x2="1" y1="0" y2="1">
               <stop offset="0" stop-color="#1f2a33" />
@@ -332,16 +352,6 @@
             <pattern id="plaque-fibers" width="72" height="72" patternUnits="userSpaceOnUse">
               <path d="M10 0v72M38 0v72M66 0v72" stroke="#8c8678" stroke-opacity="0.07" stroke-width="2" />
               <path d="M0 17h72M0 52h72" stroke="#ffffff" stroke-opacity="0.24" stroke-width="3" />
-            </pattern>
-            <pattern id="electric-wall-tile" width="86" height="86" patternUnits="userSpaceOnUse">
-              <rect width="86" height="86" fill="#0827b9" />
-              <path d="M0 0H86V86H0Z" fill="none" stroke="#00146a" stroke-opacity="0.42" stroke-width="2" />
-              <path d="M4 4H82M4 4V82" stroke="#4192ff" stroke-opacity="0.18" stroke-width="1.4" />
-            </pattern>
-            <pattern id="electric-floor-tile" width="158" height="124" patternUnits="userSpaceOnUse">
-              <rect width="158" height="124" fill="#211845" />
-              <path d="M0 0H158V124H0Z" fill="none" stroke="#02040d" stroke-opacity="0.55" stroke-width="3" />
-              <path d="M4 4H154M4 4V120" stroke="#6678ff" stroke-opacity="0.12" stroke-width="1.4" />
             </pattern>
             <pattern id="station-floor-speckle" width="92" height="92" patternUnits="userSpaceOnUse">
               <rect width="92" height="92" fill="#9c9a94" />
@@ -435,54 +445,51 @@
             <clipPath id="neon-flag-clip">
               <path d="M2 54L280 2L320 248L18 224Z" />
             </clipPath>
-            <clipPath id="electric-table-clip">
-              <path d="M0 526L1200 496V840H0Z" />
-            </clipPath>
-            <mask id="electric-reflection-mask">
-              <rect x="0" y="520" width="1200" height="320" fill="url(#electric-reflection-fade)" />
-            </mask>
           </defs>
           <rect width="1200" height="840" fill="transparent" />
           <g id="street-background" style="display: none;" opacity="0">
             <rect width="1200" height="840" fill="url(#street-sky)" />
-            <g filter="url(#street-soft-blur)" opacity="0.9">
-              <ellipse cx="116" cy="122" rx="150" ry="58" fill="url(#street-cloud-soft)" />
-              <ellipse cx="312" cy="166" rx="220" ry="76" fill="url(#street-cloud-soft)" />
-              <ellipse cx="716" cy="118" rx="260" ry="86" fill="url(#street-cloud-soft)" />
-              <ellipse cx="1010" cy="210" rx="210" ry="72" fill="url(#street-cloud-soft)" />
-              <ellipse cx="438" cy="332" rx="360" ry="100" fill="#ffffff" opacity="0.2" />
+            <g filter="url(#street-soft-blur)" opacity="0.72">
+              <path d="M-80 124C64 62 226 72 342 122C456 172 614 152 746 96C900 30 1062 64 1280 132V320H-80Z" fill="#ffffff" opacity="0.38" />
+              <ellipse cx="268" cy="196" rx="230" ry="74" fill="url(#street-cloud-soft)" />
+              <ellipse cx="832" cy="154" rx="290" ry="82" fill="url(#street-cloud-soft)" />
+              <ellipse cx="1018" cy="242" rx="250" ry="80" fill="#ffffff" opacity="0.2" />
             </g>
-            <path d="M0 612C128 562 226 586 348 548C494 504 604 548 742 500C884 452 1016 472 1200 426V840H0Z" fill="#d6d3cb" opacity="0.42" />
-            <g opacity="0.85" transform="translate(906 44)">
-              <path d="M88 0L254 38V796H14V74Z" fill="url(#street-building-face)" />
-              <path d="M102 18L236 48V796H256V38L88 0Z" fill="#4c525c" opacity="0.44" />
-              <g fill="#e3e0d8" stroke="#6e737a" stroke-width="3" opacity="0.82">
-                <rect x="88" y="92" width="38" height="76" />
-                <rect x="158" y="108" width="42" height="80" />
-                <rect x="84" y="226" width="42" height="88" />
-                <rect x="160" y="244" width="46" height="88" />
-                <rect x="78" y="368" width="46" height="92" />
-                <rect x="164" y="392" width="48" height="96" />
-                <rect x="72" y="520" width="48" height="104" />
-                <rect x="168" y="552" width="50" height="104" />
+            <path d="M0 610C152 572 276 580 432 544C596 506 730 526 888 482C1018 446 1122 440 1200 422V840H0Z" fill="#d7d6d0" opacity="0.3" />
+            <g opacity="0.74" filter="url(#street-soft-blur)" transform="translate(848 10)">
+              <path d="M122 0L324 44V804H28V96Z" fill="url(#street-building-face)" />
+              <path d="M132 18L326 58V804H354V44L122 0Z" fill="#1e2630" opacity="0.48" />
+              <path d="M64 84H318M54 196H334M46 314H340M40 432H344M34 552H350M28 674H354" stroke="#f4eee4" stroke-opacity="0.22" stroke-width="7" />
+              <g fill="#dfe7ea" stroke="#4d5864" stroke-width="4" opacity="0.68">
+                <rect x="106" y="92" width="42" height="86" />
+                <rect x="182" y="108" width="46" height="88" />
+                <rect x="250" y="126" width="42" height="88" />
+                <rect x="98" y="246" width="48" height="98" />
+                <rect x="184" y="264" width="50" height="100" />
+                <rect x="260" y="286" width="44" height="102" />
+                <rect x="88" y="410" width="50" height="110" />
+                <rect x="186" y="434" width="54" height="112" />
+                <rect x="270" y="462" width="48" height="112" />
               </g>
-              <path d="M20 716H256" stroke="#363941" stroke-width="20" opacity="0.54" />
+              <path d="M34 724H354" stroke="#20262f" stroke-width="24" opacity="0.48" />
             </g>
-            <g opacity="0.86" transform="translate(28 498)">
-              <path d="M0 172H236L214 58L172 0L126 66L82 24L24 96Z" fill="#b9976c" />
-              <path d="M112 62L172 0L214 58L232 172H110Z" fill="#8a6a47" opacity="0.42" />
-              <path d="M112 62L172 0L214 58" fill="none" stroke="#5e4b36" stroke-width="8" opacity="0.42" />
-              <g fill="url(#street-brick-roof)">
-                <rect x="34" y="112" width="56" height="60" />
-                <rect x="126" y="96" width="62" height="76" />
+            <g opacity="0.52" filter="url(#street-soft-blur)" transform="translate(72 474)">
+              <path d="M-40 210H442L414 88L348 28L270 112L206 54L132 126L58 80Z" fill="#6c6157" />
+              <path d="M198 112L348 28L414 88L442 210H206Z" fill="#302b29" opacity="0.38" />
+              <g fill="url(#street-brick-roof)" opacity="0.86">
+                <rect x="72" y="142" width="84" height="68" />
+                <rect x="218" y="126" width="98" height="84" />
+                <rect x="340" y="104" width="62" height="106" />
               </g>
+              <path d="M62 80L132 126L206 54L270 112L348 28L414 88" fill="none" stroke="#28231f" stroke-width="8" opacity="0.28" />
             </g>
-            <g opacity="0.78" transform="translate(0 426)">
-              <path d="M58 236V70C58 34 84 10 118 10H138" fill="none" stroke="#12151c" stroke-width="13" stroke-linecap="round" />
-              <path d="M136 10C176 12 196 38 194 70" fill="none" stroke="#12151c" stroke-width="12" stroke-linecap="round" />
-              <path d="M190 88c-20 24-50 24-70 0c4-34 16-54 35-54s31 20 35 54Z" fill="#1b2028" />
-              <circle cx="155" cy="74" r="17" fill="#283241" opacity="0.86" />
+            <g opacity="0.58" filter="url(#street-soft-blur)" transform="translate(-8 430)">
+              <path d="M72 262V82C72 40 100 14 138 14H164" fill="none" stroke="#10151d" stroke-width="13" stroke-linecap="round" />
+              <path d="M160 14C204 16 228 46 226 82" fill="none" stroke="#10151d" stroke-width="12" stroke-linecap="round" />
+              <path d="M222 104c-24 28-62 28-86 0c5-39 20-62 43-62s38 23 43 62Z" fill="#171d27" />
+              <circle cx="179" cy="86" r="18" fill="#2c3542" opacity="0.68" />
             </g>
+            <rect width="1200" height="840" fill="url(#street-vignette)" />
           </g>
           <g id="brick-background" style="display: none;" opacity="0">
             <rect x="54" y="60" width="1092" height="720" rx="8" fill="#111111" opacity="0.32" filter="url(#plaque-shadow)" />
@@ -501,26 +508,14 @@
           </g>
           <g id="electric-background" style="display: none;" opacity="0">
             <rect width="1200" height="840" fill="#02030a" />
-            <rect width="1200" height="560" fill="url(#electric-blue-wash)" />
-            <g opacity="0.82">
-              <rect x="-24" y="-28" width="840" height="590" fill="url(#electric-wall-tile)" transform="skewY(-1.2)" />
-              <path d="M778 -18H1200V532H778Z" fill="#050817" opacity="0.76" />
-              <path d="M790 -18H1200V532" fill="none" stroke="#172866" stroke-opacity="0.28" stroke-width="3" />
-              <path d="M812 0H1086V250H812Z" fill="#02040c" opacity="0.26" />
-              <path d="M1110 0H1200V320H1110Z" fill="#02040c" opacity="0.32" />
-            </g>
-            <rect x="0" y="0" width="1200" height="560" fill="#000814" opacity="0.18" />
-            <ellipse cx="598" cy="424" rx="300" ry="250" fill="url(#electric-warm-pool)" filter="url(#neon-red-glow)" />
-            <rect x="238" y="366" width="724" height="112" rx="22" fill="url(#electric-blue-pool)" filter="url(#neon-cyan-glow)" />
-            <path d="M0 526L1200 500V840H0Z" fill="url(#electric-floor-wash)" />
-            <path d="M0 526L1200 500" stroke="#151a4f" stroke-width="5" opacity="0.78" />
-            <g clip-path="url(#electric-table-clip)" opacity="0.62">
-              <rect x="-80" y="492" width="1360" height="400" fill="url(#electric-floor-tile)" transform="matrix(1 0 -0.2 1 150 0)" />
-              <path d="M0 614L1200 596M0 710L1200 694M188 520L88 840M392 516L334 840M606 510L606 840M824 506L892 840M1044 502L1180 840" fill="none" stroke="#02040d" stroke-opacity="0.58" stroke-width="4" />
-              <path d="M0 608L1200 590M0 704L1200 688M198 520L100 840M402 516L346 840M616 510L616 840M834 506L904 840M1054 502L1192 840" fill="none" stroke="#7587ff" stroke-opacity="0.09" stroke-width="1.5" />
-            </g>
-            <ellipse cx="600" cy="568" rx="276" ry="42" fill="#ff5518" opacity="0.18" filter="url(#neon-red-glow)" />
-            <ellipse cx="600" cy="536" rx="360" ry="34" fill="#50eaff" opacity="0.08" filter="url(#neon-cyan-glow)" />
+            <rect width="1200" height="840" fill="url(#electric-blue-wash)" />
+            <ellipse cx="610" cy="386" rx="420" ry="250" fill="#254cff" opacity="0.16" filter="url(#electric-floor-blur)" />
+            <ellipse cx="590" cy="442" rx="330" ry="230" fill="url(#electric-warm-pool)" opacity="0.72" filter="url(#neon-red-glow)" />
+            <path d="M0 506C202 486 396 480 600 486C812 492 1004 480 1200 448V840H0Z" fill="url(#electric-floor-wash)" />
+            <path d="M0 506C202 486 396 480 600 486C812 492 1004 480 1200 448" stroke="#5e78ff" stroke-opacity="0.16" stroke-width="5" />
+            <path d="M0 642H1200M0 760H1200M174 498L44 840M398 486L330 840M620 486L614 840M844 480L928 840M1068 460L1226 840" fill="none" stroke="#5e78ff" stroke-opacity="0.08" stroke-width="2.2" />
+            <rect width="1200" height="840" fill="#000000" opacity="0.12" />
+            <ellipse cx="600" cy="642" rx="284" ry="42" fill="#03040c" opacity="0.34" filter="url(#electric-floor-blur)" />
           </g>
           <g id="station-floor-background" style="display: none;" opacity="0">
             <rect width="1200" height="840" fill="#eef1f2" />
@@ -572,19 +567,26 @@
             <path d="M0 336C188 350 370 346 558 328C748 310 950 316 1200 292V840H0Z" fill="url(#station-rear-floor-wash)" />
             <path d="M0 432C188 420 388 400 604 388C804 376 1008 366 1200 344V840H0Z" fill="url(#station-floor-speckle)" opacity="0.18" />
             <path d="M0 506C160 468 320 452 500 470C690 490 908 486 1200 430V840H0Z" fill="url(#station-foreground-floor-wash)" />
-            <path d="M0 506C160 468 320 452 500 470C690 490 908 486 1200 430V840H0Z" fill="url(#station-floor-speckle)" opacity="0.38" />
+            <path d="M0 506C160 468 320 452 500 470C690 490 908 486 1200 430V840H0Z" fill="url(#station-floor-speckle)" opacity="0.28" />
             <path d="M0 506C160 468 320 452 500 470C690 490 908 486 1200 430" stroke="#f6f4ee" stroke-opacity="0.48" stroke-width="5" />
-            <path d="M0 622H1200M0 746H1200M156 424L-58 840M392 402L258 840M612 388L592 840M832 376L942 840M1062 358L1280 840" fill="none" stroke="#30343a" stroke-opacity="0.2" stroke-width="3" />
+            <path d="M0 622H1200M0 746H1200M156 424L-58 840M392 402L258 840M612 388L592 840M832 376L942 840M1062 358L1280 840" fill="none" stroke="#f2ece3" stroke-opacity="0.18" stroke-width="2" />
             <path d="M0 418C198 402 410 384 604 374C806 364 1012 350 1200 326" stroke="#ffffff" stroke-opacity="0.46" stroke-width="7" />
-            <rect width="1200" height="840" fill="#000000" opacity="0.09" />
-            <ellipse cx="522" cy="655" rx="308" ry="42" fill="#050507" opacity="0.32" filter="url(#station-floor-glow)" />
+            <rect width="1200" height="840" fill="#000000" opacity="0.07" />
+            <ellipse cx="600" cy="655" rx="308" ry="42" fill="#050507" opacity="0.32" filter="url(#station-floor-glow)" />
           </g>
           <g id="station-floor-reflection" style="display: none;" opacity="0" pointer-events="none" filter="url(#station-floor-glow)">
-            <ellipse cx="522" cy="720" rx="220" ry="72" fill="url(#station-red-reflection)" opacity="0.9" />
-            <path d="M404 650C468 682 588 682 646 650C632 690 596 726 524 728C452 726 416 690 404 650Z" fill="#ff2c22" opacity="0.16" />
-            <ellipse cx="522" cy="684" rx="256" ry="33" fill="url(#station-blue-reflection)" />
-            <rect x="250" y="650" width="544" height="28" rx="14" fill="#073bdf" opacity="0.16" />
-            <ellipse cx="522" cy="648" rx="196" ry="24" fill="#ffffff" opacity="0.07" />
+            <ellipse cx="600" cy="720" rx="220" ry="72" fill="url(#station-red-reflection)" opacity="0.9" />
+            <path d="M482 650C546 682 666 682 724 650C710 690 674 726 602 728C530 726 494 690 482 650Z" fill="#ff2c22" opacity="0.16" />
+            <ellipse cx="600" cy="684" rx="256" ry="33" fill="url(#station-blue-reflection)" />
+            <rect x="328" y="650" width="544" height="28" rx="14" fill="#073bdf" opacity="0.16" />
+            <ellipse cx="600" cy="648" rx="196" ry="24" fill="#ffffff" opacity="0.07" />
+          </g>
+          <g id="electric-reflection" style="display: none;" opacity="0" pointer-events="none" filter="url(#electric-floor-blur)">
+            <ellipse cx="600" cy="684" rx="230" ry="68" fill="#ff5518" opacity="0.18" />
+            <path d="M474 622C546 650 656 650 726 622C708 662 666 704 600 708C532 704 492 662 474 622Z" fill="#ff5518" opacity="0.16" />
+            <ellipse cx="600" cy="654" rx="284" ry="34" fill="#2a55ff" opacity="0.16" />
+            <rect x="326" y="622" width="548" height="28" rx="14" fill="#2b6dff" opacity="0.15" />
+            <ellipse cx="600" cy="618" rx="184" ry="22" fill="#ffffff" opacity="0.06" />
           </g>
           <g id="stone-wall-background" style="display: none;" opacity="0">
             <rect width="1200" height="840" fill="url(#stone-wall-wash)" />
@@ -601,19 +603,33 @@
             <rect width="1200" height="840" fill="#2f2a25" opacity="0.08" />
           </g>
           <g id="wall-mount-shadow" style="display: none;" opacity="0" pointer-events="none">
-            <use href="#roundel-art" transform="translate(80 66)" filter="url(#wall-cast-shadow)" />
-            <use href="#roundel-art" transform="translate(22 20)" filter="url(#wall-depth-tone)" />
+            <g id="wall-depth-art">
+              <circle id="wall-depth-ring-cast" cx="632" cy="452" r="230" fill="none" stroke="#05070d" stroke-width="116" opacity="0.28" filter="url(#wall-cast-shadow)" />
+              <circle id="wall-depth-ring-back" cx="632" cy="452" r="230" fill="none" stroke="url(#wall-sign-side-fill)" stroke-width="112" opacity="0.92" />
+              <circle id="wall-depth-ring-outer-rim" cx="632" cy="452" r="286" fill="none" stroke="#c7ccd0" stroke-width="8" stroke-opacity="0.5" />
+              <circle id="wall-depth-ring-inner-rim" cx="632" cy="452" r="174" fill="none" stroke="#151a20" stroke-width="10" stroke-opacity="0.7" />
+              <path id="wall-depth-ring-sheen" d="M760 206C832 238 880 300 902 366" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="8" stroke-linecap="round" />
+              <rect id="wall-depth-bar-cast" x="184" y="366" width="900" height="156" rx="2" fill="#05070d" opacity="0.24" filter="url(#wall-cast-shadow)" />
+              <rect id="wall-depth-bar-back" x="184" y="366" width="900" height="156" rx="2" fill="url(#wall-sign-side-fill)" stroke="#111820" stroke-width="8" opacity="0.96" />
+              <path id="wall-depth-bar-top" d="" fill="#7e8790" opacity="0.64" />
+              <path id="wall-depth-bar-right" d="" fill="url(#wall-sign-side-shade)" opacity="0.92" />
+              <path id="wall-depth-bar-bottom" d="" fill="#111820" opacity="0.92" />
+              <path id="wall-depth-bar-left" d="" fill="#343b45" opacity="0.7" />
+              <g id="wall-depth-corner-lines" fill="none" stroke="#0a0f15" stroke-width="4" stroke-linecap="round" stroke-opacity="0.48">
+                <path id="wall-depth-corner-tl" d="" />
+                <path id="wall-depth-corner-tr" d="" />
+                <path id="wall-depth-corner-br" d="" />
+                <path id="wall-depth-corner-bl" d="" />
+              </g>
+            </g>
           </g>
           <g id="street-sign-rig" style="display: none;" opacity="0" pointer-events="none">
             <g transform="matrix(0.94 -0.035 0.09 1 13 34)">
               <rect x="574" y="548" width="56" height="296" rx="18" fill="url(#street-pole-fill)" />
               <rect x="588" y="548" width="10" height="296" fill="#2b74d0" opacity="0.56" />
               <ellipse cx="602" cy="550" rx="48" ry="16" fill="#03091d" opacity="0.72" />
-              <rect x="382" y="372" width="444" height="72" rx="12" fill="#080b18" opacity="0.78" />
-              <circle cx="600" cy="420" r="300" fill="none" stroke="#070912" stroke-width="42" opacity="0.76" />
-              <circle cx="600" cy="420" r="208" fill="none" stroke="#252934" stroke-width="34" opacity="0.74" />
-              <rect x="142" y="336" width="924" height="198" rx="10" fill="#080b18" opacity="0.66" />
-              <path d="M302 230C360 146 468 92 602 88C734 84 848 140 906 232" fill="none" stroke="#ffffff" stroke-opacity="0.62" stroke-width="15" />
+              <rect x="528" y="510" width="152" height="72" rx="18" fill="#050812" opacity="0.82" />
+              <path d="M542 514H668" stroke="#384252" stroke-opacity="0.72" stroke-width="8" stroke-linecap="round" />
             </g>
           </g>
           <g id="plaque-background" style="display: none;">
@@ -678,6 +694,19 @@
             <circle cx="600" cy="420" r="332" fill="none" stroke="#ff4d31" stroke-opacity="0.32" stroke-width="18" filter="url(#neon-red-glow)" />
             <rect x="130" y="322" width="940" height="196" rx="18" fill="none" stroke="#00eaff" stroke-opacity="0.28" stroke-width="12" filter="url(#neon-cyan-glow)" />
           </g>
+          <g id="street-sign-depth" style="display: none;" opacity="0" pointer-events="none">
+            <g id="street-depth-art" transform="matrix(0.94 -0.035 0.09 1 13 34)">
+              <circle id="street-depth-ring-edge" cx="658" cy="446" r="222" fill="none" stroke="#04070d" stroke-width="132" opacity="0.78" />
+              <circle id="street-depth-ring-back" cx="658" cy="446" r="222" fill="none" stroke="url(#street-sign-side-fill)" stroke-width="112" opacity="0.92" />
+              <circle id="street-depth-ring-outer-rim" cx="658" cy="446" r="278" fill="none" stroke="url(#street-sign-side-edge)" stroke-width="9" opacity="0.9" />
+              <circle id="street-depth-ring-inner-rim" cx="658" cy="446" r="166" fill="none" stroke="#05070d" stroke-width="10" opacity="0.82" />
+              <path id="street-depth-ring-sheen" d="M772 186C842 214 894 268 920 338" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="7" stroke-linecap="round" />
+              <rect id="street-depth-bar-back" x="208" y="369" width="900" height="154" rx="1" fill="url(#street-sign-side-fill)" stroke="#05070d" stroke-width="9" opacity="0.9" />
+              <path id="street-depth-bar-top" d="" fill="url(#street-sign-side-edge)" opacity="0.62" />
+              <path id="street-depth-bar-bottom" d="" fill="#05070d" opacity="0.88" />
+              <path id="street-depth-bar-right" d="" fill="url(#street-sign-side-fill)" opacity="0.96" />
+            </g>
+          </g>
           <g id="roundel-art" filter="url(#soft-shadow)">
             <circle id="ring-circle" cx="600" cy="420" r="292" fill="url(#ring-highlight)" mask="url(#ring-mask)" />
             <circle id="center-fill" cx="600" cy="420" r="178" fill="#ffffff" />
@@ -699,11 +728,6 @@
               font-weight="700"
               letter-spacing="0"
             >UNDERGROUND</text>
-          </g>
-          <g id="electric-reflection" style="display: none;" opacity="0" pointer-events="none" clip-path="url(#electric-table-clip)" mask="url(#electric-reflection-mask)" filter="url(#electric-floor-blur)">
-            <use href="#roundel-art" transform="matrix(0.78 0.03 -0.18 -0.26 220 724)" opacity="0.34" />
-            <ellipse cx="610" cy="642" rx="300" ry="54" fill="#ff4a16" opacity="0.12" />
-            <rect x="208" y="558" width="780" height="48" rx="20" fill="#235cff" opacity="0.08" />
           </g>
           <g id="neon-tube-layer" style="display: none;" opacity="0" pointer-events="none">
             <circle id="neon-outer-tube" cx="600" cy="420" r="304" fill="none" stroke="#fff0dc" stroke-width="8" stroke-opacity="0.92" filter="url(#neon-white-glow)" />

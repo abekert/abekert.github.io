@@ -30,6 +30,17 @@
   var heritageLiveText = null;
   var streetBackground = document.getElementById("street-background");
   var streetSignRig = document.getElementById("street-sign-rig");
+  var streetSignDepth = document.getElementById("street-sign-depth");
+  var streetDepthArt = document.getElementById("street-depth-art");
+  var streetDepthRingEdge = document.getElementById("street-depth-ring-edge");
+  var streetDepthRingBack = document.getElementById("street-depth-ring-back");
+  var streetDepthRingOuterRim = document.getElementById("street-depth-ring-outer-rim");
+  var streetDepthRingInnerRim = document.getElementById("street-depth-ring-inner-rim");
+  var streetDepthRingSheen = document.getElementById("street-depth-ring-sheen");
+  var streetDepthBarBack = document.getElementById("street-depth-bar-back");
+  var streetDepthBarTop = document.getElementById("street-depth-bar-top");
+  var streetDepthBarBottom = document.getElementById("street-depth-bar-bottom");
+  var streetDepthBarRight = document.getElementById("street-depth-bar-right");
   var brickBackground = document.getElementById("brick-background");
   var brickWallFill = document.getElementById("brick-wall-fill");
   var electricBackground = document.getElementById("electric-background");
@@ -38,6 +49,22 @@
   var stationFloorReflection = document.getElementById("station-floor-reflection");
   var stoneWallBackground = document.getElementById("stone-wall-background");
   var wallMountShadow = document.getElementById("wall-mount-shadow");
+  var wallDepthArt = document.getElementById("wall-depth-art");
+  var wallDepthRingCast = document.getElementById("wall-depth-ring-cast");
+  var wallDepthRingBack = document.getElementById("wall-depth-ring-back");
+  var wallDepthRingOuterRim = document.getElementById("wall-depth-ring-outer-rim");
+  var wallDepthRingInnerRim = document.getElementById("wall-depth-ring-inner-rim");
+  var wallDepthRingSheen = document.getElementById("wall-depth-ring-sheen");
+  var wallDepthBarCast = document.getElementById("wall-depth-bar-cast");
+  var wallDepthBarBack = document.getElementById("wall-depth-bar-back");
+  var wallDepthBarTop = document.getElementById("wall-depth-bar-top");
+  var wallDepthBarRight = document.getElementById("wall-depth-bar-right");
+  var wallDepthBarBottom = document.getElementById("wall-depth-bar-bottom");
+  var wallDepthBarLeft = document.getElementById("wall-depth-bar-left");
+  var wallDepthCornerTl = document.getElementById("wall-depth-corner-tl");
+  var wallDepthCornerTr = document.getElementById("wall-depth-corner-tr");
+  var wallDepthCornerBr = document.getElementById("wall-depth-corner-br");
+  var wallDepthCornerBl = document.getElementById("wall-depth-corner-bl");
   var plaqueBackground = document.getElementById("plaque-background");
   var neonLayer = document.getElementById("neon-layer");
   var neonBackdrop = document.getElementById("neon-backdrop");
@@ -111,9 +138,19 @@
   var previewState = null;
   var previewPresetKey = "";
   var introTextTimers = [];
+  var introSequence = [
+    { preset: "classic", text: "MAKE" },
+    { preset: "redDisc", text: "YOUR OWN" },
+    { preset: "heritage", text: "UNDERGROUND" },
+    { preset: "poster", text: "TAP TO START" }
+  ];
+  var introStepDuration = 960;
+  var introOutroDelay = 520;
   var hudIdleTimer = 0;
   var hudActivityFrame = 0;
   var hudIdleDelay = 2200;
+  var mobileMenuIdleTimer = 0;
+  var mobileMenuIdleDelay = 3000;
   var fontStacks = {
     gill: "'Gill Sans', 'Gill Sans MT', 'Avenir Next', 'Trebuchet MS', Arial, sans-serif",
     avenir: "'Avenir Next', Avenir, 'Gill Sans', 'Trebuchet MS', Arial, sans-serif",
@@ -127,8 +164,10 @@
     "brick-yellow": "url(#brick-yellow-pattern)"
   };
   var identityArtLayout = { x: 0, y: 0, scaleX: 1, scaleY: 1 };
-  var stationArtLayout = { x: 72, y: 136, scaleX: 0.76, scaleY: 0.76 };
+  var stationArtLayout = { x: 144, y: 136, scaleX: 0.76, scaleY: 0.76 };
   var wallArtLayout = { x: 54, y: 8, scaleX: 0.91, scaleY: 0.91 };
+  var streetDepthOffset = { x: 58, y: 26 };
+  var wallDepthOffset = { x: 42, y: 38 };
   var streetArtTransform = "matrix(0.94 -0.035 0.09 1 13 34)";
   var stationArtTransform = "translate(" + stationArtLayout.x + " " + stationArtLayout.y + ") scale(" + stationArtLayout.scaleX + ")";
   var wallArtTransform = "translate(" + wallArtLayout.x + " " + wallArtLayout.y + ") scale(" + wallArtLayout.scaleX + ")";
@@ -1027,6 +1066,7 @@
       roundelStage.setAttribute("data-active-menu", name || "");
     }
 
+    scheduleMobileMenuIdle();
   }
 
   function closeMenus() {
@@ -1043,6 +1083,9 @@
       roundelStage.setAttribute("data-active-menu", "");
     }
 
+    if (!hasOpenShareMenu()) {
+      clearMobileMenuIdle();
+    }
   }
 
   function isHudIdleBlocked() {
@@ -1068,6 +1111,56 @@
     }, hudIdleDelay);
   }
 
+  function isMobileMenuAutoHideEnabled() {
+    return Boolean(mobileTextEditingQuery && mobileTextEditingQuery.matches);
+  }
+
+  function hasOpenFloatingMenu() {
+    return menuPanels.some(function (panel) {
+      return !panel.hidden;
+    });
+  }
+
+  function hasOpenShareMenu() {
+    return Boolean(shareMenu && !shareMenu.hidden);
+  }
+
+  function hasOpenMobileMenu() {
+    return hasOpenFloatingMenu() || hasOpenShareMenu();
+  }
+
+  function isMobileMenuIdleBlocked() {
+    return Boolean(
+      activeDrag ||
+      document.body.classList.contains("is-booting") ||
+      document.body.classList.contains("is-mobile-text-editing")
+    );
+  }
+
+  function clearMobileMenuIdle() {
+    window.clearTimeout(mobileMenuIdleTimer);
+    mobileMenuIdleTimer = 0;
+  }
+
+  function scheduleMobileMenuIdle() {
+    clearMobileMenuIdle();
+
+    if (!isMobileMenuAutoHideEnabled() || !hasOpenMobileMenu() || isMobileMenuIdleBlocked()) {
+      return;
+    }
+
+    mobileMenuIdleTimer = window.setTimeout(function () {
+      mobileMenuIdleTimer = 0;
+
+      if (!isMobileMenuAutoHideEnabled() || !hasOpenMobileMenu() || isMobileMenuIdleBlocked()) {
+        return;
+      }
+
+      closeMenus();
+      closeShareMenu();
+    }, mobileMenuIdleDelay);
+  }
+
   function showHudChrome() {
     setHudIdle(false);
     scheduleHudIdle();
@@ -1081,6 +1174,7 @@
     hudActivityFrame = requestFrame(function () {
       hudActivityFrame = 0;
       showHudChrome();
+      scheduleMobileMenuIdle();
     });
   }
 
@@ -1137,6 +1231,7 @@
     closeMenus();
     shareMenu.hidden = false;
     shareButton.setAttribute("aria-expanded", "true");
+    scheduleMobileMenuIdle();
   }
 
   function closeShareMenu() {
@@ -1147,6 +1242,9 @@
     shareMenu.hidden = true;
     shareButton.setAttribute("aria-expanded", "false");
     document.body.classList.remove("is-sharing");
+    if (!hasOpenFloatingMenu()) {
+      clearMobileMenuIdle();
+    }
     scheduleHudIdle();
   }
 
@@ -1396,26 +1494,79 @@
     introTextTimers = [];
   }
 
-  function setIntroText(text) {
-    input.value = text;
-    updateRoundel({ suppressPersist: true });
+  function getPresetState(key, text) {
+    var preset = presets[key] || presets.enamel;
+    var background = normalizeBackgroundChoice(preset.background, Boolean(preset.plaque));
+
+    return {
+      version: 2,
+      preset: key,
+      activePreset: key,
+      text: text,
+      barWidth: preset.barWidth,
+      barHeight: 0,
+      textSize: 0,
+      font: preset.font,
+      capitalise: true,
+      letterRules: preset.ornaments === "letter-rules",
+      whiteCenter: preset.whiteCenter,
+      gradients: preset.gradients,
+      shadow: preset.shadow,
+      blueOutline: preset.blueOutline,
+      whiteInset: preset.whiteInset,
+      background: background,
+      plaque: background === "plaque"
+    };
   }
 
-  function cycleIntroText(duration) {
-    var messages = ["MAKE", "YOUR OWN", "UNDERGROUND"];
-    var interval = Math.max(280, Math.floor(duration / (messages.length + 1)));
+  function applyIntroFrame(frame, animate) {
+    applyState(getPresetState(frame.preset, frame.text), {
+      animate: animate,
+      suppressPersist: true,
+      skipStripScroll: true
+    });
+  }
+
+  function scheduleFirstRunGuide() {
+    if (!roundelStage) {
+      return;
+    }
+
+    roundelStage.classList.add("is-guiding");
+    introTextTimers.push(window.setTimeout(function () {
+      roundelStage.classList.remove("is-guiding");
+    }, 2600));
+  }
+
+  function finishIntro(options) {
+    roundelStage.classList.remove("is-intro");
+
+    if (options.boot) {
+      document.body.classList.remove("is-booting");
+    }
+
+    showHudChrome();
+
+    if (options.guide) {
+      scheduleFirstRunGuide();
+    }
+  }
+
+  function playIntroSequence(options) {
+    var duration = introSequence.length * introStepDuration + introOutroDelay;
 
     clearIntroTextTimers();
+    applyIntroFrame(introSequence[0], false);
 
-    messages.forEach(function (message, index) {
+    introSequence.slice(1).forEach(function (frame, index) {
       introTextTimers.push(window.setTimeout(function () {
-        setIntroText(message);
-      }, interval * index));
+        applyIntroFrame(frame, true);
+      }, introStepDuration * (index + 1)));
     });
 
     introTextTimers.push(window.setTimeout(function () {
-      setIntroText("UNDERGROUND");
       clearIntroTextTimers();
+      finishIntro(options);
     }, duration));
   }
 
@@ -1423,14 +1574,15 @@
     var duration;
 
     options = options || {};
-    duration = options.guide ? 2600 : 2300;
+    duration = options.sequence ? introSequence.length * introStepDuration + introOutroDelay : options.guide ? 2600 : 2300;
 
     if (!roundelStage || (reducedMotionQuery && reducedMotionQuery.matches)) {
-      if (options.cycleText) {
-        setIntroText("UNDERGROUND");
+      if (options.sequence) {
+        applyIntroFrame(introSequence[introSequence.length - 1], false);
       }
 
       document.body.classList.remove("is-booting");
+      showHudChrome();
       return;
     }
 
@@ -1438,26 +1590,22 @@
       document.body.classList.add("is-booting");
     }
 
-    if (options.cycleText) {
-      cycleIntroText(duration - 260);
-    }
-
     roundelStage.classList.remove("is-intro", "is-guiding");
     roundelStage.offsetWidth;
     roundelStage.classList.add("is-intro");
 
-    if (options.guide) {
+    if (options.guide && !options.sequence) {
       roundelStage.classList.add("is-guiding");
     }
 
+    if (options.sequence) {
+      playIntroSequence(options);
+      return;
+    }
+
     window.setTimeout(function () {
-      roundelStage.classList.remove("is-intro", "is-guiding");
-
-      if (options.boot) {
-        document.body.classList.remove("is-booting");
-      }
-
-      showHudChrome();
+      roundelStage.classList.remove("is-guiding");
+      finishIntro(options);
     }, duration);
   }
 
@@ -1465,7 +1613,7 @@
     var shouldGuide = !hasSeenIntro();
 
     window.setTimeout(function () {
-      playIntro({ boot: true, cycleText: true, guide: shouldGuide });
+      playIntro({ boot: true, sequence: true, guide: shouldGuide });
       markIntroSeen();
     }, 180);
   }
@@ -1845,6 +1993,234 @@
     rect.setAttribute("width", String(width));
     rect.setAttribute("height", String(height));
     rect.setAttribute("rx", String(radius));
+  }
+
+  function readNumberAttribute(element, attribute, fallback) {
+    var rawValue = element ? element.getAttribute(attribute) : null;
+    var value = rawValue === null ? NaN : Number(rawValue);
+
+    return isFinite(value) ? value : fallback;
+  }
+
+  function formatSvgNumber(value) {
+    return String(Math.round(value * 10) / 10);
+  }
+
+  function setPolygonPath(element, points) {
+    var path = points.map(function (point, index) {
+      return (index === 0 ? "M" : "L") + formatSvgNumber(point.x) + " " + formatSvgNumber(point.y);
+    }).join("");
+
+    element.setAttribute("d", path + "Z");
+  }
+
+  function setLinePath(element, start, end) {
+    element.setAttribute(
+      "d",
+      "M" + formatSvgNumber(start.x) + " " + formatSvgNumber(start.y) +
+        "L" + formatSvgNumber(end.x) + " " + formatSvgNumber(end.y)
+    );
+  }
+
+  function syncStreetDepthGeometry() {
+    var preset = getActivePreset();
+    var outerRadius = readNumberAttribute(ringCircle, "r", preset.outerRadius);
+    var innerRadius = readNumberAttribute(ringHole, "r", preset.innerRadius);
+    var ringWidth = Math.max(0, outerRadius - innerRadius);
+    var ringRadius = innerRadius + ringWidth / 2;
+    var backCenterX = centerX + streetDepthOffset.x;
+    var backCenterY = centerY + streetDepthOffset.y;
+    var barX = readNumberAttribute(barFill, "x", centerX - getBarWidth() / 2);
+    var barY = readNumberAttribute(barFill, "y", centerY - preset.singleBarHeight / 2);
+    var barWidth = readNumberAttribute(barFill, "width", getBarWidth());
+    var barHeight = readNumberAttribute(barFill, "height", preset.singleBarHeight);
+    var barRadius = readNumberAttribute(barFill, "rx", preset.barRadius);
+    var backBarX = barX + streetDepthOffset.x;
+    var backBarY = barY + streetDepthOffset.y;
+
+    if (!streetSignDepth) {
+      return;
+    }
+
+    if (streetDepthArt) {
+      streetDepthArt.setAttribute("transform", streetArtTransform);
+    }
+
+    [streetDepthRingEdge, streetDepthRingBack, streetDepthRingOuterRim, streetDepthRingInnerRim].forEach(function (circle) {
+      if (!circle) {
+        return;
+      }
+
+      circle.setAttribute("cx", String(backCenterX));
+      circle.setAttribute("cy", String(backCenterY));
+    });
+
+    if (streetDepthRingEdge) {
+      streetDepthRingEdge.setAttribute("r", String(ringRadius));
+      streetDepthRingEdge.setAttribute("stroke-width", String(ringWidth + 18));
+    }
+
+    if (streetDepthRingBack) {
+      streetDepthRingBack.setAttribute("r", String(ringRadius));
+      streetDepthRingBack.setAttribute("stroke-width", String(ringWidth));
+    }
+
+    if (streetDepthRingOuterRim) {
+      streetDepthRingOuterRim.setAttribute("r", String(outerRadius));
+    }
+
+    if (streetDepthRingInnerRim) {
+      streetDepthRingInnerRim.setAttribute("r", String(innerRadius));
+    }
+
+    if (streetDepthRingSheen) {
+      streetDepthRingSheen.setAttribute("d", [
+        "M" + formatSvgNumber(backCenterX + outerRadius * 0.42) + " " + formatSvgNumber(backCenterY - outerRadius * 0.86),
+        "C" + formatSvgNumber(backCenterX + outerRadius * 0.66) + " " + formatSvgNumber(backCenterY - outerRadius * 0.76),
+        formatSvgNumber(backCenterX + outerRadius * 0.88) + " " + formatSvgNumber(backCenterY - outerRadius * 0.5),
+        formatSvgNumber(backCenterX + outerRadius * 0.97) + " " + formatSvgNumber(backCenterY - outerRadius * 0.24)
+      ].join(""));
+    }
+
+    if (streetDepthBarBack) {
+      setRect(streetDepthBarBack, backBarX, backBarY, barWidth, barHeight, barRadius + 3);
+    }
+
+    if (streetDepthBarTop) {
+      setPolygonPath(streetDepthBarTop, [
+        { x: barX, y: barY },
+        { x: barX + barWidth, y: barY },
+        { x: backBarX + barWidth, y: backBarY },
+        { x: backBarX, y: backBarY }
+      ]);
+    }
+
+    if (streetDepthBarBottom) {
+      setPolygonPath(streetDepthBarBottom, [
+        { x: barX, y: barY + barHeight },
+        { x: barX + barWidth, y: barY + barHeight },
+        { x: backBarX + barWidth, y: backBarY + barHeight },
+        { x: backBarX, y: backBarY + barHeight }
+      ]);
+    }
+
+    if (streetDepthBarRight) {
+      setPolygonPath(streetDepthBarRight, [
+        { x: barX + barWidth, y: barY },
+        { x: backBarX + barWidth, y: backBarY },
+        { x: backBarX + barWidth, y: backBarY + barHeight },
+        { x: barX + barWidth, y: barY + barHeight }
+      ]);
+    }
+  }
+
+  function syncWallMountGeometry() {
+    var preset = getActivePreset();
+    var outerRadius = readNumberAttribute(ringCircle, "r", preset.outerRadius);
+    var innerRadius = readNumberAttribute(ringHole, "r", preset.innerRadius);
+    var ringWidth = Math.max(0, outerRadius - innerRadius);
+    var ringRadius = innerRadius + ringWidth / 2;
+    var backCenterX = centerX + wallDepthOffset.x;
+    var backCenterY = centerY + wallDepthOffset.y;
+    var barX = readNumberAttribute(barFill, "x", centerX - getBarWidth() / 2);
+    var barY = readNumberAttribute(barFill, "y", centerY - preset.singleBarHeight / 2);
+    var barWidth = readNumberAttribute(barFill, "width", getBarWidth());
+    var barHeight = readNumberAttribute(barFill, "height", preset.singleBarHeight);
+    var barRadius = readNumberAttribute(barFill, "rx", preset.barRadius);
+    var backBarX = barX + wallDepthOffset.x;
+    var backBarY = barY + wallDepthOffset.y;
+    var frontTopLeft = { x: barX, y: barY };
+    var frontTopRight = { x: barX + barWidth, y: barY };
+    var frontBottomRight = { x: barX + barWidth, y: barY + barHeight };
+    var frontBottomLeft = { x: barX, y: barY + barHeight };
+    var backTopLeft = { x: backBarX, y: backBarY };
+    var backTopRight = { x: backBarX + barWidth, y: backBarY };
+    var backBottomRight = { x: backBarX + barWidth, y: backBarY + barHeight };
+    var backBottomLeft = { x: backBarX, y: backBarY + barHeight };
+
+    if (!wallMountShadow) {
+      return;
+    }
+
+    if (wallDepthArt) {
+      wallDepthArt.setAttribute("transform", wallArtTransform);
+    }
+
+    [wallDepthRingCast, wallDepthRingBack, wallDepthRingOuterRim, wallDepthRingInnerRim].forEach(function (circle) {
+      if (!circle) {
+        return;
+      }
+
+      circle.setAttribute("cx", String(backCenterX));
+      circle.setAttribute("cy", String(backCenterY));
+    });
+
+    if (wallDepthRingCast) {
+      wallDepthRingCast.setAttribute("r", String(ringRadius));
+      wallDepthRingCast.setAttribute("stroke-width", String(ringWidth + 16));
+    }
+
+    if (wallDepthRingBack) {
+      wallDepthRingBack.setAttribute("r", String(ringRadius));
+      wallDepthRingBack.setAttribute("stroke-width", String(ringWidth));
+    }
+
+    if (wallDepthRingOuterRim) {
+      wallDepthRingOuterRim.setAttribute("r", String(outerRadius));
+    }
+
+    if (wallDepthRingInnerRim) {
+      wallDepthRingInnerRim.setAttribute("r", String(innerRadius));
+    }
+
+    if (wallDepthRingSheen) {
+      wallDepthRingSheen.setAttribute("d", [
+        "M" + formatSvgNumber(backCenterX + outerRadius * 0.38) + " " + formatSvgNumber(backCenterY - outerRadius * 0.86),
+        "C" + formatSvgNumber(backCenterX + outerRadius * 0.62) + " " + formatSvgNumber(backCenterY - outerRadius * 0.76),
+        formatSvgNumber(backCenterX + outerRadius * 0.82) + " " + formatSvgNumber(backCenterY - outerRadius * 0.5),
+        formatSvgNumber(backCenterX + outerRadius * 0.9) + " " + formatSvgNumber(backCenterY - outerRadius * 0.24)
+      ].join(""));
+    }
+
+    if (wallDepthBarCast) {
+      setRect(wallDepthBarCast, backBarX + 16, backBarY + 16, barWidth, barHeight, barRadius + 4);
+    }
+
+    if (wallDepthBarBack) {
+      setRect(wallDepthBarBack, backBarX, backBarY, barWidth, barHeight, barRadius + 3);
+    }
+
+    if (wallDepthBarTop) {
+      setPolygonPath(wallDepthBarTop, [frontTopLeft, frontTopRight, backTopRight, backTopLeft]);
+    }
+
+    if (wallDepthBarRight) {
+      setPolygonPath(wallDepthBarRight, [frontTopRight, backTopRight, backBottomRight, frontBottomRight]);
+    }
+
+    if (wallDepthBarBottom) {
+      setPolygonPath(wallDepthBarBottom, [frontBottomLeft, frontBottomRight, backBottomRight, backBottomLeft]);
+    }
+
+    if (wallDepthBarLeft) {
+      setPolygonPath(wallDepthBarLeft, [frontTopLeft, backTopLeft, backBottomLeft, frontBottomLeft]);
+    }
+
+    if (wallDepthCornerTl) {
+      setLinePath(wallDepthCornerTl, frontTopLeft, backTopLeft);
+    }
+
+    if (wallDepthCornerTr) {
+      setLinePath(wallDepthCornerTr, frontTopRight, backTopRight);
+    }
+
+    if (wallDepthCornerBr) {
+      setLinePath(wallDepthCornerBr, frontBottomRight, backBottomRight);
+    }
+
+    if (wallDepthCornerBl) {
+      setLinePath(wallDepthCornerBl, frontBottomLeft, backBottomLeft);
+    }
   }
 
   function updateBarGeometry(barWidth, barHeight) {
@@ -2373,6 +2749,8 @@
     renderFilledRect(barFill, start.barFill, end.barFill, progress, isFinished, "url(#bar-highlight)");
     renderStrokeRect(barBorder, start.barBorder, end.barBorder, progress, isFinished);
     renderStrokeRect(barInset, start.barInset, end.barInset, progress, isFinished);
+    syncStreetDepthGeometry();
+    syncWallMountGeometry();
     ringStopTop.setAttribute("stop-color", mixPaint(start.ringStops[0], end.ringStops[0], progress));
     ringStopMid.setAttribute("stop-color", mixPaint(start.ringStops[1], end.ringStops[1], progress));
     ringStopBottom.setAttribute("stop-color", mixPaint(start.ringStops[2], end.ringStops[2], progress));
@@ -2800,13 +3178,17 @@
       streetSignRig.style.display = streetVisible ? "" : "none";
       streetSignRig.setAttribute("opacity", streetVisible ? "1" : "0");
     }
+    if (streetSignDepth) {
+      streetSignDepth.style.display = streetVisible ? "" : "none";
+      streetSignDepth.setAttribute("opacity", streetVisible ? "1" : "0");
+    }
     if (electricBackground) {
       electricBackground.style.display = electricVisible ? "" : "none";
       electricBackground.setAttribute("opacity", electricVisible ? "1" : "0");
     }
     if (electricReflection) {
       electricReflection.style.display = electricVisible ? "" : "none";
-      electricReflection.setAttribute("opacity", electricVisible ? "0.32" : "0");
+      electricReflection.setAttribute("opacity", electricVisible ? "1" : "0");
     }
     if (stationFloorBackground) {
       stationFloorBackground.style.display = stationFloorVisible ? "" : "none";
@@ -2893,6 +3275,8 @@
     textSizeOutput.textContent = formatSigned(getTextSizeAdjustment());
     updateRingGeometry();
     updateBarGeometry(barWidth, barHeight);
+    syncStreetDepthGeometry();
+    syncWallMountGeometry();
     fontSize = fitAndUpdateText(lines, barWidth, barHeight);
     updateOrnaments(lines, barWidth, barHeight, fontSize);
     updateStyleOptions();
@@ -3330,6 +3714,8 @@
   document.addEventListener("pointerdown", noteHudActivity, { passive: true });
   document.addEventListener("keydown", noteHudActivity);
   document.addEventListener("focusin", noteHudActivity);
+  document.addEventListener("input", noteHudActivity);
+  document.addEventListener("change", noteHudActivity);
   document.addEventListener("pointerup", endBarDrag);
   document.addEventListener("pointercancel", endBarDrag);
   document.addEventListener("wheel", noteHudActivity, { passive: true });
