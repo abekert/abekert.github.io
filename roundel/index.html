@@ -114,6 +114,15 @@
             <option value="taxi">Taxi/private hire</option>
             <option value="airline">Airline outline</option>
           </select>
+          <select id="background-choice" name="background-choice" hidden>
+            <option value="none" selected>Transparent</option>
+            <option value="plaque">Signboard</option>
+            <option value="brick-white">White brick</option>
+            <option value="brick-red">Red brick</option>
+            <option value="brick-yellow">Yellow brick</option>
+            <option value="street-post">Street post</option>
+            <option value="electric-exhibit">Electric exhibit</option>
+          </select>
 
           <div class="stage-shell">
             <div class="roundel-stage" id="roundel-stage">
@@ -170,6 +179,9 @@
               <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ff5638" flood-opacity="0.36" />
               <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#00eaff" flood-opacity="0.28" />
             </filter>
+            <filter id="electric-floor-blur" x="-8%" y="-12%" width="116%" height="124%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
             <linearGradient id="plaque-wash" x1="0" x2="1" y1="0" y2="1">
               <stop offset="0" stop-color="#fffdf2" />
               <stop offset="0.58" stop-color="#eee9d8" />
@@ -185,9 +197,112 @@
               <stop offset="0.46" stop-color="#ffffff" stop-opacity="0" />
               <stop offset="1" stop-color="#675d50" stop-opacity="0.2" />
             </linearGradient>
+            <linearGradient id="brick-wall-grime" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#ffffff" stop-opacity="0.16" />
+              <stop offset="0.48" stop-color="#000000" stop-opacity="0" />
+              <stop offset="1" stop-color="#1b1510" stop-opacity="0.24" />
+            </linearGradient>
+            <linearGradient id="street-sky" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#7eb5ed" />
+              <stop offset="0.46" stop-color="#d8e3ef" />
+              <stop offset="1" stop-color="#eef0ec" />
+            </linearGradient>
+            <linearGradient id="street-building-face" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#9a9a99" />
+              <stop offset="0.54" stop-color="#d0ccc2" />
+              <stop offset="1" stop-color="#787b80" />
+            </linearGradient>
+            <linearGradient id="street-brick-roof" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#c07145" />
+              <stop offset="1" stop-color="#7d3c27" />
+            </linearGradient>
+            <linearGradient id="street-pole-fill" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0" stop-color="#061039" />
+              <stop offset="0.42" stop-color="#083f9a" />
+              <stop offset="0.58" stop-color="#09195f" />
+              <stop offset="1" stop-color="#03081f" />
+            </linearGradient>
+            <radialGradient id="street-cloud-soft" cx="50%" cy="50%" r="58%">
+              <stop offset="0" stop-color="#ffffff" stop-opacity="0.86" />
+              <stop offset="0.62" stop-color="#ffffff" stop-opacity="0.42" />
+              <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="electric-blue-wash" cx="42%" cy="20%" r="76%">
+              <stop offset="0" stop-color="#0a65ff" stop-opacity="0.95" />
+              <stop offset="0.42" stop-color="#0027c8" stop-opacity="0.82" />
+              <stop offset="1" stop-color="#03020c" stop-opacity="1" />
+            </radialGradient>
+            <linearGradient id="electric-floor-wash" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#182850" />
+              <stop offset="0.42" stop-color="#251949" />
+              <stop offset="1" stop-color="#03040b" />
+            </linearGradient>
+            <linearGradient id="electric-reflection-fade" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#ffffff" stop-opacity="0.5" />
+              <stop offset="0.45" stop-color="#ffffff" stop-opacity="0.22" />
+              <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+            </linearGradient>
             <pattern id="plaque-fibers" width="72" height="72" patternUnits="userSpaceOnUse">
               <path d="M10 0v72M38 0v72M66 0v72" stroke="#8c8678" stroke-opacity="0.07" stroke-width="2" />
               <path d="M0 17h72M0 52h72" stroke="#ffffff" stroke-opacity="0.24" stroke-width="3" />
+            </pattern>
+            <pattern id="electric-wall-tile" width="84" height="84" patternUnits="userSpaceOnUse">
+              <rect width="84" height="84" fill="#0621c6" />
+              <path d="M0 0H84V84H0Z" fill="none" stroke="#04096d" stroke-opacity="0.58" stroke-width="3" />
+              <path d="M3 4H81M4 3V81" stroke="#2d78ff" stroke-opacity="0.28" stroke-width="2" />
+            </pattern>
+            <pattern id="electric-floor-tile" width="150" height="118" patternUnits="userSpaceOnUse">
+              <rect width="150" height="118" fill="#221747" />
+              <path d="M0 0H150V118H0Z" fill="none" stroke="#030512" stroke-opacity="0.72" stroke-width="4" />
+              <path d="M4 4H146M4 4V114" stroke="#7f89e8" stroke-opacity="0.18" stroke-width="2" />
+            </pattern>
+            <pattern id="brick-white-pattern" width="240" height="96" patternUnits="userSpaceOnUse">
+              <rect width="240" height="96" fill="#211f1c" />
+              <rect x="2" y="2" width="116" height="44" rx="2" fill="#fbfaf6" />
+              <rect x="122" y="2" width="116" height="44" rx="2" fill="#efeee8" />
+              <rect x="-58" y="50" width="116" height="44" rx="2" fill="#faf9f5" />
+              <rect x="62" y="50" width="116" height="44" rx="2" fill="#f0eee7" />
+              <rect x="182" y="50" width="116" height="44" rx="2" fill="#faf9f5" />
+              <path d="M0 48H240M0 96H240M120 0V48M60 48V96M180 48V96" fill="none" stroke="#1d1c19" stroke-opacity="0.58" stroke-width="3" />
+              <path d="M0 47H240M0 95H240M120 0V48M60 48V96M180 48V96" fill="none" stroke="#ffffff" stroke-opacity="0.36" stroke-width="1" />
+              <g fill="#6c6961" opacity="0.14">
+                <circle cx="24" cy="18" r="1.8" />
+                <circle cx="128" cy="22" r="1.4" />
+                <circle cx="84" cy="70" r="1.5" />
+                <circle cx="206" cy="74" r="1.2" />
+              </g>
+            </pattern>
+            <pattern id="brick-red-pattern" width="240" height="96" patternUnits="userSpaceOnUse">
+              <rect width="240" height="96" fill="#5a211b" />
+              <rect x="2" y="2" width="116" height="44" rx="2" fill="#b94337" />
+              <rect x="122" y="2" width="116" height="44" rx="2" fill="#8f2c28" />
+              <rect x="-58" y="50" width="116" height="44" rx="2" fill="#7d241f" />
+              <rect x="62" y="50" width="116" height="44" rx="2" fill="#a8362d" />
+              <rect x="182" y="50" width="116" height="44" rx="2" fill="#7d241f" />
+              <path d="M0 48H240M0 96H240M120 0V48M60 48V96M180 48V96" fill="none" stroke="#d7a296" stroke-opacity="0.52" stroke-width="3" />
+              <path d="M0 47H240M0 95H240M120 0V48M60 48V96M180 48V96" fill="none" stroke="#4d1713" stroke-opacity="0.42" stroke-width="1" />
+              <g fill="#f3c1aa" opacity="0.16">
+                <circle cx="32" cy="18" r="1.8" />
+                <circle cx="134" cy="17" r="1.5" />
+                <circle cx="92" cy="74" r="1.4" />
+                <circle cx="206" cy="70" r="1.2" />
+              </g>
+            </pattern>
+            <pattern id="brick-yellow-pattern" width="240" height="96" patternUnits="userSpaceOnUse">
+              <rect width="240" height="96" fill="#6f624f" />
+              <rect x="2" y="2" width="116" height="44" rx="2" fill="#c7b075" />
+              <rect x="122" y="2" width="116" height="44" rx="2" fill="#927a4e" />
+              <rect x="-58" y="50" width="116" height="44" rx="2" fill="#806b44" />
+              <rect x="62" y="50" width="116" height="44" rx="2" fill="#b49a61" />
+              <rect x="182" y="50" width="116" height="44" rx="2" fill="#806b44" />
+              <path d="M0 48H240M0 96H240M120 0V48M60 48V96M180 48V96" fill="none" stroke="#6f624f" stroke-opacity="0.56" stroke-width="3" />
+              <path d="M0 47H240M0 95H240M120 0V48M60 48V96M180 48V96" fill="none" stroke="#f1e4b8" stroke-opacity="0.24" stroke-width="1" />
+              <g fill="#34281b" opacity="0.2">
+                <circle cx="28" cy="18" r="1.8" />
+                <circle cx="116" cy="24" r="1.5" />
+                <circle cx="90" cy="73" r="1.4" />
+                <circle cx="208" cy="68" r="1.3" />
+              </g>
             </pattern>
             <mask id="ring-mask" maskUnits="userSpaceOnUse">
               <rect width="1200" height="840" fill="#ffffff" />
@@ -209,11 +324,108 @@
               <stop offset="0.72" stop-color="#ffbd54" />
               <stop offset="1" stop-color="#bf6d22" />
             </radialGradient>
+            <filter id="street-soft-blur" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3.5" />
+            </filter>
             <clipPath id="neon-flag-clip">
               <path d="M2 54L280 2L320 248L18 224Z" />
             </clipPath>
+            <clipPath id="electric-table-clip">
+              <path d="M0 526L1200 496V840H0Z" />
+            </clipPath>
+            <mask id="electric-reflection-mask">
+              <rect x="0" y="520" width="1200" height="320" fill="url(#electric-reflection-fade)" />
+            </mask>
           </defs>
           <rect width="1200" height="840" fill="transparent" />
+          <g id="street-background" style="display: none;" opacity="0">
+            <rect width="1200" height="840" fill="url(#street-sky)" />
+            <g filter="url(#street-soft-blur)" opacity="0.9">
+              <ellipse cx="116" cy="122" rx="150" ry="58" fill="url(#street-cloud-soft)" />
+              <ellipse cx="312" cy="166" rx="220" ry="76" fill="url(#street-cloud-soft)" />
+              <ellipse cx="716" cy="118" rx="260" ry="86" fill="url(#street-cloud-soft)" />
+              <ellipse cx="1010" cy="210" rx="210" ry="72" fill="url(#street-cloud-soft)" />
+              <ellipse cx="438" cy="332" rx="360" ry="100" fill="#ffffff" opacity="0.2" />
+            </g>
+            <path d="M0 612C128 562 226 586 348 548C494 504 604 548 742 500C884 452 1016 472 1200 426V840H0Z" fill="#d6d3cb" opacity="0.42" />
+            <g opacity="0.85" transform="translate(906 44)">
+              <path d="M88 0L254 38V796H14V74Z" fill="url(#street-building-face)" />
+              <path d="M102 18L236 48V796H256V38L88 0Z" fill="#4c525c" opacity="0.44" />
+              <g fill="#e3e0d8" stroke="#6e737a" stroke-width="3" opacity="0.82">
+                <rect x="88" y="92" width="38" height="76" />
+                <rect x="158" y="108" width="42" height="80" />
+                <rect x="84" y="226" width="42" height="88" />
+                <rect x="160" y="244" width="46" height="88" />
+                <rect x="78" y="368" width="46" height="92" />
+                <rect x="164" y="392" width="48" height="96" />
+                <rect x="72" y="520" width="48" height="104" />
+                <rect x="168" y="552" width="50" height="104" />
+              </g>
+              <path d="M20 716H256" stroke="#363941" stroke-width="20" opacity="0.54" />
+            </g>
+            <g opacity="0.86" transform="translate(28 498)">
+              <path d="M0 172H236L214 58L172 0L126 66L82 24L24 96Z" fill="#b9976c" />
+              <path d="M112 62L172 0L214 58L232 172H110Z" fill="#8a6a47" opacity="0.42" />
+              <path d="M112 62L172 0L214 58" fill="none" stroke="#5e4b36" stroke-width="8" opacity="0.42" />
+              <g fill="url(#street-brick-roof)">
+                <rect x="34" y="112" width="56" height="60" />
+                <rect x="126" y="96" width="62" height="76" />
+              </g>
+            </g>
+            <g opacity="0.78" transform="translate(0 426)">
+              <path d="M58 236V70C58 34 84 10 118 10H138" fill="none" stroke="#12151c" stroke-width="13" stroke-linecap="round" />
+              <path d="M136 10C176 12 196 38 194 70" fill="none" stroke="#12151c" stroke-width="12" stroke-linecap="round" />
+              <path d="M190 88c-20 24-50 24-70 0c4-34 16-54 35-54s31 20 35 54Z" fill="#1b2028" />
+              <circle cx="155" cy="74" r="17" fill="#283241" opacity="0.86" />
+            </g>
+          </g>
+          <g id="brick-background" style="display: none;" opacity="0">
+            <rect x="54" y="60" width="1092" height="720" rx="8" fill="#111111" opacity="0.32" filter="url(#plaque-shadow)" />
+            <rect id="brick-wall-fill" x="54" y="60" width="1092" height="720" rx="6" fill="url(#brick-white-pattern)" stroke="#111111" stroke-opacity="0.5" stroke-width="3" />
+            <rect x="54" y="60" width="1092" height="720" rx="6" fill="url(#brick-wall-grime)" />
+            <path d="M70 80H1130M70 762H1130M74 86V758M1126 86V758" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="5" />
+            <g fill="#15120f" opacity="0.18">
+              <circle cx="230" cy="148" r="3" />
+              <circle cx="466" cy="254" r="2.4" />
+              <circle cx="728" cy="136" r="2.6" />
+              <circle cx="904" cy="356" r="3.2" />
+              <circle cx="338" cy="552" r="2.8" />
+              <circle cx="640" cy="676" r="3" />
+              <circle cx="1010" cy="620" r="2.5" />
+            </g>
+          </g>
+          <g id="electric-background" style="display: none;" opacity="0">
+            <rect width="1200" height="840" fill="#02030a" />
+            <rect width="1200" height="560" fill="url(#electric-blue-wash)" />
+            <g opacity="0.86">
+              <rect x="-24" y="-20" width="798" height="586" fill="url(#electric-wall-tile)" transform="skewY(-1.5)" />
+              <rect x="770" y="-20" width="454" height="600" fill="#050614" opacity="0.82" />
+              <rect x="816" y="0" width="238" height="226" fill="#000000" opacity="0.64" />
+              <rect x="1118" y="0" width="118" height="290" fill="#000000" opacity="0.72" />
+            </g>
+            <path d="M0 526L1200 496V840H0Z" fill="url(#electric-floor-wash)" />
+            <path d="M0 526L1200 496" stroke="#111547" stroke-width="6" opacity="0.88" />
+            <g clip-path="url(#electric-table-clip)" opacity="0.78">
+              <rect x="-80" y="492" width="1360" height="400" fill="url(#electric-floor-tile)" transform="matrix(1 0 -0.2 1 150 0)" />
+              <path d="M0 612L1200 592M0 708L1200 690M188 520L82 840M390 516L328 840M604 510L600 840M822 506L888 840M1044 500L1188 840" fill="none" stroke="#03040c" stroke-opacity="0.72" stroke-width="5" />
+              <path d="M0 606L1200 586M0 704L1200 686M196 520L92 840M398 516L338 840M612 510L610 840M830 506L898 840M1052 500L1198 840" fill="none" stroke="#7587ff" stroke-opacity="0.16" stroke-width="2" />
+            </g>
+            <ellipse cx="590" cy="562" rx="360" ry="62" fill="#ff4a16" opacity="0.34" filter="url(#neon-red-glow)" />
+            <rect x="222" y="384" width="756" height="116" rx="18" fill="#1638ff" opacity="0.18" filter="url(#neon-cyan-glow)" />
+            <circle cx="598" cy="368" r="300" fill="#ff4d13" opacity="0.18" filter="url(#neon-red-glow)" />
+          </g>
+          <g id="street-sign-rig" style="display: none;" opacity="0" pointer-events="none">
+            <g transform="matrix(0.94 -0.035 0.09 1 13 34)">
+              <rect x="574" y="548" width="56" height="296" rx="18" fill="url(#street-pole-fill)" />
+              <rect x="588" y="548" width="10" height="296" fill="#2b74d0" opacity="0.56" />
+              <ellipse cx="602" cy="550" rx="48" ry="16" fill="#03091d" opacity="0.72" />
+              <rect x="382" y="372" width="444" height="72" rx="12" fill="#080b18" opacity="0.78" />
+              <circle cx="600" cy="420" r="300" fill="none" stroke="#070912" stroke-width="42" opacity="0.76" />
+              <circle cx="600" cy="420" r="208" fill="none" stroke="#252934" stroke-width="34" opacity="0.74" />
+              <rect x="142" y="336" width="924" height="198" rx="10" fill="#080b18" opacity="0.66" />
+              <path d="M302 230C360 146 468 92 602 88C734 84 848 140 906 232" fill="none" stroke="#ffffff" stroke-opacity="0.62" stroke-width="15" />
+            </g>
+          </g>
           <g id="plaque-background" style="display: none;">
             <rect x="72" y="82" width="1056" height="676" rx="8" fill="#d9d2bf" filter="url(#plaque-shadow)" />
             <rect x="84" y="68" width="1032" height="676" rx="7" fill="url(#plaque-wash)" stroke="#b8af9c" stroke-width="4" />
@@ -353,6 +565,11 @@
               letter-spacing="0"
             >UNDERGROUND</text>
           </g>
+          <g id="electric-reflection" style="display: none;" opacity="0" pointer-events="none" clip-path="url(#electric-table-clip)" mask="url(#electric-reflection-mask)" filter="url(#electric-floor-blur)">
+            <use href="#roundel-art" transform="matrix(0.82 0.08 -0.3 -0.38 340 880)" opacity="0.72" />
+            <rect x="0" y="520" width="1200" height="320" fill="#1428ff" opacity="0.16" />
+            <rect x="0" y="520" width="1200" height="320" fill="#ff3915" opacity="0.1" />
+          </g>
           <g id="neon-tube-layer" style="display: none;" opacity="0" pointer-events="none">
             <circle id="neon-outer-tube" cx="600" cy="420" r="304" fill="none" stroke="#fff0dc" stroke-width="8" stroke-opacity="0.92" filter="url(#neon-white-glow)" />
             <circle id="neon-disc-tube" cx="600" cy="420" r="226" fill="none" stroke="#ffb48c" stroke-width="5" stroke-opacity="0.52" filter="url(#neon-red-glow)" />
@@ -375,7 +592,7 @@
                 type="button"
                 aria-controls="menu-ring"
                 aria-expanded="false"
-              >Colours</button>
+              >Ring</button>
               <button
                 class="hud-panel-trigger hud-panel-bar"
                 data-menu="bar"
@@ -391,26 +608,12 @@
                 aria-expanded="false"
               >Font</button>
               <button
-                class="hud-panel-trigger hud-panel-size"
-                data-menu="text-size"
-                type="button"
-                aria-controls="menu-text-size"
-                aria-expanded="false"
-              >Size</button>
-              <button
-                class="hud-panel-trigger hud-panel-case"
-                data-menu="text-case"
-                type="button"
-                aria-controls="menu-text-case"
-                aria-expanded="false"
-              >Case</button>
-              <button
                 class="hud-panel-trigger hud-panel-surface"
                 data-menu="background"
                 type="button"
                 aria-controls="menu-background"
                 aria-expanded="false"
-              >Surface</button>
+              >Background</button>
 
               <button
                 class="hotspot hotspot-background"
@@ -476,24 +679,8 @@
               >UNDERGROUND</textarea>
               <div class="drag-readout" id="drag-readout" aria-hidden="true"></div>
 
-              <div class="floating-menu menu-ring" id="menu-ring" data-menu-panel="ring" role="dialog" aria-label="Roundel colours" hidden>
-                <div class="menu-title">Colours</div>
-                <div class="color-grid" aria-label="Colour styles">
-                  <button class="color-button" data-color="preset" type="button" style="--ring: #d61920; --bar: #0019a8; --text-on: #ffffff;">Preset</button>
-                  <button class="color-button" data-color="underground" type="button" style="--ring: #e1251b; --bar: #003688; --text-on: #ffffff;">Underground</button>
-                  <button class="color-button" data-color="rail" type="button" style="--ring: #001f7e; --bar: #003688; --text-on: #ffffff;">TfL Rail</button>
-                  <button class="color-button" data-color="elizabeth" type="button" style="--ring: #7156b8; --bar: #003688; --text-on: #ffffff;">Elizabeth</button>
-                  <button class="color-button" data-color="overground" type="button" style="--ring: #ef7b10; --bar: #003688; --text-on: #ffffff;">Overground</button>
-                  <button class="color-button" data-color="dlr" type="button" style="--ring: #00a4a7; --bar: #003688; --text-on: #ffffff;">DLR</button>
-                  <button class="color-button" data-color="river" type="button" style="--ring: #009bd8; --bar: #003688; --text-on: #ffffff;">River</button>
-                  <button class="color-button" data-color="trams" type="button" style="--ring: #84bd00; --bar: #003688; --text-on: #ffffff;">Trams</button>
-                  <button class="color-button" data-color="buses" type="button" style="--ring: #e1251b; --bar: #e1251b; --text-on: #ffffff;">Buses</button>
-                  <button class="color-button" data-color="coaches" type="button" style="--ring: #fdb913; --bar: #003688; --text-on: #ffffff;">Coaches</button>
-                  <button class="color-button" data-color="cycles" type="button" style="--ring: #e1251b; --bar: #ffffff; --text-on: #e1251b;">Cycles</button>
-                  <button class="color-button" data-color="dial" type="button" style="--ring: #b23a96; --bar: #003688; --text-on: #ffffff;">Dial</button>
-                  <button class="color-button" data-color="taxi" type="button" style="--ring: #7c8bc5; --bar: #003688; --text-on: #ffffff;">Taxi</button>
-                  <button class="color-button" data-color="airline" type="button" style="--ring: #ffffff; --bar: #ffffff; --text-on: #e4002b;">Airline</button>
-                </div>
+              <div class="floating-menu menu-ring" id="menu-ring" data-menu-panel="ring" role="dialog" aria-label="Ring options" hidden>
+                <div class="menu-title">Ring</div>
                 <div class="toggle-grid">
                   <label class="toggle" for="white-center">
                     <input id="white-center" name="white-center" type="checkbox" checked />
@@ -538,7 +725,7 @@
                 </div>
               </div>
 
-              <div class="floating-menu menu-font" id="menu-font" data-menu-panel="font" role="dialog" aria-label="Font options" hidden>
+              <div class="floating-menu menu-font" id="menu-font" data-menu-panel="font" role="dialog" aria-label="Text options" hidden>
                 <div class="menu-title">Font</div>
                 <div class="font-grid" aria-label="Font styles">
                   <button class="font-button" data-font="gill" type="button">Gill Sans</button>
@@ -547,22 +734,14 @@
                   <button class="font-button" data-font="system" type="button">System</button>
                   <button class="font-button" data-font="rounded" type="button">Rounded</button>
                 </div>
-              </div>
-
-              <div class="floating-menu menu-text-size" id="menu-text-size" data-menu-panel="text-size" role="dialog" aria-label="Text size options" hidden>
-                <div class="menu-title">Size</div>
-                <label class="range-field" for="text-size-adjust">
-                  <span>Text size</span>
+                <label class="range-field text-options-range" for="text-size-adjust">
+                  <span>Size</span>
                   <div class="range-row">
                     <input id="text-size-adjust" name="text-size-adjust" type="range" min="-14" max="14" step="1" value="0" />
                     <output id="text-size-output" for="text-size-adjust">0</output>
                   </div>
                 </label>
-              </div>
-
-              <div class="floating-menu menu-text-case" id="menu-text-case" data-menu-panel="text-case" role="dialog" aria-label="Text case options" hidden>
-                <div class="menu-title">Case</div>
-                <div class="toggle-grid">
+                <div class="toggle-grid text-options-case">
                   <label class="toggle toggle-wide" for="capitalise-text">
                     <input id="capitalise-text" name="capitalise-text" type="checkbox" checked />
                     <span>CAPITALISE</span>
@@ -571,14 +750,33 @@
               </div>
 
               <div class="floating-menu menu-background" id="menu-background" data-menu-panel="background" role="dialog" aria-label="Background options" hidden>
-                <div class="menu-title">Surface</div>
-                <label class="toggle toggle-wide" for="use-plaque">
-                  <input id="use-plaque" name="use-plaque" type="checkbox" />
-                  <span>Signboard background</span>
-                </label>
-                <button class="menu-action" data-export type="button">Export PNG</button>
-                <button class="menu-action menu-action-secondary" data-export-svg type="button">Export SVG</button>
-                <button class="menu-action menu-action-secondary" data-copy-link type="button">Copy link</button>
+                <div class="menu-title">Background</div>
+                <div class="background-grid" aria-label="Background styles">
+                  <button class="background-button" data-background="none" type="button" style="--swatch-base: transparent; --swatch-line: rgba(255,255,255,0.48);">
+                    <span class="background-swatch background-swatch-none" aria-hidden="true"></span>
+                    <span>Transparent</span>
+                  </button>
+                  <button class="background-button" data-background="plaque" type="button" style="--swatch-base: #eee7d5; --swatch-line: #9f9584;">
+                    <span class="background-swatch background-swatch-plaque" aria-hidden="true"></span>
+                    <span>Signboard</span>
+                  </button>
+                  <button class="background-button" data-background="brick-white" type="button" style="--swatch-base: #f5f3ec; --swatch-brick: #ffffff; --swatch-brick-alt: #e7e4db; --swatch-line: #292724;">
+                    <span class="background-swatch background-swatch-brick" aria-hidden="true"></span>
+                    <span>White brick</span>
+                  </button>
+                  <button class="background-button" data-background="brick-red" type="button" style="--swatch-base: #8f2b25; --swatch-brick: #bd493d; --swatch-brick-alt: #7d241f; --swatch-line: #d3a196;">
+                    <span class="background-swatch background-swatch-brick" aria-hidden="true"></span>
+                    <span>Red brick</span>
+                  </button>
+                  <button class="background-button" data-background="brick-yellow" type="button" style="--swatch-base: #a48d5d; --swatch-brick: #c7b075; --swatch-brick-alt: #806b44; --swatch-line: #6f624f;">
+                    <span class="background-swatch background-swatch-brick" aria-hidden="true"></span>
+                    <span>Yellow brick</span>
+                  </button>
+                  <button class="background-button" data-background="street-post" type="button" style="--swatch-base: #8cb9e8; --swatch-brick: #d7d2c8; --swatch-brick-alt: #39404b; --swatch-line: #0b2d7d;">
+                    <span class="background-swatch background-swatch-street" aria-hidden="true"></span>
+                    <span>Street post</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -597,7 +795,7 @@
               <span>Platform</span>
             </button>
             <button class="style-button" data-preset="heritage" type="button" style="--mini-ring: #cf130f; --mini-bar: #071454; --mini-hole: #efe8c9;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span class="style-mini style-mini-heritage" aria-hidden="true"><span></span></span>
               <span>Heritage</span>
             </button>
             <button class="style-button" data-preset="redDisc" type="button" style="--mini-ring: #dc241f; --mini-bar: #12205f; --mini-hole: #dc241f;">
@@ -620,9 +818,69 @@
               <span class="style-mini style-mini-neon" aria-hidden="true"><span></span></span>
               <span>Neon</span>
             </button>
+            <button class="style-button" data-preset="electric" type="button" style="--mini-ring: #ff5a18; --mini-bar: #001f94; --mini-hole: #ff5a18; --mini-glow: #2f6fff;">
+              <span class="style-mini style-mini-electric" aria-hidden="true"><span></span></span>
+              <span>Electric</span>
+            </button>
             <button class="style-button" data-preset="halogen" type="button" style="--mini-ring: #c91e17; --mini-bar: #071454; --mini-hole: #fff3d7; --mini-glow: #ffc86d;">
               <span class="style-mini style-mini-halogen" aria-hidden="true"><span></span></span>
               <span>Halogen</span>
+            </button>
+            <button class="style-button color-style-button" data-color="preset" type="button" style="--mini-ring: #d61920; --mini-bar: #0019a8; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Preset</span>
+            </button>
+            <button class="style-button color-style-button" data-color="underground" type="button" style="--mini-ring: #e1251b; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Underground</span>
+            </button>
+            <button class="style-button color-style-button" data-color="rail" type="button" style="--mini-ring: #001f7e; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>TfL Rail</span>
+            </button>
+            <button class="style-button color-style-button" data-color="elizabeth" type="button" style="--mini-ring: #7156b8; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Elizabeth</span>
+            </button>
+            <button class="style-button color-style-button" data-color="overground" type="button" style="--mini-ring: #ef7b10; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Overground</span>
+            </button>
+            <button class="style-button color-style-button" data-color="dlr" type="button" style="--mini-ring: #00a4a7; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>DLR</span>
+            </button>
+            <button class="style-button color-style-button" data-color="river" type="button" style="--mini-ring: #009bd8; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>River</span>
+            </button>
+            <button class="style-button color-style-button" data-color="trams" type="button" style="--mini-ring: #84bd00; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Trams</span>
+            </button>
+            <button class="style-button color-style-button" data-color="buses" type="button" style="--mini-ring: #e1251b; --mini-bar: #e1251b; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Buses</span>
+            </button>
+            <button class="style-button color-style-button" data-color="coaches" type="button" style="--mini-ring: #fdb913; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Coaches</span>
+            </button>
+            <button class="style-button color-style-button" data-color="cycles" type="button" style="--mini-ring: #e1251b; --mini-bar: #ffffff; --mini-hole: #ffffff;">
+              <span class="style-mini style-mini-outline" aria-hidden="true"><span></span></span>
+              <span>Cycles</span>
+            </button>
+            <button class="style-button color-style-button" data-color="dial" type="button" style="--mini-ring: #b23a96; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Dial</span>
+            </button>
+            <button class="style-button color-style-button" data-color="taxi" type="button" style="--mini-ring: #7c8bc5; --mini-bar: #003688; --mini-hole: #ffffff;">
+              <span class="style-mini" aria-hidden="true"><span></span></span>
+              <span>Taxi</span>
+            </button>
+            <button class="style-button color-style-button" data-color="airline" type="button" style="--mini-ring: #e4002b; --mini-bar: #ffffff; --mini-hole: #ffffff;">
+              <span class="style-mini style-mini-outline" aria-hidden="true"><span></span></span>
+              <span>Airline</span>
             </button>
           </div>
         </form>
