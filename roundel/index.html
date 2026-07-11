@@ -42,7 +42,7 @@
     <meta name="twitter:image" content="https://abekert.github.io/images/roundel-og.png" />
     <meta name="twitter:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
 
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260711.3" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -624,7 +624,7 @@
             </g>
           </g>
           <g id="street-sign-rig" style="display: none;" opacity="0" pointer-events="none">
-            <g transform="matrix(0.94 -0.035 0.09 1 13 34)">
+            <g transform="matrix(0.965 0.018 -0.035 0.995 32 18)">
               <rect x="574" y="548" width="56" height="296" rx="18" fill="url(#street-pole-fill)" />
               <rect x="588" y="548" width="10" height="296" fill="#2b74d0" opacity="0.56" />
               <ellipse cx="602" cy="550" rx="48" ry="16" fill="#03091d" opacity="0.72" />
@@ -695,7 +695,7 @@
             <rect x="130" y="322" width="940" height="196" rx="18" fill="none" stroke="#00eaff" stroke-opacity="0.28" stroke-width="12" filter="url(#neon-cyan-glow)" />
           </g>
           <g id="street-sign-depth" style="display: none;" opacity="0" pointer-events="none">
-            <g id="street-depth-art" transform="matrix(0.94 -0.035 0.09 1 13 34)">
+            <g id="street-depth-art" transform="matrix(0.965 0.018 -0.035 0.995 32 18)">
               <circle id="street-depth-ring-edge" cx="658" cy="446" r="222" fill="none" stroke="#04070d" stroke-width="132" opacity="0.78" />
               <circle id="street-depth-ring-back" cx="658" cy="446" r="222" fill="none" stroke="url(#street-sign-side-fill)" stroke-width="112" opacity="0.92" />
               <circle id="street-depth-ring-outer-rim" cx="658" cy="446" r="278" fill="none" stroke="url(#street-sign-side-edge)" stroke-width="9" opacity="0.9" />
@@ -704,6 +704,7 @@
               <rect id="street-depth-bar-back" x="208" y="369" width="900" height="154" rx="1" fill="url(#street-sign-side-fill)" stroke="#05070d" stroke-width="9" opacity="0.9" />
               <path id="street-depth-bar-top" d="" fill="url(#street-sign-side-edge)" opacity="0.62" />
               <path id="street-depth-bar-bottom" d="" fill="#05070d" opacity="0.88" />
+              <path id="street-depth-bar-left" d="" fill="url(#street-sign-side-fill)" opacity="0.96" />
               <path id="street-depth-bar-right" d="" fill="url(#street-sign-side-fill)" opacity="0.96" />
             </g>
           </g>
@@ -923,132 +924,11 @@
             </div>
           </div>
 
-          <div class="style-strip" aria-label="Ready-made roundel styles">
-            <button class="style-button" data-preset="enamel" type="button" style="--mini-ring: #d61920; --mini-bar: #0019a8; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Enamel</span>
-            </button>
-            <button class="style-button" data-preset="classic" type="button" style="--mini-ring: #dc241f; --mini-bar: #0019a8; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Classic</span>
-            </button>
-            <button class="style-button" data-preset="platform" type="button" style="--mini-ring: #e94b55; --mini-bar: #394579; --mini-hole: #eef3f6;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Platform</span>
-            </button>
-            <button class="style-button" data-preset="heritage" type="button" style="--mini-ring: #cf130f; --mini-bar: #071454; --mini-hole: #efe8c9;">
-              <span class="style-mini style-mini-heritage" aria-hidden="true"><span></span></span>
-              <span>Heritage</span>
-            </button>
-            <button class="style-button" data-preset="redDisc" type="button" style="--mini-ring: #dc241f; --mini-bar: #12205f; --mini-hole: #dc241f;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Red disc</span>
-            </button>
-            <button class="style-button" data-preset="museum" type="button" style="--mini-ring: #b81613; --mini-bar: #10173d; --mini-hole: #f5f0de;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Museum</span>
-            </button>
-            <button class="style-button" data-preset="poster" type="button" style="--mini-ring: #c92d2a; --mini-bar: #003688; --mini-hole: #fffaf0;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Poster</span>
-            </button>
-            <button class="style-button" data-preset="signboard" type="button" style="--mini-ring: #d71920; --mini-bar: #071454; --mini-hole: #d71920;">
-              <span class="style-mini style-mini-bg style-mini-board" aria-hidden="true"><span></span></span>
-              <span>Signboard</span>
-            </button>
-            <button class="style-button" data-preset="whiteTiles" type="button" style="--mini-ring: #dc241f; --mini-bar: #0019a8; --mini-hole: #ffffff; --mini-bg: #f5f3ec; --mini-brick: #ffffff; --mini-brick-alt: #e5e1d8; --mini-line: #2d2b27;">
-              <span class="style-mini style-mini-bg style-mini-brick" aria-hidden="true"><span></span></span>
-              <span>White tiles</span>
-            </button>
-            <button class="style-button" data-preset="redTiles" type="button" style="--mini-ring: #e1251b; --mini-bar: #071454; --mini-hole: #fff4e4; --mini-bg: #8f2b25; --mini-brick: #bd493d; --mini-brick-alt: #7d241f; --mini-line: #d3a196;">
-              <span class="style-mini style-mini-bg style-mini-brick" aria-hidden="true"><span></span></span>
-              <span>Red tiles</span>
-            </button>
-            <button class="style-button" data-preset="yellowBrick" type="button" style="--mini-ring: #e4251b; --mini-bar: #001b7c; --mini-hole: #a48d5d; --mini-bg: #a48d5d; --mini-brick: #c7b075; --mini-brick-alt: #806b44; --mini-line: #6f624f;">
-              <span class="style-mini style-mini-bg style-mini-brick" aria-hidden="true"><span></span></span>
-              <span>Yellow brick</span>
-            </button>
-            <button class="style-button" data-preset="night" type="button" style="--mini-ring: #d71920; --mini-bar: #061da9; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Night</span>
-            </button>
-            <button class="style-button" data-preset="streetSign" type="button" style="--mini-ring: #df241e; --mini-bar: #083282; --mini-hole: #8cb9e8;">
-              <span class="style-mini style-mini-bg style-mini-street" aria-hidden="true"><span></span></span>
-              <span>Street</span>
-            </button>
-            <button class="style-button" data-preset="stationFloor" type="button" style="--mini-ring: #ff2718; --mini-bar: #003dca; --mini-hole: #ffffff;">
-              <span class="style-mini style-mini-bg style-mini-station" aria-hidden="true"><span></span></span>
-              <span>Station</span>
-            </button>
-            <button class="style-button" data-preset="wallMount" type="button" style="--mini-ring: #f52218; --mini-bar: #0037b8; --mini-hole: #d8d0c5;">
-              <span class="style-mini style-mini-bg style-mini-wall" aria-hidden="true"><span></span></span>
-              <span>Wall</span>
-            </button>
-            <button class="style-button" data-preset="neon" type="button" style="--mini-ring: #ff4b2b; --mini-bar: #1024d6; --mini-hole: #ff4b2b; --mini-glow: #68f8ff;">
-              <span class="style-mini style-mini-neon" aria-hidden="true"><span></span></span>
-              <span>Neon</span>
-            </button>
-            <button class="style-button" data-preset="electric" type="button" style="--mini-ring: #ff5a18; --mini-bar: #001f94; --mini-hole: #ff5a18; --mini-glow: #2f6fff;">
-              <span class="style-mini style-mini-electric" aria-hidden="true"><span></span></span>
-              <span>Electric</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="underground" type="button" style="--mini-ring: #e1251b; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Underground</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="rail" type="button" style="--mini-ring: #001f7e; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>TfL Rail</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="elizabeth" type="button" style="--mini-ring: #7156b8; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Elizabeth</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="overground" type="button" style="--mini-ring: #ef7b10; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Overground</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="dlr" type="button" style="--mini-ring: #00a4a7; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>DLR</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="river" type="button" style="--mini-ring: #009bd8; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>River</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="trams" type="button" style="--mini-ring: #84bd00; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Trams</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="buses" type="button" style="--mini-ring: #e1251b; --mini-bar: #e1251b; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Buses</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="coaches" type="button" style="--mini-ring: #fdb913; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Coaches</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="cycles" type="button" style="--mini-ring: #e1251b; --mini-bar: #ffffff; --mini-hole: #ffffff;">
-              <span class="style-mini style-mini-outline" aria-hidden="true"><span></span></span>
-              <span>Cycles</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="dial" type="button" style="--mini-ring: #b23a96; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Dial</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="taxi" type="button" style="--mini-ring: #7c8bc5; --mini-bar: #003688; --mini-hole: #ffffff;">
-              <span class="style-mini" aria-hidden="true"><span></span></span>
-              <span>Taxi</span>
-            </button>
-            <button class="style-button color-style-button" data-preset="airline" type="button" style="--mini-ring: #e4002b; --mini-bar: #ffffff; --mini-hole: #ffffff;">
-              <span class="style-mini style-mini-outline" aria-hidden="true"><span></span></span>
-              <span>Airline</span>
-            </button>
-          </div>
+          <div class="style-strip" aria-label="Ready-made roundel styles"></div>
         </form>
       </section>
     </main>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=20260711.3"></script>
   </body>
 </html>

@@ -19,7 +19,6 @@
   var exportButton = document.getElementById("export-button");
   var exportSvgButton = document.getElementById("export-svg-button");
   var undoButton = document.getElementById("undo-button");
-  var resetButton = document.getElementById("reset-button");
   var copyLinkButton = document.getElementById("copy-link-button");
   var shareButton = document.getElementById("share-button");
   var shareMenu = document.getElementById("share-menu");
@@ -40,6 +39,7 @@
   var streetDepthBarBack = document.getElementById("street-depth-bar-back");
   var streetDepthBarTop = document.getElementById("street-depth-bar-top");
   var streetDepthBarBottom = document.getElementById("street-depth-bar-bottom");
+  var streetDepthBarLeft = document.getElementById("street-depth-bar-left");
   var streetDepthBarRight = document.getElementById("street-depth-bar-right");
   var brickBackground = document.getElementById("brick-background");
   var brickWallFill = document.getElementById("brick-wall-fill");
@@ -92,7 +92,7 @@
   var barStopBottom = document.getElementById("bar-stop-bottom");
   var textNode = document.getElementById("roundel-text");
   var titleNode = document.getElementById("roundel-title");
-  var presetButtons = Array.prototype.slice.call(document.querySelectorAll("[data-preset]"));
+  var presetButtons = [];
   var fontButtons = Array.prototype.slice.call(document.querySelectorAll("[data-font]"));
   var backgroundButtons = Array.prototype.slice.call(document.querySelectorAll("[data-background]"));
   var menuButtons = Array.prototype.slice.call(document.querySelectorAll("[data-menu]"));
@@ -103,9 +103,6 @@
   var rightBarGrip = document.querySelector(".bar-grip-right");
   var topBarGrip = document.querySelector(".bar-grip-top");
   var bottomBarGrip = document.querySelector(".bar-grip-bottom");
-  var exportTriggers = Array.prototype.slice.call(document.querySelectorAll("[data-export]"));
-  var exportSvgTriggers = Array.prototype.slice.call(document.querySelectorAll("[data-export-svg]"));
-  var copyLinkTriggers = Array.prototype.slice.call(document.querySelectorAll("[data-copy-link]"));
   var dragReadout = document.getElementById("drag-readout");
   var styleStrip = document.querySelector(".style-strip");
   var measureCanvas = document.createElement("canvas");
@@ -119,6 +116,7 @@
   var hasRendered = false;
   var reducedMotionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
   var mobileTextEditingQuery = window.matchMedia ? window.matchMedia("(max-width: 640px), (pointer: coarse)") : null;
+  var desktopMenuQuery = window.matchMedia ? window.matchMedia("(hover: hover) and (pointer: fine)") : null;
   var requestFrame = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : function (callback) {
     return window.setTimeout(function () {
       callback(Date.now());
@@ -144,13 +142,18 @@
     { preset: "heritage", text: "UNDERGROUND" },
     { preset: "poster", text: "TAP TO START" }
   ];
-  var introStepDuration = 960;
-  var introOutroDelay = 520;
+  var introStepDurations = [560, 700, 820];
+  var introTransitionDurations = [430, 480, 520];
+  var introOutroDelay = 560;
   var hudIdleTimer = 0;
   var hudActivityFrame = 0;
   var hudIdleDelay = 2200;
   var mobileMenuIdleTimer = 0;
   var mobileMenuIdleDelay = 3000;
+  var desktopMenuCloseTimer = 0;
+  var desktopMenuCloseDelay = 1000;
+  var activeMenuName = "";
+  var activeMenuAnchor = null;
   var fontStacks = {
     gill: "'Gill Sans', 'Gill Sans MT', 'Avenir Next', 'Trebuchet MS', Arial, sans-serif",
     avenir: "'Avenir Next', Avenir, 'Gill Sans', 'Trebuchet MS', Arial, sans-serif",
@@ -166,11 +169,35 @@
   var identityArtLayout = { x: 0, y: 0, scaleX: 1, scaleY: 1 };
   var stationArtLayout = { x: 144, y: 136, scaleX: 0.76, scaleY: 0.76 };
   var wallArtLayout = { x: 54, y: 8, scaleX: 0.91, scaleY: 0.91 };
-  var streetDepthOffset = { x: 58, y: 26 };
+  var streetDepthOffset = { x: -54, y: 34 };
   var wallDepthOffset = { x: 42, y: 38 };
-  var streetArtTransform = "matrix(0.94 -0.035 0.09 1 13 34)";
+  var streetArtTransform = "matrix(0.965 0.018 -0.035 0.995 32 18)";
   var stationArtTransform = "translate(" + stationArtLayout.x + " " + stationArtLayout.y + ") scale(" + stationArtLayout.scaleX + ")";
   var wallArtTransform = "translate(" + wallArtLayout.x + " " + wallArtLayout.y + ") scale(" + wallArtLayout.scaleX + ")";
+  var backgroundScenes = {
+    "street-post": {
+      transform: streetArtTransform,
+      layers: [streetBackground, streetSignRig, streetSignDepth]
+    },
+    "electric-exhibit": {
+      stageClass: "is-electric",
+      artFilter: "url(#electric-art-glow)",
+      textFilter: "url(#electric-text-glow)",
+      layers: [electricBackground, electricReflection]
+    },
+    "station-floor": {
+      transform: stationArtTransform,
+      stageClass: "is-station-floor",
+      artFilter: "url(#station-sign-shadow)",
+      layers: [stationFloorBackground, stationFloorReflection]
+    },
+    "stone-wall": {
+      transform: wallArtTransform,
+      stageClass: "is-wall-mount",
+      artFilter: "url(#wall-mounted-art-shadow)",
+      layers: [stoneWallBackground, wallMountShadow]
+    }
+  };
   var colorSchemes = {
     underground: {
       ringSolid: "#e1251b",
@@ -998,6 +1025,163 @@
     });
   });
 
+  var styleCatalog = [
+    { group: "Sign styles", id: "enamel", label: "Enamel" },
+    { group: "Sign styles", id: "classic", label: "Classic" },
+    { group: "Sign styles", id: "platform", label: "Platform" },
+    { group: "Sign styles", id: "heritage", label: "Heritage", miniClass: "style-mini-heritage" },
+    { group: "Sign styles", id: "redDisc", label: "Red disc" },
+    { group: "Sign styles", id: "museum", label: "Museum" },
+    { group: "Sign styles", id: "poster", label: "Poster" },
+    { group: "Scenes", id: "signboard", label: "Signboard", miniClass: "style-mini-bg style-mini-board" },
+    {
+      group: "Scenes",
+      id: "whiteTiles",
+      label: "White tiles",
+      miniClass: "style-mini-bg style-mini-brick",
+      preview: { "--mini-bg": "#f5f3ec", "--mini-brick": "#ffffff", "--mini-brick-alt": "#e5e1d8", "--mini-line": "#2d2b27" }
+    },
+    {
+      group: "Scenes",
+      id: "redTiles",
+      label: "Red tiles",
+      miniClass: "style-mini-bg style-mini-brick",
+      preview: { "--mini-bg": "#8f2b25", "--mini-brick": "#bd493d", "--mini-brick-alt": "#7d241f", "--mini-line": "#d3a196" }
+    },
+    {
+      group: "Scenes",
+      id: "yellowBrick",
+      label: "Yellow brick",
+      miniClass: "style-mini-bg style-mini-brick",
+      preview: { "--mini-bg": "#a48d5d", "--mini-brick": "#c7b075", "--mini-brick-alt": "#806b44", "--mini-line": "#6f624f" }
+    },
+    { group: "Scenes", id: "night", label: "Night" },
+    { group: "Scenes", id: "streetSign", label: "Street", miniClass: "style-mini-bg style-mini-street" },
+    { group: "Scenes", id: "stationFloor", label: "Station", miniClass: "style-mini-bg style-mini-station" },
+    { group: "Scenes", id: "wallMount", label: "Wall", miniClass: "style-mini-bg style-mini-wall" },
+    { group: "Scenes", id: "neon", label: "Neon", miniClass: "style-mini-neon", preview: { "--mini-glow": "#68f8ff" } },
+    { group: "Scenes", id: "electric", label: "Electric", miniClass: "style-mini-electric", preview: { "--mini-glow": "#2f6fff" } },
+    { group: "Transport", id: "underground", label: "Underground" },
+    { group: "Transport", id: "rail", label: "TfL Rail" },
+    { group: "Transport", id: "elizabeth", label: "Elizabeth" },
+    { group: "Transport", id: "overground", label: "Overground" },
+    { group: "Transport", id: "dlr", label: "DLR" },
+    { group: "Transport", id: "river", label: "River" },
+    { group: "Transport", id: "trams", label: "Trams" },
+    { group: "Transport", id: "buses", label: "Buses" },
+    { group: "Transport", id: "coaches", label: "Coaches" },
+    { group: "Transport", id: "cycles", label: "Cycles", miniClass: "style-mini-outline" },
+    { group: "Transport", id: "dial", label: "Dial" },
+    { group: "Transport", id: "taxi", label: "Taxi" },
+    { group: "Transport", id: "airline", label: "Airline", miniClass: "style-mini-outline", preview: { "--mini-ring": "#e4002b" } }
+  ];
+
+  function getStylePreviewVariables(preset, overrides) {
+    var centerColor = preset.whiteCenter ? preset.centerFill : preset.centerFill === "#ffffff" ? preset.ringSolid : preset.centerFill;
+    var variables = {
+      "--mini-ring": preset.ringSolid,
+      "--mini-bar": preset.barSolid,
+      "--mini-hole": centerColor || "#ffffff"
+    };
+
+    Object.keys(overrides || {}).forEach(function (property) {
+      variables[property] = overrides[property];
+    });
+
+    return variables;
+  }
+
+  function createStyleButton(entry) {
+    var preset = presets[entry.id];
+    var button;
+    var mini;
+    var miniBar;
+    var label;
+    var previewVariables;
+
+    if (!preset) {
+      return null;
+    }
+
+    button = document.createElement("button");
+    button.className = "style-button";
+    button.setAttribute("data-preset", entry.id);
+    button.setAttribute("type", "button");
+
+    mini = document.createElement("span");
+    mini.className = "style-mini" + (entry.miniClass ? " " + entry.miniClass : "");
+    mini.setAttribute("aria-hidden", "true");
+    previewVariables = getStylePreviewVariables(preset, entry.preview);
+    Object.keys(previewVariables).forEach(function (property) {
+      mini.style.setProperty(property, previewVariables[property]);
+    });
+
+    miniBar = document.createElement("span");
+    mini.appendChild(miniBar);
+
+    label = document.createElement("span");
+    label.textContent = entry.label;
+    button.appendChild(mini);
+    button.appendChild(label);
+
+    return button;
+  }
+
+  function syncStyleStripHint() {
+    var maxScroll;
+
+    if (!styleStrip) {
+      return;
+    }
+
+    maxScroll = Math.max(0, styleStrip.scrollWidth - styleStrip.clientWidth);
+    styleStrip.classList.toggle("is-scrollable", maxScroll > 1);
+    styleStrip.classList.toggle("is-at-start", styleStrip.scrollLeft <= 1);
+    styleStrip.classList.toggle("is-at-end", styleStrip.scrollLeft >= maxScroll - 1);
+  }
+
+  function renderStyleStrip() {
+    var fragment;
+    var currentGroupName = "";
+    var currentGroup;
+    var groupLabel;
+
+    if (!styleStrip) {
+      return;
+    }
+
+    fragment = document.createDocumentFragment();
+    styleCatalog.forEach(function (entry) {
+      var button;
+
+      if (entry.group !== currentGroupName) {
+        currentGroupName = entry.group;
+        currentGroup = document.createElement("div");
+        currentGroup.className = "style-group";
+        currentGroup.setAttribute("role", "group");
+        currentGroup.setAttribute("aria-label", entry.group + " presets");
+
+        groupLabel = document.createElement("span");
+        groupLabel.className = "style-group-label";
+        groupLabel.setAttribute("aria-hidden", "true");
+        groupLabel.textContent = entry.group;
+        currentGroup.appendChild(groupLabel);
+        fragment.appendChild(currentGroup);
+      }
+
+      button = createStyleButton(entry);
+      if (button) {
+        currentGroup.appendChild(button);
+      }
+    });
+
+    styleStrip.replaceChildren(fragment);
+    presetButtons = Array.prototype.slice.call(styleStrip.querySelectorAll("[data-preset]"));
+    requestFrame(syncStyleStripHint);
+  }
+
+  renderStyleStrip();
+
   function getFontStack() {
     return fontStacks[fontChoice.value] || fontStacks.gill;
   }
@@ -1021,15 +1205,18 @@
     var button = presetButtons.filter(function (candidate) {
       return candidate.getAttribute("data-preset") === key;
     })[0];
-    var strip = button && button.parentElement;
+    var strip = styleStrip;
+    var stripRect;
     var targetLeft;
 
     if (!button || !strip || strip.scrollWidth <= strip.clientWidth) {
       return;
     }
 
-    targetLeft = button.offsetLeft - (strip.clientWidth - button.offsetWidth) / 2;
+    stripRect = strip.getBoundingClientRect();
+    targetLeft = button.getBoundingClientRect().left - stripRect.left + strip.scrollLeft - (strip.clientWidth - button.offsetWidth) / 2;
     strip.scrollLeft = Math.max(0, Math.min(targetLeft, strip.scrollWidth - strip.clientWidth));
+    syncStyleStripHint();
   }
 
   function syncControlStates() {
@@ -1046,13 +1233,233 @@
     });
   }
 
-  function openMenu(name) {
+  function isDesktopMenuMode() {
+    return !!(desktopMenuQuery && desktopMenuQuery.matches);
+  }
+
+  function getMenuPanel(name) {
+    return menuPanels.filter(function (panel) {
+      return panel.getAttribute("data-menu-panel") === name;
+    })[0] || null;
+  }
+
+  function getMenuAnchor(name) {
+    if (activeMenuName === name && activeMenuAnchor && document.documentElement.contains(activeMenuAnchor)) {
+      return activeMenuAnchor;
+    }
+
+    return hudPanelTriggers.filter(function (button) {
+      return button.getAttribute("data-menu") === name;
+    })[0] || menuButtons.filter(function (button) {
+      return button.getAttribute("data-menu") === name;
+    })[0] || null;
+  }
+
+  function clampNumber(value, min, max) {
+    if (max < min) {
+      return min;
+    }
+
+    return Math.min(Math.max(value, min), max);
+  }
+
+  function resetMenuPanelPosition(panel) {
+    panel.style.removeProperty("left");
+    panel.style.removeProperty("right");
+    panel.style.removeProperty("top");
+    panel.style.removeProperty("bottom");
+    panel.style.removeProperty("--menu-origin");
+  }
+
+  function positionMenuPanel(panel, anchor) {
+    var anchorRect;
+    var panelRect;
+    var viewportWidth;
+    var viewportHeight;
+    var gap;
+    var margin;
+    var left;
+    var top;
+    var originX;
+    var originY;
+    var fitsRight;
+    var fitsLeft;
+
+    if (!panel || !anchor || !isDesktopMenuMode()) {
+      if (panel) {
+        resetMenuPanelPosition(panel);
+      }
+      return;
+    }
+
+    anchorRect = anchor.getBoundingClientRect();
+    panelRect = panel.getBoundingClientRect();
+    viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+    viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+    gap = 16;
+    margin = 14;
+    originX = anchorRect.left + anchorRect.width / 2 < viewportWidth / 2 ? "0%" : "100%";
+    originY = "50%";
+    fitsRight = anchorRect.right + gap + panelRect.width <= viewportWidth - margin;
+    fitsLeft = anchorRect.left - gap - panelRect.width >= margin;
+
+    if (originX === "0%" && fitsRight) {
+      left = anchorRect.right + gap;
+    } else if (originX === "100%" && fitsLeft) {
+      left = anchorRect.left - gap - panelRect.width;
+    } else if (fitsRight) {
+      left = anchorRect.right + gap;
+      originX = "0%";
+    } else if (fitsLeft) {
+      left = anchorRect.left - gap - panelRect.width;
+      originX = "100%";
+    } else {
+      left = clampNumber(anchorRect.left + anchorRect.width / 2 - panelRect.width / 2, margin, viewportWidth - panelRect.width - margin);
+      originX = "50%";
+    }
+
+    if (anchorRect.top + anchorRect.height / 2 < viewportHeight * 0.35) {
+      top = anchorRect.bottom + gap;
+      originY = "0%";
+    } else if (anchorRect.top + anchorRect.height / 2 > viewportHeight * 0.65) {
+      top = anchorRect.top - gap - panelRect.height;
+      originY = "100%";
+    } else {
+      top = anchorRect.top + anchorRect.height / 2 - panelRect.height / 2;
+    }
+
+    top = clampNumber(top, margin, viewportHeight - panelRect.height - margin);
+
+    panel.style.left = Math.round(left) + "px";
+    panel.style.right = "auto";
+    panel.style.top = Math.round(top) + "px";
+    panel.style.bottom = "auto";
+    panel.style.setProperty("--menu-origin", originX + " " + originY);
+  }
+
+  function positionActiveMenu() {
+    var panel;
+
+    if (!activeMenuName) {
+      return;
+    }
+
+    panel = getMenuPanel(activeMenuName);
+    positionMenuPanel(panel, getMenuAnchor(activeMenuName));
+  }
+
+  function clearDesktopMenuClose() {
+    window.clearTimeout(desktopMenuCloseTimer);
+    desktopMenuCloseTimer = 0;
+  }
+
+  function scheduleDesktopMenuClose() {
+    if (!isDesktopMenuMode() || !activeMenuName || desktopMenuCloseTimer) {
+      return;
+    }
+
+    desktopMenuCloseTimer = window.setTimeout(function () {
+      desktopMenuCloseTimer = 0;
+
+      if (isDesktopMenuMode() && activeMenuName && !activeDrag) {
+        closeMenus();
+      }
+    }, desktopMenuCloseDelay);
+  }
+
+  function isPointInExpandedRect(x, y, rect, inset) {
+    return (
+      x >= rect.left - inset &&
+      x <= rect.right + inset &&
+      y >= rect.top - inset &&
+      y <= rect.bottom + inset
+    );
+  }
+
+  function isPointerInActiveMenuZone(x, y) {
+    var panel;
+    var anchor;
+    var panelRect;
+    var anchorRect;
+    var bridgeRect;
+    var safeInset = 28;
+
+    if (!activeMenuName) {
+      return false;
+    }
+
+    panel = getMenuPanel(activeMenuName);
+    anchor = getMenuAnchor(activeMenuName);
+
+    if (!panel || panel.hidden || !anchor) {
+      return false;
+    }
+
+    panelRect = panel.getBoundingClientRect();
+    anchorRect = anchor.getBoundingClientRect();
+
+    if (isPointInExpandedRect(x, y, panelRect, safeInset) || isPointInExpandedRect(x, y, anchorRect, safeInset)) {
+      return true;
+    }
+
+    bridgeRect = {
+      left: Math.min(panelRect.left, anchorRect.left),
+      right: Math.max(panelRect.right, anchorRect.right),
+      top: Math.min(panelRect.top, anchorRect.top),
+      bottom: Math.max(panelRect.bottom, anchorRect.bottom)
+    };
+
+    return isPointInExpandedRect(x, y, bridgeRect, 12);
+  }
+
+  function handleDesktopMenuPointerMove(event) {
+    if (!isDesktopMenuMode() || !activeMenuName || activeDrag) {
+      clearDesktopMenuClose();
+      return;
+    }
+
+    if (isPointerInActiveMenuZone(event.clientX, event.clientY)) {
+      clearDesktopMenuClose();
+      return;
+    }
+
+    scheduleDesktopMenuClose();
+  }
+
+  function handleMenuPanelPointerLeave(event) {
+    if (!isDesktopMenuMode() || !activeMenuName) {
+      return;
+    }
+
+    if (isPointerInActiveMenuZone(event.clientX, event.clientY)) {
+      clearDesktopMenuClose();
+      return;
+    }
+
+    scheduleDesktopMenuClose();
+  }
+
+  function openMenu(name, anchor) {
+    var menuAnchor = anchor || getMenuAnchor(name);
+
+    if (!name) {
+      closeMenus();
+      return;
+    }
+
+    activeMenuName = name;
+    activeMenuAnchor = menuAnchor;
+    clearDesktopMenuClose();
     showHudChrome();
 
     menuPanels.forEach(function (panel) {
       var isOpen = panel.getAttribute("data-menu-panel") === name;
 
       panel.hidden = !isOpen;
+
+      if (isOpen) {
+        positionMenuPanel(panel, menuAnchor);
+      }
     });
 
     menuButtons.forEach(function (button) {
@@ -1070,6 +1477,10 @@
   }
 
   function closeMenus() {
+    clearDesktopMenuClose();
+    activeMenuName = "";
+    activeMenuAnchor = null;
+
     menuPanels.forEach(function (panel) {
       panel.hidden = true;
     });
@@ -1276,6 +1687,64 @@
 
   function setRangeControl(control, value) {
     control.value = String(clampToControl(control, value));
+  }
+
+  function writeRoundelControls(values) {
+    if (Object.prototype.hasOwnProperty.call(values, "barWidth")) {
+      setRangeControl(barWidthInput, values.barWidth);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "barHeight")) {
+      setRangeControl(barHeightInput, values.barHeight);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "textSize")) {
+      setRangeControl(textSizeInput, values.textSize);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "font")) {
+      fontChoice.value = fontStacks[values.font] ? values.font : fontChoice.value;
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "capitalise")) {
+      capitaliseToggle.checked = Boolean(values.capitalise);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "letterRules")) {
+      letterRulesToggle.checked = Boolean(values.letterRules);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "whiteCenter")) {
+      whiteCenterToggle.checked = Boolean(values.whiteCenter);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "gradients")) {
+      gradientsToggle.checked = Boolean(values.gradients);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "shadow")) {
+      shadowToggle.checked = Boolean(values.shadow);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "blueOutline")) {
+      blueOutlineToggle.checked = Boolean(values.blueOutline);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "whiteInset")) {
+      whiteInsetToggle.checked = Boolean(values.whiteInset);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "background")) {
+      backgroundChoice.value = normalizeBackgroundChoice(values.background, Boolean(values.plaque));
+    }
+  }
+
+  function getPresetControlValues(preset) {
+    var background = normalizeBackgroundChoice(preset.background, Boolean(preset.plaque));
+
+    return {
+      barWidth: preset.barWidth,
+      barHeight: 0,
+      textSize: 0,
+      font: preset.font,
+      letterRules: preset.ornaments === "letter-rules",
+      whiteCenter: preset.whiteCenter,
+      gradients: preset.gradients,
+      shadow: preset.shadow,
+      blueOutline: preset.blueOutline,
+      whiteInset: preset.whiteInset,
+      background: background,
+      plaque: background === "plaque"
+    };
   }
 
   function normalizeBackgroundChoice(value, legacyPlaque) {
@@ -1496,34 +1965,28 @@
 
   function getPresetState(key, text) {
     var preset = presets[key] || presets.enamel;
-    var background = normalizeBackgroundChoice(preset.background, Boolean(preset.plaque));
+    var state = getPresetControlValues(preset);
 
-    return {
-      version: 2,
-      preset: key,
-      activePreset: key,
-      text: text,
-      barWidth: preset.barWidth,
-      barHeight: 0,
-      textSize: 0,
-      font: preset.font,
-      capitalise: true,
-      letterRules: preset.ornaments === "letter-rules",
-      whiteCenter: preset.whiteCenter,
-      gradients: preset.gradients,
-      shadow: preset.shadow,
-      blueOutline: preset.blueOutline,
-      whiteInset: preset.whiteInset,
-      background: background,
-      plaque: background === "plaque"
-    };
+    state.version = 2;
+    state.preset = key;
+    state.activePreset = key;
+    state.text = text;
+    state.capitalise = true;
+    return state;
   }
 
-  function applyIntroFrame(frame, animate) {
+  function getIntroSequenceDuration() {
+    return introStepDurations.reduce(function (total, stepDuration) {
+      return total + stepDuration;
+    }, introOutroDelay);
+  }
+
+  function applyIntroFrame(frame, animate, transitionDurationOverride) {
     applyState(getPresetState(frame.preset, frame.text), {
       animate: animate,
       suppressPersist: true,
-      skipStripScroll: true
+      skipStripScroll: true,
+      transitionDuration: transitionDurationOverride
     });
   }
 
@@ -1539,7 +2002,7 @@
   }
 
   function finishIntro(options) {
-    roundelStage.classList.remove("is-intro");
+    roundelStage.classList.remove("is-intro", "is-intro-sequence");
 
     if (options.boot) {
       document.body.classList.remove("is-booting");
@@ -1553,15 +2016,18 @@
   }
 
   function playIntroSequence(options) {
-    var duration = introSequence.length * introStepDuration + introOutroDelay;
+    var elapsed = 0;
+    var duration = getIntroSequenceDuration();
 
     clearIntroTextTimers();
     applyIntroFrame(introSequence[0], false);
 
     introSequence.slice(1).forEach(function (frame, index) {
+      elapsed += introStepDurations[index] || introStepDurations[introStepDurations.length - 1];
+
       introTextTimers.push(window.setTimeout(function () {
-        applyIntroFrame(frame, true);
-      }, introStepDuration * (index + 1)));
+        applyIntroFrame(frame, true, introTransitionDurations[index] || transitionDuration);
+      }, elapsed));
     });
 
     introTextTimers.push(window.setTimeout(function () {
@@ -1574,7 +2040,7 @@
     var duration;
 
     options = options || {};
-    duration = options.sequence ? introSequence.length * introStepDuration + introOutroDelay : options.guide ? 2600 : 2300;
+    duration = options.sequence ? getIntroSequenceDuration() : options.guide ? 2600 : 2300;
 
     if (!roundelStage || (reducedMotionQuery && reducedMotionQuery.matches)) {
       if (options.sequence) {
@@ -1590,9 +2056,10 @@
       document.body.classList.add("is-booting");
     }
 
-    roundelStage.classList.remove("is-intro", "is-guiding");
+    roundelStage.classList.remove("is-intro", "is-intro-sequence", "is-guiding");
     roundelStage.offsetWidth;
     roundelStage.classList.add("is-intro");
+    roundelStage.classList.toggle("is-intro-sequence", Boolean(options.sequence));
 
     if (options.guide && !options.sequence) {
       roundelStage.classList.add("is-guiding");
@@ -1678,6 +2145,14 @@
     updateGripProximity(event);
   }
 
+  function handleDocumentPointerMove(event) {
+    moveBarDrag(event);
+    handleStylePreviewGlobalMove(event);
+    handleGripPointerMove(event);
+    handleDesktopMenuPointerMove(event);
+    noteHudActivity();
+  }
+
   function applyState(state, options) {
     var legacyColorPreset;
     var presetKey;
@@ -1694,30 +2169,37 @@
 
     try {
       activePresetKey = presetKey;
-      applyPreset(presetKey, { suppressPersist: true, skipStripScroll: true });
+      applyPreset(presetKey, { suppressPersist: true, skipStripScroll: true, deferRender: true });
       input.value = typeof state.text === "string" ? state.text : "UNDERGROUND";
       presetChoice.value = state.preset === "custom" ? "custom" : presetKey;
-      setRangeControl(barWidthInput, state.barWidth || presets[presetKey].barWidth);
-      setRangeControl(barHeightInput, state.barHeight || 0);
-      setRangeControl(textSizeInput, state.textSize || 0);
-      fontChoice.value = fontStacks[state.font] ? state.font : presets[presetKey].font;
-      capitaliseToggle.checked = state.capitalise !== false;
+      writeRoundelControls({
+        barWidth: state.barWidth || presets[presetKey].barWidth,
+        barHeight: state.barHeight || 0,
+        textSize: state.textSize || 0,
+        font: fontStacks[state.font] ? state.font : presets[presetKey].font,
+        capitalise: state.capitalise !== false,
+        whiteCenter: state.whiteCenter !== false,
+        gradients: state.gradients !== false,
+        shadow: state.shadow !== false,
+        blueOutline: state.blueOutline !== false,
+        whiteInset: state.whiteInset !== false
+      });
+
       if (state.letterRules !== null && typeof state.letterRules !== "undefined") {
-        letterRulesToggle.checked = Boolean(state.letterRules);
+        writeRoundelControls({ letterRules: state.letterRules });
       }
-      whiteCenterToggle.checked = state.whiteCenter !== false;
-      gradientsToggle.checked = state.gradients !== false;
-      shadowToggle.checked = state.shadow !== false;
-      blueOutlineToggle.checked = state.blueOutline !== false;
-      whiteInsetToggle.checked = state.whiteInset !== false;
       if (state.background !== null && typeof state.background !== "undefined") {
-        backgroundChoice.value = normalizeBackgroundChoice(state.background, Boolean(state.plaque));
+        writeRoundelControls({ background: state.background, plaque: state.plaque });
       }
     } finally {
       isApplyingState = false;
     }
 
-    updateRoundel({ animate: options.animate, suppressPersist: options.suppressPersist });
+    updateRoundel({
+      animate: options.animate,
+      suppressPersist: options.suppressPersist,
+      transitionDuration: options.transitionDuration
+    });
 
     if (!options.skipStripScroll) {
       scrollPresetButtonIntoView(activePresetKey);
@@ -1823,15 +2305,6 @@
 
     applyState(entry.state, { animate: true });
     updateUndoButton();
-  }
-
-  function resetCurrentStyle() {
-    var text = input.value;
-
-    recordUndoState();
-    applyPreset(activePresetKey, { animate: true, suppressPersist: true });
-    input.value = text;
-    updateRoundel({ animate: true });
   }
 
   function clampInputLines() {
@@ -2037,6 +2510,14 @@
     var barRadius = readNumberAttribute(barFill, "rx", preset.barRadius);
     var backBarX = barX + streetDepthOffset.x;
     var backBarY = barY + streetDepthOffset.y;
+    var frontTopLeft = { x: barX, y: barY };
+    var frontTopRight = { x: barX + barWidth, y: barY };
+    var frontBottomRight = { x: barX + barWidth, y: barY + barHeight };
+    var frontBottomLeft = { x: barX, y: barY + barHeight };
+    var backTopLeft = { x: backBarX, y: backBarY };
+    var backTopRight = { x: backBarX + barWidth, y: backBarY };
+    var backBottomRight = { x: backBarX + barWidth, y: backBarY + barHeight };
+    var backBottomLeft = { x: backBarX, y: backBarY + barHeight };
 
     if (!streetSignDepth) {
       return;
@@ -2087,30 +2568,19 @@
     }
 
     if (streetDepthBarTop) {
-      setPolygonPath(streetDepthBarTop, [
-        { x: barX, y: barY },
-        { x: barX + barWidth, y: barY },
-        { x: backBarX + barWidth, y: backBarY },
-        { x: backBarX, y: backBarY }
-      ]);
+      setPolygonPath(streetDepthBarTop, [frontTopLeft, frontTopRight, backTopRight, backTopLeft]);
     }
 
     if (streetDepthBarBottom) {
-      setPolygonPath(streetDepthBarBottom, [
-        { x: barX, y: barY + barHeight },
-        { x: barX + barWidth, y: barY + barHeight },
-        { x: backBarX + barWidth, y: backBarY + barHeight },
-        { x: backBarX, y: backBarY + barHeight }
-      ]);
+      setPolygonPath(streetDepthBarBottom, [frontBottomLeft, frontBottomRight, backBottomRight, backBottomLeft]);
+    }
+
+    if (streetDepthBarLeft) {
+      setPolygonPath(streetDepthBarLeft, [frontTopLeft, backTopLeft, backBottomLeft, frontBottomLeft]);
     }
 
     if (streetDepthBarRight) {
-      setPolygonPath(streetDepthBarRight, [
-        { x: barX + barWidth, y: barY },
-        { x: backBarX + barWidth, y: backBarY },
-        { x: backBarX + barWidth, y: backBarY + barHeight },
-        { x: barX + barWidth, y: barY + barHeight }
-      ]);
+      setPolygonPath(streetDepthBarRight, [frontTopRight, backTopRight, backBottomRight, frontBottomRight]);
     }
   }
 
@@ -2775,14 +3245,15 @@
     }
   }
 
-  function animateVisualState(start, end) {
+  function animateVisualState(start, end, duration) {
     var startedAt = now();
+    var animationDuration = duration || transitionDuration;
 
     cancelVisualAnimation();
     renderVisualState(start, end, 0, false);
 
     function tick(now) {
-      var progress = Math.min(1, (now - startedAt) / transitionDuration);
+      var progress = Math.min(1, (now - startedAt) / animationDuration);
       var eased = easeOutCubic(progress);
 
       renderVisualState(start, end, eased, progress >= 1);
@@ -3108,14 +3579,40 @@
     }
   }
 
+  function setSceneLayerVisibility(element, isVisible) {
+    if (!element) {
+      return;
+    }
+
+    element.style.display = isVisible ? "" : "none";
+    element.setAttribute("opacity", isVisible ? "1" : "0");
+  }
+
+  function syncBackgroundScene(backgroundKey) {
+    var activeScene = backgroundScenes[backgroundKey] || null;
+
+    Object.keys(backgroundScenes).forEach(function (key) {
+      var scene = backgroundScenes[key];
+      var isVisible = key === backgroundKey;
+
+      scene.layers.forEach(function (layer) {
+        setSceneLayerVisibility(layer, isVisible);
+      });
+
+      if (roundelStage && scene.stageClass) {
+        roundelStage.classList.toggle(scene.stageClass, isVisible);
+      }
+    });
+
+    artGroup.setAttribute("transform", activeScene && activeScene.transform ? activeScene.transform : "");
+    return activeScene;
+  }
+
   function updateStyleOptions() {
     var preset = getActivePreset();
     var backgroundKey = getBackgroundChoice();
     var brickVisible = Boolean(Object.prototype.hasOwnProperty.call(backgroundFills, backgroundKey));
-    var streetVisible = backgroundKey === "street-post";
-    var electricVisible = backgroundKey === "electric-exhibit";
-    var stationFloorVisible = backgroundKey === "station-floor";
-    var stoneWallVisible = backgroundKey === "stone-wall";
+    var scene = syncBackgroundScene(backgroundKey);
     var neonVisible = Boolean(preset.neon);
     var neonBackdropVisible = Boolean(neonVisible && backgroundKey === "plaque");
     var plaqueVisible = Boolean(backgroundKey === "plaque" && !neonVisible);
@@ -3137,9 +3634,6 @@
 
     if (roundelStage) {
       roundelStage.classList.toggle("is-neon", neonVisible);
-      roundelStage.classList.toggle("is-electric", electricVisible);
-      roundelStage.classList.toggle("is-station-floor", stationFloorVisible);
-      roundelStage.classList.toggle("is-wall-mount", stoneWallVisible);
     }
 
     centerFill.style.display = whiteCenterToggle.checked ? "" : "none";
@@ -3169,43 +3663,6 @@
     barInset.setAttribute("stroke-opacity", insetOpacity);
     textNode.setAttribute("fill", textColor);
     textNode.setAttribute("font-style", neonVisible ? "italic" : "normal");
-    artGroup.setAttribute("transform", streetVisible ? streetArtTransform : stationFloorVisible ? stationArtTransform : stoneWallVisible ? wallArtTransform : "");
-    if (streetBackground) {
-      streetBackground.style.display = streetVisible ? "" : "none";
-      streetBackground.setAttribute("opacity", streetVisible ? "1" : "0");
-    }
-    if (streetSignRig) {
-      streetSignRig.style.display = streetVisible ? "" : "none";
-      streetSignRig.setAttribute("opacity", streetVisible ? "1" : "0");
-    }
-    if (streetSignDepth) {
-      streetSignDepth.style.display = streetVisible ? "" : "none";
-      streetSignDepth.setAttribute("opacity", streetVisible ? "1" : "0");
-    }
-    if (electricBackground) {
-      electricBackground.style.display = electricVisible ? "" : "none";
-      electricBackground.setAttribute("opacity", electricVisible ? "1" : "0");
-    }
-    if (electricReflection) {
-      electricReflection.style.display = electricVisible ? "" : "none";
-      electricReflection.setAttribute("opacity", electricVisible ? "1" : "0");
-    }
-    if (stationFloorBackground) {
-      stationFloorBackground.style.display = stationFloorVisible ? "" : "none";
-      stationFloorBackground.setAttribute("opacity", stationFloorVisible ? "1" : "0");
-    }
-    if (stationFloorReflection) {
-      stationFloorReflection.style.display = stationFloorVisible ? "" : "none";
-      stationFloorReflection.setAttribute("opacity", stationFloorVisible ? "1" : "0");
-    }
-    if (stoneWallBackground) {
-      stoneWallBackground.style.display = stoneWallVisible ? "" : "none";
-      stoneWallBackground.setAttribute("opacity", stoneWallVisible ? "1" : "0");
-    }
-    if (wallMountShadow) {
-      wallMountShadow.style.display = stoneWallVisible ? "" : "none";
-      wallMountShadow.setAttribute("opacity", stoneWallVisible ? "1" : "0");
-    }
     brickBackground.style.display = brickVisible ? "" : "none";
     brickBackground.setAttribute("opacity", brickVisible ? "1" : "0");
     brickWallFill.setAttribute("fill", brickVisible ? backgroundFills[backgroundKey] : backgroundFills["brick-white"]);
@@ -3231,13 +3688,13 @@
     }
 
     if (shadowToggle.checked) {
-      artGroup.setAttribute("filter", electricVisible ? "url(#electric-art-glow)" : neonVisible ? "url(#neon-art-glow)" : stationFloorVisible ? "url(#station-sign-shadow)" : stoneWallVisible ? "url(#wall-mounted-art-shadow)" : "url(#soft-shadow)");
+      artGroup.setAttribute("filter", neonVisible ? "url(#neon-art-glow)" : scene && scene.artFilter ? scene.artFilter : "url(#soft-shadow)");
     } else {
       artGroup.removeAttribute("filter");
     }
 
-    if ((neonVisible || electricVisible) && shadowToggle.checked) {
-      textNode.setAttribute("filter", electricVisible ? "url(#electric-text-glow)" : "url(#neon-text-glow)");
+    if ((neonVisible || scene && scene.textFilter) && shadowToggle.checked) {
+      textNode.setAttribute("filter", neonVisible ? "url(#neon-text-glow)" : scene.textFilter);
     } else {
       textNode.removeAttribute("filter");
     }
@@ -3286,7 +3743,7 @@
 
     if (animateChange) {
       afterState = captureVisualState();
-      animateVisualState(beforeState, afterState);
+      animateVisualState(beforeState, afterState, options.transitionDuration);
     }
 
     hasRendered = true;
@@ -3305,24 +3762,17 @@
 
     activePresetKey = key;
     presetChoice.value = key;
-    barWidthInput.value = String(preset.barWidth);
-    barHeightInput.value = "0";
-    textSizeInput.value = "0";
-    fontChoice.value = preset.font;
-    whiteCenterToggle.checked = preset.whiteCenter;
-    gradientsToggle.checked = preset.gradients;
-    shadowToggle.checked = preset.shadow;
-    blueOutlineToggle.checked = preset.blueOutline;
-    whiteInsetToggle.checked = preset.whiteInset;
-    letterRulesToggle.checked = preset.ornaments === "letter-rules";
-    backgroundChoice.value = normalizeBackgroundChoice(preset.background, Boolean(preset.plaque));
-    updateRoundel(options);
+    writeRoundelControls(getPresetControlValues(preset));
+
+    if (!options || !options.deferRender) {
+      updateRoundel(options);
+    }
 
     if (!options || !options.skipStripScroll) {
       scrollPresetButtonIntoView(activePresetKey);
     }
 
-    if ((preset.neon || preset.electric) && options && options.animate) {
+    if ((preset.neon || preset.electric) && options && options.animate && !options.deferRender) {
       window.setTimeout(function () {
         playIntro();
       }, 40);
@@ -3452,7 +3902,7 @@
     }
 
     recordUndoState();
-    openMenu("bar");
+    openMenu("bar", event.currentTarget);
     event.preventDefault();
 
     activeDrag = {
@@ -3528,6 +3978,7 @@
   if (styleStrip) {
     styleStrip.addEventListener("pointermove", handleStylePreviewMove);
     styleStrip.addEventListener("pointerleave", cancelStylePreview);
+    styleStrip.addEventListener("scroll", syncStyleStripHint, { passive: true });
   }
 
   fontButtons.forEach(function (button) {
@@ -3560,23 +4011,24 @@
       }
 
       event.stopPropagation();
-      openMenu(button.getAttribute("data-menu"));
+      openMenu(button.getAttribute("data-menu"), button);
     });
   });
 
   hudPanelTriggers.forEach(function (button) {
-    ["pointerenter", "mouseenter", "mouseover"].forEach(function (eventName) {
-      button.addEventListener(eventName, function () {
-        openMenu(button.getAttribute("data-menu"));
-      });
+    button.addEventListener("pointerenter", function () {
+      openMenu(button.getAttribute("data-menu"), button);
     });
 
     button.addEventListener("focus", function () {
-      openMenu(button.getAttribute("data-menu"));
+      openMenu(button.getAttribute("data-menu"), button);
     });
   });
 
   menuPanels.forEach(function (panel) {
+    panel.addEventListener("pointerenter", clearDesktopMenuClose);
+    panel.addEventListener("pointerleave", handleMenuPanelPointerLeave);
+
     panel.addEventListener("click", function (event) {
       event.stopPropagation();
     });
@@ -3652,22 +4104,10 @@
   exportButton.addEventListener("click", exportPng);
   exportSvgButton.addEventListener("click", exportSvg);
   undoButton.addEventListener("click", undoLastChange);
-  if (resetButton) {
-    resetButton.addEventListener("click", resetCurrentStyle);
-  }
   copyLinkButton.addEventListener("click", copyShareLink);
   if (shareButton) {
     shareButton.addEventListener("click", toggleShareMenu);
   }
-  exportTriggers.forEach(function (button) {
-    button.addEventListener("click", exportPng);
-  });
-  exportSvgTriggers.forEach(function (button) {
-    button.addEventListener("click", exportSvg);
-  });
-  copyLinkTriggers.forEach(function (button) {
-    button.addEventListener("click", copyShareLink);
-  });
 
   [barWidthInput, barHeightInput, textSizeInput].forEach(function (control) {
     control.addEventListener("pointerdown", recordUndoState);
@@ -3707,10 +4147,7 @@
     grip.addEventListener("pointerdown", startBarDrag);
   });
 
-  document.addEventListener("pointermove", handleStylePreviewGlobalMove);
-  document.addEventListener("pointermove", handleGripPointerMove);
-  document.addEventListener("pointermove", moveBarDrag);
-  document.addEventListener("pointermove", noteHudActivity, { passive: true });
+  document.addEventListener("pointermove", handleDocumentPointerMove);
   document.addEventListener("pointerdown", noteHudActivity, { passive: true });
   document.addEventListener("keydown", noteHudActivity);
   document.addEventListener("focusin", noteHudActivity);
@@ -3727,17 +4164,22 @@
 
   window.addEventListener("resize", function () {
     updateRoundel({ suppressPersist: true });
+    positionActiveMenu();
+    syncStyleStripHint();
   });
   window.addEventListener("scroll", function () {
     noteHudActivity();
+    positionActiveMenu();
   }, { passive: true });
 
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", function () {
       noteHudActivity();
+      positionActiveMenu();
     });
     window.visualViewport.addEventListener("scroll", function () {
       noteHudActivity();
+      positionActiveMenu();
     });
     window.visualViewport.addEventListener("resize", centerTextEditorInViewport);
     window.visualViewport.addEventListener("scroll", centerTextEditorInViewport);
