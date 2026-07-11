@@ -72,8 +72,8 @@
         <header class="hud-actions" aria-label="Roundel actions">
           <button class="hud-button hud-button-undo icon-button" id="undo-button" type="button" aria-label="Undo" title="Undo" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M9 7H4v5" />
-              <path d="M5 12a8 8 0 1 0 2.3-5.7L4 9.6" />
+              <path d="M9 14 4 9l5-5" />
+              <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
             </svg>
           </button>
           <div class="share-cluster">
@@ -201,16 +201,14 @@
             <filter id="station-sign-shadow" x="-22%" y="-20%" width="144%" height="150%">
               <feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#000000" flood-opacity="0.48" />
             </filter>
-            <filter id="wall-cast-shadow" x="-18%" y="-18%" width="150%" height="150%">
-              <feColorMatrix type="matrix" values="0 0 0 0 0.03 0 0 0 0 0.04 0 0 0 0 0.06 0 0 0 0.76 0" />
-              <feGaussianBlur stdDeviation="2.2" />
+            <clipPath id="wall-depth-bar-clip">
+              <path id="wall-depth-bar-clip-path" d="" />
+            </clipPath>
+            <filter id="wall-depth-soften" x="-8%" y="-45%" width="116%" height="190%">
+              <feGaussianBlur stdDeviation="5.5" />
             </filter>
             <filter id="wall-depth-tone" x="-16%" y="-16%" width="142%" height="142%">
               <feColorMatrix type="matrix" values="0 0 0 0 0.04 0 0 0 0 0.05 0 0 0 0 0.08 0 0 0 0.58 0" />
-            </filter>
-            <filter id="wall-mounted-art-shadow" x="-16%" y="-16%" width="140%" height="145%">
-              <feDropShadow dx="4" dy="4" stdDeviation="1.8" flood-color="#ffffff" flood-opacity="0.34" />
-              <feDropShadow dx="4" dy="6" stdDeviation="2.2" flood-color="#070912" flood-opacity="0.26" />
             </filter>
             <linearGradient id="plaque-wash" x1="0" x2="1" y1="0" y2="1">
               <stop offset="0" stop-color="#fffdf2" />
@@ -262,15 +260,10 @@
               <stop offset="0.55" stop-color="#343b43" stop-opacity="0.72" />
               <stop offset="1" stop-color="#05070d" stop-opacity="0.9" />
             </linearGradient>
-            <linearGradient id="wall-sign-side-fill" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0" stop-color="#5e6670" />
-              <stop offset="0.42" stop-color="#343b45" />
-              <stop offset="1" stop-color="#151a20" />
-            </linearGradient>
-            <linearGradient id="wall-sign-side-shade" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stop-color="#6f7780" stop-opacity="0.78" />
-              <stop offset="0.48" stop-color="#2e343c" stop-opacity="0.86" />
-              <stop offset="1" stop-color="#080b10" stop-opacity="0.94" />
+            <linearGradient id="wall-sign-side-shade" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="340" y2="520">
+              <stop offset="0" stop-color="#68727c" stop-opacity="0.78" />
+              <stop offset="0.62" stop-color="#323d49" stop-opacity="0.86" />
+              <stop offset="1" stop-color="#172130" stop-opacity="0.9" />
             </linearGradient>
             <radialGradient id="street-cloud-soft" cx="50%" cy="50%" r="58%">
               <stop offset="0" stop-color="#ffffff" stop-opacity="0.86" />
@@ -329,6 +322,41 @@
               <stop offset="0.55" stop-color="#ffffff" stop-opacity="0.12" />
               <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
             </radialGradient>
+            <linearGradient id="stone-cap-top-wash" x1="0" x2="0.92" y1="0" y2="1">
+              <stop offset="0" stop-color="#e5ded3" />
+              <stop offset="0.58" stop-color="#c9c1b6" />
+              <stop offset="1" stop-color="#b8b0a5" />
+            </linearGradient>
+            <linearGradient id="stone-middle-wash" x1="0" x2="1" y1="0" y2="0.86">
+              <stop offset="0" stop-color="#eee9e1" />
+              <stop offset="0.46" stop-color="#d8d2c9" />
+              <stop offset="1" stop-color="#c6beb3" />
+            </linearGradient>
+            <linearGradient id="stone-cap-bottom-wash" x1="0.08" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#d2cabf" />
+              <stop offset="0.55" stop-color="#bdb5aa" />
+              <stop offset="1" stop-color="#aaa297" />
+            </linearGradient>
+            <filter id="stone-cap-top-texture" x="-4%" y="-16%" width="108%" height="132%" color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.018 0.07" numOctaves="3" seed="17" result="grain" />
+              <feColorMatrix in="grain" type="matrix" values="0.22 0 0 0 0.72  0 0.20 0 0 0.72  0 0 0.18 0 0.72  0 0 0 0.42 0" result="tinted-grain" />
+              <feBlend in="SourceGraphic" in2="tinted-grain" mode="multiply" />
+            </filter>
+            <filter id="stone-middle-texture" x="-3%" y="-5%" width="106%" height="110%" color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.006 0.025" numOctaves="2" seed="11" result="grain" />
+              <feColorMatrix in="grain" type="matrix" values="0.12 0 0 0 0.86  0 0.11 0 0 0.86  0 0 0.10 0 0.86  0 0 0 0.22 0" result="soft-grain" />
+              <feBlend in="SourceGraphic" in2="soft-grain" mode="multiply" />
+            </filter>
+            <filter id="stone-cap-bottom-texture" x="-4%" y="-16%" width="108%" height="132%" color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.026 0.055" numOctaves="3" seed="31" result="grain" />
+              <feColorMatrix in="grain" type="matrix" values="0.20 0 0 0 0.70  0 0.19 0 0 0.70  0 0 0.17 0 0.70  0 0 0 0.38 0" result="tinted-grain" />
+              <feBlend in="SourceGraphic" in2="tinted-grain" mode="multiply" />
+            </filter>
+            <linearGradient id="wall-cast-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0" stop-color="#101826" />
+              <stop offset="0.52" stop-color="#1b2738" />
+              <stop offset="1" stop-color="#344257" />
+            </linearGradient>
             <radialGradient id="station-red-reflection" cx="50%" cy="45%" r="58%">
               <stop offset="0" stop-color="#ff2c22" stop-opacity="0.48" />
               <stop offset="0.52" stop-color="#ff2c22" stop-opacity="0.18" />
@@ -364,18 +392,6 @@
                 <circle cx="82" cy="78" r="1.1" fill="#5d5f60" />
               </g>
               <path d="M0 92H92M92 0V92" stroke="#66686a" stroke-opacity="0.2" stroke-width="1" />
-            </pattern>
-            <pattern id="stone-wall-speckle" width="112" height="112" patternUnits="userSpaceOnUse">
-              <rect width="112" height="112" fill="#d7d0c5" />
-              <g opacity="0.42">
-                <circle cx="12" cy="18" r="1.5" fill="#4c4b47" />
-                <circle cx="34" cy="48" r="1.1" fill="#f9f4ea" />
-                <circle cx="66" cy="20" r="1.8" fill="#8f887d" />
-                <circle cx="92" cy="64" r="1.4" fill="#3b3b38" />
-                <circle cx="24" cy="92" r="1.7" fill="#b2aa9f" />
-                <circle cx="74" cy="100" r="1.1" fill="#fffaf1" />
-              </g>
-              <path d="M16 8c22 10 46 6 72 14M6 72c24-7 58-6 96 6" fill="none" stroke="#7d766e" stroke-opacity="0.18" stroke-width="1.3" />
             </pattern>
             <pattern id="brick-white-pattern" width="240" height="96" patternUnits="userSpaceOnUse">
               <rect width="240" height="96" fill="#211f1c" />
@@ -590,32 +606,74 @@
           </g>
           <g id="stone-wall-background" style="display: none;" opacity="0">
             <rect width="1200" height="840" fill="url(#stone-wall-wash)" />
-            <g opacity="0.86">
-              <rect x="-16" y="-18" width="1232" height="876" fill="url(#stone-wall-speckle)" />
-              <path d="M0 124H1200M0 338H1200M0 552H1200M0 766H1200" stroke="#8c857d" stroke-opacity="0.34" stroke-width="3" />
-              <path d="M236 0V124M510 0V124M784 0V124M1058 0V124" stroke="#8c857d" stroke-opacity="0.26" stroke-width="2" />
-              <path d="M118 124V338M392 124V338M666 124V338M940 124V338" stroke="#8c857d" stroke-opacity="0.26" stroke-width="2" />
-              <path d="M236 338V552M510 338V552M784 338V552M1058 338V552" stroke="#8c857d" stroke-opacity="0.26" stroke-width="2" />
-              <path d="M118 552V766M392 552V766M666 552V766M940 552V766" stroke="#8c857d" stroke-opacity="0.26" stroke-width="2" />
-              <path d="M0 126H1200M0 340H1200M0 554H1200M0 768H1200" stroke="#ffffff" stroke-opacity="0.38" stroke-width="1" />
+            <g opacity="0.9">
+              <g filter="url(#stone-cap-top-texture)">
+                <rect x="0" y="0" width="226" height="128" fill="#d8d0c4" />
+                <rect x="226" y="0" width="261" height="128" fill="#c9c1b6" />
+                <rect x="487" y="0" width="265" height="128" fill="#ded7cc" />
+                <rect x="752" y="0" width="266" height="128" fill="#c4bcb1" />
+                <rect x="1018" y="0" width="182" height="128" fill="#d4ccc0" />
+              </g>
+              <rect width="1200" height="128" fill="url(#stone-cap-top-wash)" opacity="0.22" />
+
+              <g filter="url(#stone-middle-texture)">
+                <rect x="0" y="128" width="292" height="588" fill="#e5e0d8" />
+                <rect x="292" y="128" width="310" height="588" fill="#d8d2c9" />
+                <rect x="602" y="128" width="316" height="588" fill="#e2ddd5" />
+                <rect x="918" y="128" width="282" height="588" fill="#d2cbc1" />
+              </g>
+              <rect y="128" width="1200" height="588" fill="url(#stone-middle-wash)" opacity="0.18" />
+
+              <g filter="url(#stone-cap-bottom-texture)">
+                <rect x="0" y="716" width="214" height="124" fill="#c6beb3" />
+                <rect x="214" y="716" width="280" height="124" fill="#b5ada2" />
+                <rect x="494" y="716" width="292" height="124" fill="#cbc3b8" />
+                <rect x="786" y="716" width="252" height="124" fill="#b2aa9f" />
+                <rect x="1038" y="716" width="162" height="124" fill="#c2baaf" />
+              </g>
+              <rect y="716" width="1200" height="124" fill="url(#stone-cap-bottom-wash)" opacity="0.2" />
+
+              <g fill="none" stroke="#736d66" stroke-linecap="round">
+                <path d="M24 44C82 28 132 59 196 42M284 88C338 67 402 96 459 76M548 34C600 51 664 19 724 42M818 86C872 60 938 91 990 68M1064 38C1104 49 1148 28 1182 44" stroke-opacity="0.2" stroke-width="1.5" />
+                <path d="M34 224C91 205 157 235 221 214M320 170C372 190 424 152 486 174M575 265C629 237 696 267 754 244M855 184C916 161 970 196 1035 174" stroke-opacity="0.12" stroke-width="1.3" />
+                <path d="M160 382C219 364 278 397 346 375M466 458C524 431 585 466 646 441M746 374C802 397 868 359 929 381M1032 460C1082 441 1134 468 1184 448" stroke-opacity="0.1" stroke-width="1.4" />
+                <path d="M42 626C104 596 160 634 226 610M334 568C391 588 452 552 510 574M624 652C686 622 742 658 803 636M912 578C972 556 1030 594 1082 570" stroke-opacity="0.11" stroke-width="1.3" />
+                <path d="M30 782C88 760 146 797 192 774M272 748C330 773 406 741 463 764M554 800C610 773 681 808 744 782M834 754C890 780 956 746 1012 768M1080 804C1120 780 1156 794 1186 782" stroke-opacity="0.22" stroke-width="1.6" />
+              </g>
+
+              <g fill="#5e5953" opacity="0.22">
+                <circle cx="72" cy="22" r="1.7" /><circle cx="184" cy="94" r="1.2" /><circle cx="318" cy="34" r="1.4" /><circle cx="446" cy="112" r="1.8" />
+                <circle cx="590" cy="78" r="1.3" /><circle cx="704" cy="18" r="1.6" /><circle cx="842" cy="106" r="1.2" /><circle cx="974" cy="52" r="1.8" /><circle cx="1130" cy="96" r="1.4" />
+                <circle cx="56" cy="810" r="1.5" /><circle cx="172" cy="738" r="1.2" /><circle cx="352" cy="804" r="1.8" /><circle cx="470" cy="750" r="1.3" />
+                <circle cx="642" cy="822" r="1.5" /><circle cx="750" cy="744" r="1.7" /><circle cx="894" cy="812" r="1.2" /><circle cx="1008" cy="738" r="1.6" /><circle cx="1160" cy="816" r="1.3" />
+              </g>
+
+              <g fill="none" stroke-linecap="square">
+                <path d="M0 128H1200M0 716H1200" stroke="#766f68" stroke-opacity="0.42" stroke-width="3" />
+                <path d="M226 0L228 128M487 0L486 128M752 0L754 128M1018 0L1016 128" stroke="#766f68" stroke-opacity="0.34" stroke-width="2.5" />
+                <path d="M292 128L294 716M602 128L600 716M918 128L920 716" stroke="#766f68" stroke-opacity="0.3" stroke-width="2.5" />
+                <path d="M214 716L216 840M494 716L492 840M786 716L788 840M1038 716L1036 840" stroke="#766f68" stroke-opacity="0.35" stroke-width="2.5" />
+                <path d="M0 130H1200M0 718H1200" stroke="#ffffff" stroke-opacity="0.42" stroke-width="1" />
+                <path d="M229 0L231 128M490 0L489 128M755 0L757 128M1021 0L1019 128" stroke="#ffffff" stroke-opacity="0.26" stroke-width="1" />
+                <path d="M295 128L297 716M605 128L603 716M921 128L923 716" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1" />
+                <path d="M217 716L219 840M497 716L495 840M789 716L791 840M1041 716L1039 840" stroke="#ffffff" stroke-opacity="0.24" stroke-width="1" />
+              </g>
             </g>
             <rect width="1200" height="840" fill="url(#wall-sun-glow)" />
             <rect width="1200" height="840" fill="#2f2a25" opacity="0.08" />
           </g>
           <g id="wall-mount-shadow" style="display: none;" opacity="0" pointer-events="none">
             <g id="wall-depth-art">
-              <circle id="wall-depth-ring-cast" cx="632" cy="452" r="230" fill="none" stroke="#05070d" stroke-width="116" opacity="0.28" filter="url(#wall-cast-shadow)" />
-              <circle id="wall-depth-ring-back" cx="632" cy="452" r="230" fill="none" stroke="url(#wall-sign-side-fill)" stroke-width="112" opacity="0.92" />
-              <circle id="wall-depth-ring-outer-rim" cx="632" cy="452" r="286" fill="none" stroke="#c7ccd0" stroke-width="8" stroke-opacity="0.5" />
-              <circle id="wall-depth-ring-inner-rim" cx="632" cy="452" r="174" fill="none" stroke="#151a20" stroke-width="10" stroke-opacity="0.7" />
-              <path id="wall-depth-ring-sheen" d="M760 206C832 238 880 300 902 366" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="8" stroke-linecap="round" />
-              <rect id="wall-depth-bar-cast" x="184" y="366" width="900" height="156" rx="2" fill="#05070d" opacity="0.24" filter="url(#wall-cast-shadow)" />
-              <rect id="wall-depth-bar-back" x="184" y="366" width="900" height="156" rx="2" fill="url(#wall-sign-side-fill)" stroke="#111820" stroke-width="8" opacity="0.96" />
-              <path id="wall-depth-bar-top" d="" fill="#7e8790" opacity="0.64" />
-              <path id="wall-depth-bar-right" d="" fill="url(#wall-sign-side-shade)" opacity="0.92" />
-              <path id="wall-depth-bar-bottom" d="" fill="#111820" opacity="0.92" />
-              <path id="wall-depth-bar-left" d="" fill="#343b45" opacity="0.7" />
-              <g id="wall-depth-corner-lines" fill="none" stroke="#0a0f15" stroke-width="4" stroke-linecap="round" stroke-opacity="0.48">
+              <path id="wall-depth-ring-cast" d="" fill="url(#wall-cast-gradient)" fill-rule="evenodd" clip-rule="evenodd" opacity="0.7" />
+              <path id="wall-depth-bar-cast" d="" fill="url(#wall-cast-gradient)" opacity="0.7" clip-path="url(#wall-depth-bar-clip)" />
+              <g filter="url(#wall-depth-soften)" clip-path="url(#wall-depth-bar-clip)">
+                <rect id="wall-depth-bar-back" x="184" y="366" width="900" height="156" rx="2" fill="url(#wall-sign-side-shade)" stroke="none" opacity="0.28" />
+                <path id="wall-depth-bar-right" d="" fill="url(#wall-sign-side-shade)" opacity="0.56" />
+                <path id="wall-depth-bar-bottom" d="" fill="url(#wall-sign-side-shade)" opacity="0.56" />
+              </g>
+              <path id="wall-depth-bar-top" d="" fill="#7e8790" opacity="0.28" />
+              <path id="wall-depth-bar-left" d="" fill="#343b45" opacity="0.28" />
+              <g id="wall-depth-corner-lines" fill="none" stroke="#0a0f15" stroke-width="1" stroke-linecap="round" stroke-opacity="0">
                 <path id="wall-depth-corner-tl" d="" />
                 <path id="wall-depth-corner-tr" d="" />
                 <path id="wall-depth-corner-br" d="" />
@@ -929,6 +987,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260711.3"></script>
+    <script src="app.js?v=20260711.16"></script>
   </body>
 </html>

@@ -51,11 +51,8 @@
   var wallMountShadow = document.getElementById("wall-mount-shadow");
   var wallDepthArt = document.getElementById("wall-depth-art");
   var wallDepthRingCast = document.getElementById("wall-depth-ring-cast");
-  var wallDepthRingBack = document.getElementById("wall-depth-ring-back");
-  var wallDepthRingOuterRim = document.getElementById("wall-depth-ring-outer-rim");
-  var wallDepthRingInnerRim = document.getElementById("wall-depth-ring-inner-rim");
-  var wallDepthRingSheen = document.getElementById("wall-depth-ring-sheen");
   var wallDepthBarCast = document.getElementById("wall-depth-bar-cast");
+  var wallDepthBarClipPath = document.getElementById("wall-depth-bar-clip-path");
   var wallDepthBarBack = document.getElementById("wall-depth-bar-back");
   var wallDepthBarTop = document.getElementById("wall-depth-bar-top");
   var wallDepthBarRight = document.getElementById("wall-depth-bar-right");
@@ -113,6 +110,9 @@
   var minFontSize = 34;
   var transitionDuration = 520;
   var activeAnimationFrame = 0;
+  var rangeUpdateFrame = 0;
+  var fittedFontSizeCacheKey = "";
+  var fittedFontSizeCacheValue = 0;
   var hasRendered = false;
   var reducedMotionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
   var mobileTextEditingQuery = window.matchMedia ? window.matchMedia("(max-width: 640px), (pointer: coarse)") : null;
@@ -170,7 +170,8 @@
   var stationArtLayout = { x: 144, y: 136, scaleX: 0.76, scaleY: 0.76 };
   var wallArtLayout = { x: 54, y: 8, scaleX: 0.91, scaleY: 0.91 };
   var streetDepthOffset = { x: -54, y: 34 };
-  var wallDepthOffset = { x: 42, y: 38 };
+  var wallDepthOffset = { x: 12, y: 12 };
+  var wallShadowOffset = { x: 56, y: 56 };
   var streetArtTransform = "matrix(0.965 0.018 -0.035 0.995 32 18)";
   var stationArtTransform = "translate(" + stationArtLayout.x + " " + stationArtLayout.y + ") scale(" + stationArtLayout.scaleX + ")";
   var wallArtTransform = "translate(" + wallArtLayout.x + " " + wallArtLayout.y + ") scale(" + wallArtLayout.scaleX + ")";
@@ -194,7 +195,7 @@
     "stone-wall": {
       transform: wallArtTransform,
       stageClass: "is-wall-mount",
-      artFilter: "url(#wall-mounted-art-shadow)",
+      artFilter: "none",
       layers: [stoneWallBackground, wallMountShadow]
     }
   };
@@ -984,27 +985,27 @@
       gradients: true,
       shadow: true,
       blueOutline: true,
-      whiteInset: true,
+      whiteInset: false,
       background: "stone-wall",
       outerRadius: 276,
       innerRadius: 164,
       singleBarHeight: 140,
       doubleBarHeight: 230,
       centerFill: "#d8d0c5",
-      ringSolid: "#ef1f17",
-      ringGradient: ["#ff3425", "#ef1f17", "#c20d10"],
+      ringSolid: "#f90000",
+      ringGradient: ["#f70000", "#f90000", "#fb0101"],
       ringOutlineColor: "#aeb7bf",
       ringOutlineWidth: 9,
       ringOutlineOpacity: "0.96",
-      barSolid: "#0037b8",
-      barGradient: ["#174ee6", "#0037b8", "#001873"],
+      barSolid: "#10058a",
+      barGradient: ["#16058c", "#10058a", "#0b047f"],
       barRadius: 1,
       outlineColor: "#aeb7bf",
       outlineWidth: 13,
-      outlineOpacity: "0.94",
+      outlineOpacity: "1",
       insetColor: "#ffffff",
       insetWidth: 4,
-      insetOpacity: "0.78",
+      insetOpacity: "0",
       ornaments: "none",
       ornamentColor: "#ffffff",
       ornamentOpacity: "0.65"
@@ -1026,14 +1027,11 @@
   });
 
   var styleCatalog = [
-    { group: "Sign styles", id: "enamel", label: "Enamel" },
     { group: "Sign styles", id: "classic", label: "Classic" },
     { group: "Sign styles", id: "platform", label: "Platform" },
-    { group: "Sign styles", id: "heritage", label: "Heritage", miniClass: "style-mini-heritage" },
-    { group: "Sign styles", id: "redDisc", label: "Red disc" },
-    { group: "Sign styles", id: "museum", label: "Museum" },
     { group: "Sign styles", id: "poster", label: "Poster" },
-    { group: "Scenes", id: "signboard", label: "Signboard", miniClass: "style-mini-bg style-mini-board" },
+    { group: "Sign styles", id: "heritage", label: "Heritage", miniClass: "style-mini-heritage" },
+    { group: "Scenes", id: "wallMount", label: "Wall", miniClass: "style-mini-bg style-mini-wall" },
     {
       group: "Scenes",
       id: "whiteTiles",
@@ -1055,10 +1053,13 @@
       miniClass: "style-mini-bg style-mini-brick",
       preview: { "--mini-bg": "#a48d5d", "--mini-brick": "#c7b075", "--mini-brick-alt": "#806b44", "--mini-line": "#6f624f" }
     },
+    { group: "Sign styles", id: "enamel", label: "Enamel" },
+    { group: "Sign styles", id: "museum", label: "Museum" },
+    { group: "Sign styles", id: "redDisc", label: "Red disc" },
+    { group: "Scenes", id: "signboard", label: "Signboard", miniClass: "style-mini-bg style-mini-board" },
     { group: "Scenes", id: "night", label: "Night" },
     { group: "Scenes", id: "streetSign", label: "Street", miniClass: "style-mini-bg style-mini-street" },
     { group: "Scenes", id: "stationFloor", label: "Station", miniClass: "style-mini-bg style-mini-station" },
-    { group: "Scenes", id: "wallMount", label: "Wall", miniClass: "style-mini-bg style-mini-wall" },
     { group: "Scenes", id: "neon", label: "Neon", miniClass: "style-mini-neon", preview: { "--mini-glow": "#68f8ff" } },
     { group: "Scenes", id: "electric", label: "Electric", miniClass: "style-mini-electric", preview: { "--mini-glow": "#2f6fff" } },
     { group: "Transport", id: "underground", label: "Underground" },
@@ -2487,6 +2488,64 @@
     element.setAttribute("d", path + "Z");
   }
 
+  function setSweptRingShadowPath(element, cx, cy, innerRadius, outerRadius, offsetX, offsetY) {
+    var distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+
+    if (!element || distance <= 0) {
+      return;
+    }
+
+    var perpendicularX = -offsetY / distance;
+    var perpendicularY = offsetX / distance;
+    var frontOuterA = {
+      x: cx + perpendicularX * outerRadius,
+      y: cy + perpendicularY * outerRadius
+    };
+    var backOuterA = {
+      x: frontOuterA.x + offsetX,
+      y: frontOuterA.y + offsetY
+    };
+    var backOuterB = {
+      x: cx + offsetX - perpendicularX * outerRadius,
+      y: cy + offsetY - perpendicularY * outerRadius
+    };
+    var frontOuterB = {
+      x: cx - perpendicularX * outerRadius,
+      y: cy - perpendicularY * outerRadius
+    };
+    var path = [
+      "M" + formatSvgNumber(frontOuterA.x) + " " + formatSvgNumber(frontOuterA.y),
+      "L" + formatSvgNumber(backOuterA.x) + " " + formatSvgNumber(backOuterA.y),
+      "A" + formatSvgNumber(outerRadius) + " " + formatSvgNumber(outerRadius) + " 0 0 0 " + formatSvgNumber(backOuterB.x) + " " + formatSvgNumber(backOuterB.y),
+      "L" + formatSvgNumber(frontOuterB.x) + " " + formatSvgNumber(frontOuterB.y),
+      "A" + formatSvgNumber(outerRadius) + " " + formatSvgNumber(outerRadius) + " 0 0 0 " + formatSvgNumber(frontOuterA.x) + " " + formatSvgNumber(frontOuterA.y),
+      "Z"
+    ];
+
+    if (innerRadius > distance / 2) {
+      var lensHalfHeight = Math.sqrt(innerRadius * innerRadius - distance * distance / 4);
+      var lensMidX = cx + offsetX / 2;
+      var lensMidY = cy + offsetY / 2;
+      var innerA = {
+        x: lensMidX + perpendicularX * lensHalfHeight,
+        y: lensMidY + perpendicularY * lensHalfHeight
+      };
+      var innerB = {
+        x: lensMidX - perpendicularX * lensHalfHeight,
+        y: lensMidY - perpendicularY * lensHalfHeight
+      };
+
+      path.push(
+        "M" + formatSvgNumber(innerA.x) + " " + formatSvgNumber(innerA.y),
+        "A" + formatSvgNumber(innerRadius) + " " + formatSvgNumber(innerRadius) + " 0 0 0 " + formatSvgNumber(innerB.x) + " " + formatSvgNumber(innerB.y),
+        "A" + formatSvgNumber(innerRadius) + " " + formatSvgNumber(innerRadius) + " 0 0 0 " + formatSvgNumber(innerA.x) + " " + formatSvgNumber(innerA.y),
+        "Z"
+      );
+    }
+
+    element.setAttribute("d", path.join(""));
+  }
+
   function setLinePath(element, start, end) {
     element.setAttribute(
       "d",
@@ -2588,25 +2647,34 @@
     var preset = getActivePreset();
     var outerRadius = readNumberAttribute(ringCircle, "r", preset.outerRadius);
     var innerRadius = readNumberAttribute(ringHole, "r", preset.innerRadius);
-    var ringWidth = Math.max(0, outerRadius - innerRadius);
-    var ringRadius = innerRadius + ringWidth / 2;
-    var backCenterX = centerX + wallDepthOffset.x;
-    var backCenterY = centerY + wallDepthOffset.y;
+    var outerOutlineWidth = readNumberAttribute(ringOuterOutline, "stroke-width", preset.ringOutlineWidth);
+    var innerOutlineWidth = readNumberAttribute(ringInnerOutline, "stroke-width", preset.ringOutlineWidth);
+    var shadowOuterRadius = outerRadius + outerOutlineWidth / 2;
+    var shadowInnerRadius = Math.max(0, innerRadius - innerOutlineWidth / 2);
     var barX = readNumberAttribute(barFill, "x", centerX - getBarWidth() / 2);
     var barY = readNumberAttribute(barFill, "y", centerY - preset.singleBarHeight / 2);
     var barWidth = readNumberAttribute(barFill, "width", getBarWidth());
     var barHeight = readNumberAttribute(barFill, "height", preset.singleBarHeight);
     var barRadius = readNumberAttribute(barFill, "rx", preset.barRadius);
-    var backBarX = barX + wallDepthOffset.x;
-    var backBarY = barY + wallDepthOffset.y;
-    var frontTopLeft = { x: barX, y: barY };
-    var frontTopRight = { x: barX + barWidth, y: barY };
-    var frontBottomRight = { x: barX + barWidth, y: barY + barHeight };
-    var frontBottomLeft = { x: barX, y: barY + barHeight };
+    var barOutlineWidth = readNumberAttribute(barBorder, "stroke-width", preset.outlineWidth);
+    var barOutlineHalf = barOutlineWidth / 2;
+    var faceBarX = barX - barOutlineHalf;
+    var faceBarY = barY - barOutlineHalf;
+    var faceBarWidth = barWidth + barOutlineWidth;
+    var faceBarHeight = barHeight + barOutlineWidth;
+    var faceBarRadius = barRadius + barOutlineHalf;
+    var backBarX = faceBarX + wallDepthOffset.x;
+    var backBarY = faceBarY + wallDepthOffset.y;
+    var castOffsetX = wallShadowOffset.x - wallDepthOffset.x;
+    var castOffsetY = wallShadowOffset.y - wallDepthOffset.y;
+    var frontTopLeft = { x: faceBarX, y: faceBarY };
+    var frontTopRight = { x: faceBarX + faceBarWidth, y: faceBarY };
+    var frontBottomRight = { x: faceBarX + faceBarWidth, y: faceBarY + faceBarHeight };
+    var frontBottomLeft = { x: faceBarX, y: faceBarY + faceBarHeight };
     var backTopLeft = { x: backBarX, y: backBarY };
-    var backTopRight = { x: backBarX + barWidth, y: backBarY };
-    var backBottomRight = { x: backBarX + barWidth, y: backBarY + barHeight };
-    var backBottomLeft = { x: backBarX, y: backBarY + barHeight };
+    var backTopRight = { x: backBarX + faceBarWidth, y: backBarY };
+    var backBottomRight = { x: backBarX + faceBarWidth, y: backBarY + faceBarHeight };
+    var backBottomLeft = { x: backBarX, y: backBarY + faceBarHeight };
 
     if (!wallMountShadow) {
       return;
@@ -2616,48 +2684,47 @@
       wallDepthArt.setAttribute("transform", wallArtTransform);
     }
 
-    [wallDepthRingCast, wallDepthRingBack, wallDepthRingOuterRim, wallDepthRingInnerRim].forEach(function (circle) {
-      if (!circle) {
-        return;
-      }
-
-      circle.setAttribute("cx", String(backCenterX));
-      circle.setAttribute("cy", String(backCenterY));
-    });
-
     if (wallDepthRingCast) {
-      wallDepthRingCast.setAttribute("r", String(ringRadius));
-      wallDepthRingCast.setAttribute("stroke-width", String(ringWidth + 16));
+      setSweptRingShadowPath(
+        wallDepthRingCast,
+        centerX,
+        centerY,
+        shadowInnerRadius,
+        shadowOuterRadius,
+        wallShadowOffset.x,
+        wallShadowOffset.y
+      );
     }
 
-    if (wallDepthRingBack) {
-      wallDepthRingBack.setAttribute("r", String(ringRadius));
-      wallDepthRingBack.setAttribute("stroke-width", String(ringWidth));
-    }
-
-    if (wallDepthRingOuterRim) {
-      wallDepthRingOuterRim.setAttribute("r", String(outerRadius));
-    }
-
-    if (wallDepthRingInnerRim) {
-      wallDepthRingInnerRim.setAttribute("r", String(innerRadius));
-    }
-
-    if (wallDepthRingSheen) {
-      wallDepthRingSheen.setAttribute("d", [
-        "M" + formatSvgNumber(backCenterX + outerRadius * 0.38) + " " + formatSvgNumber(backCenterY - outerRadius * 0.86),
-        "C" + formatSvgNumber(backCenterX + outerRadius * 0.62) + " " + formatSvgNumber(backCenterY - outerRadius * 0.76),
-        formatSvgNumber(backCenterX + outerRadius * 0.82) + " " + formatSvgNumber(backCenterY - outerRadius * 0.5),
-        formatSvgNumber(backCenterX + outerRadius * 0.9) + " " + formatSvgNumber(backCenterY - outerRadius * 0.24)
-      ].join(""));
+    if (wallDepthBarClipPath) {
+      setPolygonPath(wallDepthBarClipPath, [
+        frontTopLeft,
+        frontTopRight,
+        { x: frontTopRight.x + wallShadowOffset.x, y: frontTopRight.y + wallShadowOffset.y },
+        { x: frontBottomRight.x + wallShadowOffset.x, y: frontBottomRight.y + wallShadowOffset.y },
+        { x: frontBottomLeft.x + wallShadowOffset.x, y: frontBottomLeft.y + wallShadowOffset.y },
+        frontBottomLeft
+      ]);
     }
 
     if (wallDepthBarCast) {
-      setRect(wallDepthBarCast, backBarX + 16, backBarY + 16, barWidth, barHeight, barRadius + 4);
+      var castBarLeft = backBarX;
+      var castBarTop = backBarY;
+      var castBarRight = backBarX + faceBarWidth;
+      var castBarBottom = backBarY + faceBarHeight;
+
+      setPolygonPath(wallDepthBarCast, [
+        { x: castBarLeft, y: castBarTop },
+        { x: castBarRight, y: castBarTop },
+        { x: castBarRight + castOffsetX, y: castBarTop + castOffsetY },
+        { x: castBarRight + castOffsetX, y: castBarBottom + castOffsetY },
+        { x: castBarLeft + castOffsetX, y: castBarBottom + castOffsetY },
+        { x: castBarLeft, y: castBarBottom }
+      ]);
     }
 
     if (wallDepthBarBack) {
-      setRect(wallDepthBarBack, backBarX, backBarY, barWidth, barHeight, barRadius + 3);
+      setRect(wallDepthBarBack, backBarX, backBarY, faceBarWidth, faceBarHeight, faceBarRadius);
     }
 
     if (wallDepthBarTop) {
@@ -3420,22 +3487,56 @@
     });
   }
 
-  function fitAndUpdateText(lines, barWidth, barHeight) {
-    var baseFontSize = lines.length > 1 ? 98 : 116;
-    var fontSize = baseFontSize + getTextSizeAdjustment();
+  function getAutoFitFontSize(lines, barWidth, barHeight, maximumFontSize) {
+    var cacheKey = [
+      lines.join("\n"),
+      barWidth,
+      barHeight,
+      maximumFontSize,
+      fontChoice.value,
+      isHeritageTypography() ? "heritage" : "standard"
+    ].join("|");
+    var low;
+    var high;
+    var best;
+    var candidate;
 
-    while (fontSize > minFontSize) {
-      updateText(lines, fontSize);
-
-      if (renderedTextFits(lines, barWidth, barHeight, fontSize)) {
-        return fontSize;
-      }
-
-      fontSize -= 2;
+    if (cacheKey === fittedFontSizeCacheKey) {
+      return fittedFontSizeCacheValue;
     }
 
+    low = minFontSize;
+    high = maximumFontSize;
+    best = minFontSize;
+
+    while (low <= high) {
+      candidate = Math.floor((low + high) / 2);
+      updateText(lines, candidate);
+
+      if (renderedTextFits(lines, barWidth, barHeight, candidate)) {
+        best = candidate;
+        low = candidate + 1;
+      } else {
+        high = candidate - 1;
+      }
+    }
+
+    fittedFontSizeCacheKey = cacheKey;
+    fittedFontSizeCacheValue = best;
+    return best;
+  }
+
+  function fitAndUpdateText(lines, barWidth, barHeight) {
+    var baseFontSize = lines.length > 1 ? 98 : 116;
+    var autoFitFontSize = getAutoFitFontSize(lines, barWidth, barHeight, baseFontSize);
+    var fontSize = Math.max(minFontSize, autoFitFontSize + getTextSizeAdjustment());
+
     updateText(lines, fontSize);
-    constrainTextToBar(lines, barWidth, fontSize);
+
+    if (!renderedTextFits(lines, barWidth, barHeight, fontSize)) {
+      constrainTextToBar(lines, barWidth, fontSize);
+    }
+
     return fontSize;
   }
 
@@ -4057,13 +4158,25 @@
     markCustom();
     updateRoundel();
   });
+
+  function scheduleRangeUpdate() {
+    if (rangeUpdateFrame) {
+      return;
+    }
+
+    rangeUpdateFrame = requestFrame(function () {
+      rangeUpdateFrame = 0;
+      updateRoundel();
+    });
+  }
+
   barWidthInput.addEventListener("input", function () {
     markCustom();
-    updateRoundel();
+    scheduleRangeUpdate();
   });
   barHeightInput.addEventListener("input", function () {
     markCustom();
-    updateRoundel();
+    scheduleRangeUpdate();
   });
   fontChoice.addEventListener("change", function () {
     markCustom();
@@ -4071,7 +4184,7 @@
   });
   textSizeInput.addEventListener("input", function () {
     markCustom();
-    updateRoundel();
+    scheduleRangeUpdate();
   });
   capitaliseToggle.addEventListener("change", function () {
     markCustom();
