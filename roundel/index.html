@@ -12,7 +12,7 @@
     <meta name="author" content="Alexander Bekert" />
     <meta name="application-name" content="Roundel Sign Maker" />
     <meta name="apple-mobile-web-app-title" content="Roundel" />
-    <meta name="theme-color" content="#f4f2ed" />
+    <meta name="theme-color" content="#050608" />
     <link rel="canonical" href="https://abekert.github.io/roundel/" />
     <link rel="icon" href="/roundel/roundel-icon.svg" type="image/svg+xml" />
     <link rel="icon" href="/roundel/favicon-32.png" sizes="32x32" type="image/png" />
@@ -42,7 +42,7 @@
     <meta name="twitter:image" content="https://abekert.github.io/images/roundel-og.png" />
     <meta name="twitter:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
 
-    <link rel="stylesheet" href="styles.css?v=20260711.3" />
+    <link rel="stylesheet" href="styles.css?v=20260713.1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -108,14 +108,14 @@
           type="button"
           aria-controls="menu-font"
           aria-expanded="false"
-        >Font</button>
+        >Type</button>
         <button
           class="hud-panel-trigger hud-panel-surface"
           data-menu="background"
           type="button"
           aria-controls="menu-background"
           aria-expanded="false"
-        >Background</button>
+        >Scene</button>
 
         <form class="studio-form" id="roundel-form">
           <input id="style-preset" name="style-preset" type="hidden" value="enamel" />
@@ -651,6 +651,7 @@
             <rect width="1200" height="840" fill="url(#wall-sun-glow)" />
             <rect width="1200" height="840" fill="#2f2a25" opacity="0.08" />
           </g>
+          <!-- Wall Style uses custom swept-shadow geometry. Read AGENTS.md before editing this layer. -->
           <g id="wall-mount-shadow" style="display: none;" opacity="0" pointer-events="none">
             <g id="wall-depth-art">
               <g id="wall-depth-cast" opacity="0.7">
@@ -893,7 +894,7 @@
               </div>
 
               <div class="floating-menu menu-font" id="menu-font" data-menu-panel="font" role="dialog" aria-label="Text options" hidden>
-                <div class="menu-title">Font</div>
+                <div class="menu-title">Type</div>
                 <div class="font-grid" aria-label="Font styles">
                   <button class="font-button" data-font="gill" type="button">Gill Sans</button>
                   <button class="font-button" data-font="avenir" type="button">Avenir</button>
@@ -921,7 +922,7 @@
               </div>
 
               <div class="floating-menu menu-background" id="menu-background" data-menu-panel="background" role="dialog" aria-label="Background options" hidden>
-                <div class="menu-title">Background</div>
+                <div class="menu-title">Scene</div>
                 <div class="background-grid" aria-label="Background styles">
                   <button class="background-button" data-background="none" type="button" style="--swatch-base: transparent; --swatch-line: rgba(255,255,255,0.48);">
                     <span class="background-swatch background-swatch-none" aria-hidden="true"></span>
@@ -965,6 +966,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260713.20"></script>
+    <script src="app.js?v=20260713.24"></script>
   </body>
 </html>

@@ -48,7 +48,9 @@ visual layering, parallax behavior, and rewrite pitfalls are documented in
 `pushout/README.md`.
 
 The roundel sign maker lives at `/roundel/`. It is a standalone static tool with
-its own HTML, CSS, and JS in `roundel/`.
+its own HTML, CSS, and JS in `roundel/`. Its visual maintenance rules, including
+the custom Wall Style shadow invariants and known regressions, are documented in
+`roundel/AGENTS.md`.
 
 ## Maintenance notes for AI/editor passes
 

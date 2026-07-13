@@ -141,7 +141,9 @@
   var mobileMenuIdleTimer = 0;
   var mobileMenuIdleDelay = 3000;
   var desktopMenuCloseTimer = 0;
-  var desktopMenuCloseDelay = 1000;
+  var desktopMenuCloseDelay = 360;
+  var desktopMenuSafeInset = 10;
+  var desktopMenuBridgeInset = 6;
   var activeMenuName = "";
   var activeMenuAnchor = null;
   var fontStacks = {
@@ -188,6 +190,23 @@
       layers: [stoneWallBackground, wallMountShadow]
     }
   };
+  var sceneTransitionLayers = [
+    streetBackground,
+    streetSignRig,
+    streetSignDepth,
+    brickBackground,
+    electricBackground,
+    electricReflection,
+    stationFloorBackground,
+    stationFloorReflection,
+    stoneWallBackground,
+    wallMountShadow,
+    neonLayer,
+    neonBackdrop,
+    neonFlags
+  ].filter(function (element) {
+    return Boolean(element);
+  });
   var colorSchemes = {
     underground: {
       ringSolid: "#e1251b",
@@ -967,6 +986,8 @@
       ornamentColor: "#ffffff",
       ornamentOpacity: "0.65"
     },
+    // Wall Style has strict custom-shadow invariants. Read AGENTS.md before
+    // changing this preset, its scene, or the related SVG geometry.
     wallMount: {
       barWidth: 860,
       font: "gill",
@@ -1372,7 +1393,7 @@
     var panelRect;
     var anchorRect;
     var bridgeRect;
-    var safeInset = 28;
+    var safeInset = desktopMenuSafeInset;
 
     if (!activeMenuName) {
       return false;
@@ -1399,7 +1420,7 @@
       bottom: Math.max(panelRect.bottom, anchorRect.bottom)
     };
 
-    return isPointInExpandedRect(x, y, bridgeRect, 12);
+    return isPointInExpandedRect(x, y, bridgeRect, desktopMenuBridgeInset);
   }
 
   function handleDesktopMenuPointerMove(event) {
@@ -1606,13 +1627,13 @@
   }
 
   function enterMobileTextEditing() {
+    closeMenus();
+
     if (!isMobileTextEditing()) {
-      openMenu("font");
       return;
     }
 
     document.body.classList.add("is-mobile-text-editing");
-    closeMenus();
     centerTextEditorInViewport();
     window.setTimeout(centerTextEditorInViewport, 120);
     window.setTimeout(centerTextEditorInViewport, 320);
@@ -2689,6 +2710,8 @@
     }
   }
 
+  // Wall Style shadow geometry and past failure modes are documented in
+  // AGENTS.md. Keep the ring and bar as one composited swept shadow.
   function syncWallMountGeometry() {
     var preset = getActivePreset();
     var outerRadius = readNumberAttribute(ringCircle, "r", preset.outerRadius);
@@ -3037,6 +3060,17 @@
     };
   }
 
+  function captureSceneLayers() {
+    return sceneTransitionLayers.map(function (element) {
+      var visible = isVisible(element);
+
+      return {
+        opacity: visible ? getNumberAttribute(element, "opacity", 1) : 0,
+        visible: visible
+      };
+    });
+  }
+
   function captureVisualState() {
     var centerVisible = isVisible(centerFill);
     var plaqueVisible = isVisible(plaqueBackground);
@@ -3078,6 +3112,7 @@
         opacity: plaqueVisible ? getNumberAttribute(plaqueBackground, "opacity", 1) : 0,
         visible: plaqueVisible
       },
+      sceneLayers: captureSceneLayers(),
       text: captureText()
     };
   }
@@ -3255,6 +3290,22 @@
     });
   }
 
+  function renderSceneLayers(start, end, progress, isFinished) {
+    sceneTransitionLayers.forEach(function (element, index) {
+      var startLayer = start[index];
+      var endLayer = end[index];
+      var visible = startLayer.visible || endLayer.visible;
+
+      element.style.display = visible ? "" : "none";
+      element.setAttribute("opacity", String(mixNumber(startLayer.opacity, endLayer.opacity, progress)));
+
+      if (isFinished) {
+        element.style.display = endLayer.visible ? "" : "none";
+        element.setAttribute("opacity", String(endLayer.opacity));
+      }
+    });
+  }
+
   function renderVisualState(start, end, progress, isFinished) {
     var centerVisible = start.centerFill.visible || end.centerFill.visible;
     var plaqueVisible = start.plaque.visible || end.plaque.visible;
@@ -3280,6 +3331,7 @@
     barStopBottom.setAttribute("stop-color", mixPaint(start.barStops[2], end.barStops[2], progress));
     plaqueBackground.style.display = plaqueVisible ? "" : "none";
     plaqueBackground.setAttribute("opacity", String(mixNumber(start.plaque.opacity, end.plaque.opacity, progress)));
+    renderSceneLayers(start.sceneLayers, end.sceneLayers, progress, isFinished);
     renderText(start.text, end.text, progress);
 
     if (isFinished) {
@@ -3987,7 +4039,7 @@
     }
 
     recordUndoState();
-    openMenu("bar", event.currentTarget);
+    closeMenus();
     event.preventDefault();
 
     activeDrag = {

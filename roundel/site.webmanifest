@@ -30,7 +30,7 @@
       "purpose": "any"
     }
   ],
-  "theme_color": "#f4f2ed",
-  "background_color": "#f4f2ed",
+  "theme_color": "#050608",
+  "background_color": "#050608",
   "display": "standalone"
 }
