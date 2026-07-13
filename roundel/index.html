@@ -201,12 +201,6 @@
             <filter id="station-sign-shadow" x="-22%" y="-20%" width="144%" height="150%">
               <feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#000000" flood-opacity="0.48" />
             </filter>
-            <clipPath id="wall-depth-bar-clip">
-              <path id="wall-depth-bar-clip-path" d="" />
-            </clipPath>
-            <filter id="wall-depth-soften" x="-8%" y="-45%" width="116%" height="190%">
-              <feGaussianBlur stdDeviation="5.5" />
-            </filter>
             <filter id="wall-depth-tone" x="-16%" y="-16%" width="142%" height="142%">
               <feColorMatrix type="matrix" values="0 0 0 0 0.04 0 0 0 0 0.05 0 0 0 0 0.08 0 0 0 0.58 0" />
             </filter>
@@ -259,11 +253,6 @@
               <stop offset="0" stop-color="#aeb5bd" stop-opacity="0.72" />
               <stop offset="0.55" stop-color="#343b43" stop-opacity="0.72" />
               <stop offset="1" stop-color="#05070d" stop-opacity="0.9" />
-            </linearGradient>
-            <linearGradient id="wall-sign-side-shade" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="340" y2="520">
-              <stop offset="0" stop-color="#68727c" stop-opacity="0.78" />
-              <stop offset="0.62" stop-color="#323d49" stop-opacity="0.86" />
-              <stop offset="1" stop-color="#172130" stop-opacity="0.9" />
             </linearGradient>
             <radialGradient id="street-cloud-soft" cx="50%" cy="50%" r="58%">
               <stop offset="0" stop-color="#ffffff" stop-opacity="0.86" />
@@ -352,7 +341,7 @@
               <feColorMatrix in="grain" type="matrix" values="0.20 0 0 0 0.70  0 0.19 0 0 0.70  0 0 0.17 0 0.70  0 0 0 0.38 0" result="tinted-grain" />
               <feBlend in="SourceGraphic" in2="tinted-grain" mode="multiply" />
             </filter>
-            <linearGradient id="wall-cast-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="wall-cast-gradient" gradientUnits="userSpaceOnUse" x1="330" y1="230" x2="880" y2="780">
               <stop offset="0" stop-color="#101826" />
               <stop offset="0.52" stop-color="#1b2738" />
               <stop offset="1" stop-color="#344257" />
@@ -664,20 +653,9 @@
           </g>
           <g id="wall-mount-shadow" style="display: none;" opacity="0" pointer-events="none">
             <g id="wall-depth-art">
-              <path id="wall-depth-ring-cast" d="" fill="url(#wall-cast-gradient)" fill-rule="evenodd" clip-rule="evenodd" opacity="0.7" />
-              <path id="wall-depth-bar-cast" d="" fill="url(#wall-cast-gradient)" opacity="0.7" clip-path="url(#wall-depth-bar-clip)" />
-              <g filter="url(#wall-depth-soften)" clip-path="url(#wall-depth-bar-clip)">
-                <rect id="wall-depth-bar-back" x="184" y="366" width="900" height="156" rx="2" fill="url(#wall-sign-side-shade)" stroke="none" opacity="0.28" />
-                <path id="wall-depth-bar-right" d="" fill="url(#wall-sign-side-shade)" opacity="0.56" />
-                <path id="wall-depth-bar-bottom" d="" fill="url(#wall-sign-side-shade)" opacity="0.56" />
-              </g>
-              <path id="wall-depth-bar-top" d="" fill="#7e8790" opacity="0.28" />
-              <path id="wall-depth-bar-left" d="" fill="#343b45" opacity="0.28" />
-              <g id="wall-depth-corner-lines" fill="none" stroke="#0a0f15" stroke-width="1" stroke-linecap="round" stroke-opacity="0">
-                <path id="wall-depth-corner-tl" d="" />
-                <path id="wall-depth-corner-tr" d="" />
-                <path id="wall-depth-corner-br" d="" />
-                <path id="wall-depth-corner-bl" d="" />
+              <g id="wall-depth-cast" opacity="0.7">
+                <path id="wall-depth-ring-cast" d="" fill="url(#wall-cast-gradient)" fill-rule="evenodd" clip-rule="evenodd" />
+                <path id="wall-depth-bar-cast" d="" fill="url(#wall-cast-gradient)" />
               </g>
             </g>
           </g>
@@ -987,6 +965,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260711.16"></script>
+    <script src="app.js?v=20260713.20"></script>
   </body>
 </html>

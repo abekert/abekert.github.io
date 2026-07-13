@@ -52,16 +52,6 @@
   var wallDepthArt = document.getElementById("wall-depth-art");
   var wallDepthRingCast = document.getElementById("wall-depth-ring-cast");
   var wallDepthBarCast = document.getElementById("wall-depth-bar-cast");
-  var wallDepthBarClipPath = document.getElementById("wall-depth-bar-clip-path");
-  var wallDepthBarBack = document.getElementById("wall-depth-bar-back");
-  var wallDepthBarTop = document.getElementById("wall-depth-bar-top");
-  var wallDepthBarRight = document.getElementById("wall-depth-bar-right");
-  var wallDepthBarBottom = document.getElementById("wall-depth-bar-bottom");
-  var wallDepthBarLeft = document.getElementById("wall-depth-bar-left");
-  var wallDepthCornerTl = document.getElementById("wall-depth-corner-tl");
-  var wallDepthCornerTr = document.getElementById("wall-depth-corner-tr");
-  var wallDepthCornerBr = document.getElementById("wall-depth-corner-br");
-  var wallDepthCornerBl = document.getElementById("wall-depth-corner-bl");
   var plaqueBackground = document.getElementById("plaque-background");
   var neonLayer = document.getElementById("neon-layer");
   var neonBackdrop = document.getElementById("neon-backdrop");
@@ -170,7 +160,6 @@
   var stationArtLayout = { x: 144, y: 136, scaleX: 0.76, scaleY: 0.76 };
   var wallArtLayout = { x: 54, y: 8, scaleX: 0.91, scaleY: 0.91 };
   var streetDepthOffset = { x: -54, y: 34 };
-  var wallDepthOffset = { x: 12, y: 12 };
   var wallShadowOffset = { x: 56, y: 56 };
   var streetArtTransform = "matrix(0.965 0.018 -0.035 0.995 32 18)";
   var stationArtTransform = "translate(" + stationArtLayout.x + " " + stationArtLayout.y + ") scale(" + stationArtLayout.scaleX + ")";
@@ -2488,6 +2477,71 @@
     element.setAttribute("d", path + "Z");
   }
 
+  function getRoundedRectPath(x, y, width, height, radius) {
+    var safeRadius = Math.max(0, Math.min(radius, width / 2, height / 2));
+    var right = x + width;
+    var bottom = y + height;
+
+    if (safeRadius === 0) {
+      return [
+        "M" + formatSvgNumber(x) + " " + formatSvgNumber(y),
+        "H" + formatSvgNumber(right),
+        "V" + formatSvgNumber(bottom),
+        "H" + formatSvgNumber(x),
+        "Z"
+      ].join("");
+    }
+
+    return [
+      "M" + formatSvgNumber(x + safeRadius) + " " + formatSvgNumber(y),
+      "H" + formatSvgNumber(right - safeRadius),
+      "A" + formatSvgNumber(safeRadius) + " " + formatSvgNumber(safeRadius) + " 0 0 1 " + formatSvgNumber(right) + " " + formatSvgNumber(y + safeRadius),
+      "V" + formatSvgNumber(bottom - safeRadius),
+      "A" + formatSvgNumber(safeRadius) + " " + formatSvgNumber(safeRadius) + " 0 0 1 " + formatSvgNumber(right - safeRadius) + " " + formatSvgNumber(bottom),
+      "H" + formatSvgNumber(x + safeRadius),
+      "A" + formatSvgNumber(safeRadius) + " " + formatSvgNumber(safeRadius) + " 0 0 1 " + formatSvgNumber(x) + " " + formatSvgNumber(bottom - safeRadius),
+      "V" + formatSvgNumber(y + safeRadius),
+      "A" + formatSvgNumber(safeRadius) + " " + formatSvgNumber(safeRadius) + " 0 0 1 " + formatSvgNumber(x + safeRadius) + " " + formatSvgNumber(y),
+      "Z"
+    ].join("");
+  }
+
+  function setRoundedRectSweepPath(element, x, y, width, height, radius, offsetX, offsetY) {
+    var distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+    var safeRadius = Math.max(0, Math.min(radius, width / 2, height / 2));
+
+    if (!element || distance <= 0) {
+      return;
+    }
+
+    var tangentX = offsetY / distance;
+    var tangentY = -offsetX / distance;
+    var upperTangent = {
+      x: x + width - safeRadius + tangentX * safeRadius,
+      y: y + safeRadius + tangentY * safeRadius
+    };
+    var lowerTangent = {
+      x: x + safeRadius - tangentX * safeRadius,
+      y: y + height - safeRadius - tangentY * safeRadius
+    };
+    var shiftedRectPath = getRoundedRectPath(
+      x + offsetX,
+      y + offsetY,
+      width,
+      height,
+      safeRadius
+    );
+    var tangentBridgePath = [
+      "M" + formatSvgNumber(upperTangent.x) + " " + formatSvgNumber(upperTangent.y),
+      "L" + formatSvgNumber(upperTangent.x + offsetX) + " " + formatSvgNumber(upperTangent.y + offsetY),
+      "L" + formatSvgNumber(lowerTangent.x + offsetX) + " " + formatSvgNumber(lowerTangent.y + offsetY),
+      "L" + formatSvgNumber(lowerTangent.x) + " " + formatSvgNumber(lowerTangent.y),
+      "Z"
+    ].join("");
+
+    element.setAttribute("d", shiftedRectPath + tangentBridgePath);
+  }
+
   function setSweptRingShadowPath(element, cx, cy, innerRadius, outerRadius, offsetX, offsetY) {
     var distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
 
@@ -2544,14 +2598,6 @@
     }
 
     element.setAttribute("d", path.join(""));
-  }
-
-  function setLinePath(element, start, end) {
-    element.setAttribute(
-      "d",
-      "M" + formatSvgNumber(start.x) + " " + formatSvgNumber(start.y) +
-        "L" + formatSvgNumber(end.x) + " " + formatSvgNumber(end.y)
-    );
   }
 
   function syncStreetDepthGeometry() {
@@ -2663,18 +2709,6 @@
     var faceBarWidth = barWidth + barOutlineWidth;
     var faceBarHeight = barHeight + barOutlineWidth;
     var faceBarRadius = barRadius + barOutlineHalf;
-    var backBarX = faceBarX + wallDepthOffset.x;
-    var backBarY = faceBarY + wallDepthOffset.y;
-    var castOffsetX = wallShadowOffset.x - wallDepthOffset.x;
-    var castOffsetY = wallShadowOffset.y - wallDepthOffset.y;
-    var frontTopLeft = { x: faceBarX, y: faceBarY };
-    var frontTopRight = { x: faceBarX + faceBarWidth, y: faceBarY };
-    var frontBottomRight = { x: faceBarX + faceBarWidth, y: faceBarY + faceBarHeight };
-    var frontBottomLeft = { x: faceBarX, y: faceBarY + faceBarHeight };
-    var backTopLeft = { x: backBarX, y: backBarY };
-    var backTopRight = { x: backBarX + faceBarWidth, y: backBarY };
-    var backBottomRight = { x: backBarX + faceBarWidth, y: backBarY + faceBarHeight };
-    var backBottomLeft = { x: backBarX, y: backBarY + faceBarHeight };
 
     if (!wallMountShadow) {
       return;
@@ -2696,67 +2730,17 @@
       );
     }
 
-    if (wallDepthBarClipPath) {
-      setPolygonPath(wallDepthBarClipPath, [
-        frontTopLeft,
-        frontTopRight,
-        { x: frontTopRight.x + wallShadowOffset.x, y: frontTopRight.y + wallShadowOffset.y },
-        { x: frontBottomRight.x + wallShadowOffset.x, y: frontBottomRight.y + wallShadowOffset.y },
-        { x: frontBottomLeft.x + wallShadowOffset.x, y: frontBottomLeft.y + wallShadowOffset.y },
-        frontBottomLeft
-      ]);
-    }
-
     if (wallDepthBarCast) {
-      var castBarLeft = backBarX;
-      var castBarTop = backBarY;
-      var castBarRight = backBarX + faceBarWidth;
-      var castBarBottom = backBarY + faceBarHeight;
-
-      setPolygonPath(wallDepthBarCast, [
-        { x: castBarLeft, y: castBarTop },
-        { x: castBarRight, y: castBarTop },
-        { x: castBarRight + castOffsetX, y: castBarTop + castOffsetY },
-        { x: castBarRight + castOffsetX, y: castBarBottom + castOffsetY },
-        { x: castBarLeft + castOffsetX, y: castBarBottom + castOffsetY },
-        { x: castBarLeft, y: castBarBottom }
-      ]);
-    }
-
-    if (wallDepthBarBack) {
-      setRect(wallDepthBarBack, backBarX, backBarY, faceBarWidth, faceBarHeight, faceBarRadius);
-    }
-
-    if (wallDepthBarTop) {
-      setPolygonPath(wallDepthBarTop, [frontTopLeft, frontTopRight, backTopRight, backTopLeft]);
-    }
-
-    if (wallDepthBarRight) {
-      setPolygonPath(wallDepthBarRight, [frontTopRight, backTopRight, backBottomRight, frontBottomRight]);
-    }
-
-    if (wallDepthBarBottom) {
-      setPolygonPath(wallDepthBarBottom, [frontBottomLeft, frontBottomRight, backBottomRight, backBottomLeft]);
-    }
-
-    if (wallDepthBarLeft) {
-      setPolygonPath(wallDepthBarLeft, [frontTopLeft, backTopLeft, backBottomLeft, frontBottomLeft]);
-    }
-
-    if (wallDepthCornerTl) {
-      setLinePath(wallDepthCornerTl, frontTopLeft, backTopLeft);
-    }
-
-    if (wallDepthCornerTr) {
-      setLinePath(wallDepthCornerTr, frontTopRight, backTopRight);
-    }
-
-    if (wallDepthCornerBr) {
-      setLinePath(wallDepthCornerBr, frontBottomRight, backBottomRight);
-    }
-
-    if (wallDepthCornerBl) {
-      setLinePath(wallDepthCornerBl, frontBottomLeft, backBottomLeft);
+      setRoundedRectSweepPath(
+        wallDepthBarCast,
+        faceBarX,
+        faceBarY,
+        faceBarWidth,
+        faceBarHeight,
+        faceBarRadius,
+        wallShadowOffset.x,
+        wallShadowOffset.y
+      );
     }
   }
 
@@ -4306,10 +4290,18 @@
     });
   }
 
+  var initialStateFromUrl = getStateFromUrl();
+  var shouldPlayIntro = !window.location.search;
+
   applyPreset(activePresetKey, { suppressPersist: true });
-  applyState(getStateFromUrl() || getStoredState(), { suppressPersist: true });
+  applyState(initialStateFromUrl || getStoredState(), { suppressPersist: true });
   persistState();
   updateUndoButton();
   showHudChrome();
-  playFirstRunIntro();
+
+  if (shouldPlayIntro) {
+    playFirstRunIntro();
+  } else {
+    document.body.classList.remove("is-booting");
+  }
 }());
