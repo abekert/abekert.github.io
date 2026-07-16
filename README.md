@@ -1,91 +1,20 @@
-# abekert.github.io
+# Hi, I’m Alexander 👋
 
-Static GitHub Pages site for [abekert.github.io](https://abekert.github.io/).
+This is not my homepage.
 
-## Local preview
+But here it is: [abekert.github.io](https://abekert.github.io/)
 
-The site is plain HTML and CSS. From the repository root, run:
+You can also:
 
-```sh
-python3 -m http.server 8000
-```
-
-Then open <http://localhost:8000/>.
-
-## Editing content
-
-Homepage content lives in `index.html`, with clear sections for:
-
-- Hero
-- Core expertise
-- Selected experience
-- Contact
-
-Styles live in `assets/css/main.css`.
-
-The homepage has a small inline `theme-color` updater in `index.html`. It samples
-the actual background near the top of the viewport and keeps Safari/mobile
-browser chrome aligned with the visible page surface. The homepage is mostly
-`#f7f8fb`, so the color often stays the same while scrolling; keep the dynamic
-logic anyway so future section/background changes do not create a browser bar
-that cuts visually across the content.
-
-The root `html` element also has `background: var(--bg)` so Safari/iOS
-rubber-band overscroll uses the same page background instead of falling back to
-browser white.
-
-Homepage assets live in `images/`:
-
-- `alexander-bekert.jpg`
-- `meta-logo.svg`
-- `og-image.svg`
-- `og-image.png`
-
-The root favicon lives in `favicon.svg`, with install metadata in `site.webmanifest`.
-
-The legacy Push Out page remains available at `/pushout/`. Its page structure,
-visual layering, parallax behavior, and rewrite pitfalls are documented in
-`pushout/README.md`.
-
-The roundel sign maker lives at `/roundel/`. It is a standalone static tool with
-its own HTML, CSS, and JS in `roundel/`. Its visual maintenance rules, including
-the custom Wall Style shadow invariants and known regressions, are documented in
-`roundel/AGENTS.md`. The share flow, portable PNG/SVG project metadata, remix
-format, and analytics event contract are documented in `roundel/SHARING.md`.
-
-## Maintenance notes for AI/editor passes
-
-Keep the homepage and social preview in sync. When updating the hero/header
-positioning in `index.html`, also review and update `images/og-image.svg`:
-
-- name/title
-- current company or role wording
-- headline/subheader
-- location
-- profile image treatment
-
-After editing `images/og-image.svg`, regenerate `images/og-image.png`. The
-homepage metadata points social platforms at the PNG, while the SVG is the
-maintainable source artwork.
-
-Current OG portrait settings:
-
-- mask: `circle cx="960" cy="276" r="98"`
-- photo: `x="808" y="150" width="316" height="316"`
-- `preserveAspectRatio="xMidYMid slice"`
-- the mask is applied directly to the photo with `mask="url(#portraitMask)"`
-
-These settings intentionally zoom the homepage portrait around the face while
-keeping the full face/head visible inside the circular frame.
-
-## Deployment
-
-GitHub Pages serves this repository directly. Push changes to the default branch:
-
-```sh
-git add .gitignore index.html assets/css/main.css README.md favicon.svg site.webmanifest robots.txt sitemap.xml images/alexander-bekert.jpg images/meta-logo.svg images/og-image.svg images/og-image.png
-git commit -m "Refresh personal homepage"
-git push origin master
-```
-
-GitHub Pages will publish the updated static files automatically.
+<p>
+  <a href="https://abekert.github.io/roundel/"><img src="./roundel/icon-192.png" width="32" height="32" align="center" alt="Roundel Sign Maker icon"></a>
+  &nbsp; <a href="https://abekert.github.io/roundel/">Create your own London transport sign</a>
+</p>
+<p>
+  <a href="https://abekert.github.io/pushout/"><img src="./pushout/apple-touch-icon.png" width="32" height="32" align="center" alt="Push Out icon"></a>
+  &nbsp; <a href="https://abekert.github.io/pushout/">Discover Push Out</a>
+</p>
+<p>
+  <a href="https://www.linkedin.com/in/abekert"><img src="./images/linkedin.svg" width="32" height="32" align="center" alt="LinkedIn icon"></a>
+  &nbsp; <a href="https://www.linkedin.com/in/abekert">Find me on LinkedIn</a>
+</p>

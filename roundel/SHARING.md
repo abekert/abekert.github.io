@@ -38,8 +38,10 @@ excludes sign text and URLs. The current funnel is:
 `share_opened` → `share_asset_ready` → `share_sheet_completed` →
 `remix_opened` → `remix_created`
 
-These events are hooks only. No analytics service or network request is loaded
-by the static page.
+The shared site analytics module listens for these hooks and forwards only the
+allow-listed event name and coarse `format`, `mechanism`, or `source` values to
+GA4. It keeps analytics and advertising storage denied, does not receive sign
+text or URLs, and does not load during local previews or after analytics opt-out.
 
 ## Static-hosting limitation
 

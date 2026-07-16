@@ -137,3 +137,10 @@ div.game_footer{
 	padding-bottom: 18%;
 	background-color: #466;
 }
+
+.privacy-link {
+	padding: 12px;
+	background: #263d3d;
+	font-size: 12px;
+	text-align: center;
+}

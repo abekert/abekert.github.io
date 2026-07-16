@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy — Alexander Bekert</title>
+    <meta
+      name="description"
+      content="Privacy information and analytics controls for abekert.github.io."
+    />
+    <meta name="author" content="Alexander Bekert" />
+    <meta name="theme-color" content="#f7f8fb" />
+    <link rel="canonical" href="https://abekert.github.io/privacy/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/css/main.css" />
+  </head>
+  <body class="privacy-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <main id="main" class="privacy-content">
+      <p class="eyebrow">Privacy</p>
+      <h1>Small-site analytics, without analytics cookies</h1>
+      <p class="privacy-intro">
+        This website uses Google Analytics 4 only to produce aggregate statistics that help
+        improve its pages and tools. Advertising, remarketing, Google Signals, advertising
+        personalisation, and granular location and device collection are disabled.
+      </p>
+
+      <section aria-labelledby="analytics-controls">
+        <h2 id="analytics-controls">Analytics control</h2>
+        <p id="analytics-status" role="status" aria-live="polite"></p>
+        <div class="actions privacy-actions">
+          <button class="button primary" id="disable-analytics" type="button">Disable analytics</button>
+          <button class="button" id="enable-analytics" type="button">Allow analytics</button>
+        </div>
+        <p class="privacy-note">
+          Your choice is stored only in this browser as a functional preference. This privacy
+          page itself does not load Google Analytics.
+        </p>
+      </section>
+
+      <section aria-labelledby="analytics-collection">
+        <h2 id="analytics-collection">What is collected</h2>
+        <p>
+          Google Analytics receives cookieless measurements such as page views and a small set
+          of coarse interaction events. Page URLs and referrers are stripped of query parameters
+          and fragments before collection. For the Roundel Sign Maker, analytics events may
+          describe actions such as opening the share menu or downloading an image, but never
+          include sign text, project state, filenames, file contents, or share URLs.
+        </p>
+        <p>
+          Google may process network and basic browser information when a measurement request is
+          made. Google states that GA4 discards raw IP addresses before they are logged or stored.
+          No analytics client ID is stored while Analytics consent remains denied.
+        </p>
+      </section>
+
+      <section aria-labelledby="analytics-storage">
+        <h2 id="analytics-storage">Storage and sharing</h2>
+        <p>
+          Analytics storage, advertising storage, advertising user data, and advertising
+          personalisation are permanently set to denied. The GA4 property is not linked to
+          Google Ads, data sharing with Google products is disabled, and event-level retention
+          is set to two months. Standard aggregate reports may remain available for longer.
+        </p>
+        <p>
+          The Roundel Sign Maker separately uses local storage to preserve the artwork and
+          first-run state on your own device. That functional state is not sent to Analytics.
+        </p>
+      </section>
+
+      <section aria-labelledby="analytics-third-parties">
+        <h2 id="analytics-third-parties">Third-party content</h2>
+        <p>
+          Archived project pages can include Google Fonts and YouTube videos. YouTube embeds use
+          privacy-enhanced mode, but loading or playing third-party content still creates a
+          direct connection to that provider and is governed by its terms.
+        </p>
+      </section>
+
+      <section aria-labelledby="analytics-contact">
+        <h2 id="analytics-contact">Contact</h2>
+        <p>
+          For privacy questions, email <a href="mailto:bekert@me.com">bekert@me.com</a>.
+          See also
+          <a href="https://policies.google.com/privacy">Google's Privacy Policy</a> and
+          <a href="https://support.google.com/analytics/answer/6004245">Google Analytics data safeguards</a>.
+        </p>
+        <p class="privacy-note">Last updated: 16 July 2026.</p>
+      </section>
+
+      <p><a href="/">Return to the homepage</a></p>
+    </main>
+
+    <script>
+      (function () {
+        var measurementId = "G-50YJXSVRJ4";
+        var optOutKey = "abekert_analytics_disabled";
+        var status = document.getElementById("analytics-status");
+        var disableButton = document.getElementById("disable-analytics");
+        var enableButton = document.getElementById("enable-analytics");
+
+        function hasBrowserPrivacySignal() {
+          return navigator.globalPrivacyControl === true ||
+            navigator.doNotTrack === "1" ||
+            window.doNotTrack === "1";
+        }
+
+        function hasOptedOut() {
+          try {
+            return localStorage.getItem(optOutKey) === "1";
+          } catch (error) {
+            return true;
+          }
+        }
+
+        function render() {
+          var browserSignal = hasBrowserPrivacySignal();
+          var disabled = hasOptedOut() || browserSignal;
+
+          window["ga-disable-" + measurementId] = disabled;
+          disableButton.disabled = disabled;
+          enableButton.disabled = browserSignal || !hasOptedOut();
+          status.textContent = browserSignal ?
+            "Analytics is disabled because your browser is sending a privacy signal." :
+            disabled ? "Analytics is disabled in this browser." : "Cookieless analytics is allowed in this browser.";
+        }
+
+        disableButton.addEventListener("click", function () {
+          try {
+            localStorage.setItem(optOutKey, "1");
+          } catch (error) {}
+          render();
+        });
+
+        enableButton.addEventListener("click", function () {
+          try {
+            localStorage.removeItem(optOutKey);
+          } catch (error) {}
+          render();
+        });
+
+        render();
+      }());
+    </script>
+  </body>
+</html>
