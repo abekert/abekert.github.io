@@ -245,7 +245,9 @@ h1 {
   position: absolute;
   right: 0;
   top: calc(100% + 12px);
-  width: min(346px, calc(100vw - 36px));
+  width: min(380px, calc(100vw - 36px));
+  max-height: min(78vh, 720px);
+  overflow-y: auto;
   border: 1px solid var(--line);
   border-top: 3px solid var(--red);
   border-radius: 12px;
@@ -268,13 +270,100 @@ h1 {
   display: none;
 }
 
+.share-menu-heading {
+  display: grid;
+  gap: 3px;
+}
+
+.share-menu-heading strong {
+  color: var(--ink);
+  font-size: 1.02rem;
+  letter-spacing: -0.01em;
+}
+
+.share-menu-heading span,
+.share-format-hint {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.share-format {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.share-format-button {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 10px 11px;
+  text-align: left;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.share-format-button strong,
+.share-format-button span {
+  display: block;
+}
+
+.share-format-button strong {
+  font-size: 0.83rem;
+}
+
+.share-format-button span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+.share-format-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(242, 240, 232, 0.5);
+}
+
+.share-format-button.is-active {
+  border-color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 -3px 0 var(--red);
+}
+
+.share-format-hint {
+  min-height: 2.2em;
+  margin: 8px 2px 0;
+}
+
+.share-more {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.share-more summary {
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 760;
+  list-style-position: inside;
+}
+
+.share-more[open] summary {
+  color: var(--ink);
+}
+
 .export-status {
   min-width: 0;
-  margin: 0;
+  margin: 10px 2px 0;
   color: var(--muted);
   font-size: 0.84rem;
   font-weight: 650;
-  white-space: nowrap;
+  line-height: 1.35;
 }
 
 .menu-action {
@@ -335,6 +424,8 @@ h1 {
 }
 
 .menu-action:focus-visible,
+.share-format-button:focus-visible,
+.share-more summary:focus-visible,
 .icon-button:focus-visible,
 .style-button:focus-visible,
 .font-button:focus-visible,
@@ -427,7 +518,15 @@ h1 {
 }
 
 .roundel-stage #roundel-text {
-  opacity: 0;
+  opacity: 1;
+}
+
+.roundel-stage.is-heritage-live #roundel-text {
+  opacity: 1;
+}
+
+.roundel-stage.is-heritage-live .heritage-live-text {
+  display: none;
 }
 
 .roundel-stage.is-intro:not(.is-intro-sequence) #roundel-art {
@@ -583,8 +682,9 @@ body.is-sharing .live-text-editor {
   display: inline-block;
   margin: 0 0.08em;
   padding: 0.05em 0.03em 0.03em;
-  border-top: solid currentColor;
-  border-bottom: solid currentColor;
+  /* SVG ornaments render the visible rules; transparent borders retain the live editor's text metrics. */
+  border-top: solid transparent;
+  border-bottom: solid transparent;
   font-weight: 500;
   line-height: 0.95;
 }
@@ -969,6 +1069,34 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   min-height: 38px;
 }
 
+.letter-rules-options {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-left: 12px;
+  padding-left: 10px;
+  border-left: 2px solid rgba(242, 240, 232, 0.12);
+  transition: border-color 160ms ease, opacity 160ms ease;
+}
+
+.letter-rules-options.is-enabled {
+  border-left-color: rgba(242, 240, 232, 0.34);
+}
+
+.toggle-dependent[aria-disabled="true"] {
+  opacity: 0.38;
+}
+
+.toggle-dependent[aria-disabled="true"]:hover {
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.toggle-dependent input:disabled {
+  cursor: not-allowed;
+}
+
 .font-button,
 .toggle {
   min-height: 40px;
@@ -1085,6 +1213,10 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   background:
     linear-gradient(135deg, transparent 0 45%, rgba(220, 36, 31, 0.9) 46% 54%, transparent 55%),
     rgba(255, 255, 255, 0.04);
+}
+
+.background-swatch-night {
+  background: radial-gradient(circle at 46% 38%, #18233f, var(--swatch-base) 58%, #010207);
 }
 
 .background-swatch-plaque {
@@ -1425,6 +1557,7 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   width: 58px;
   height: 42px;
   border: 1px solid rgba(242, 240, 232, 0.22);
+  border-radius: 6px;
   background: var(--mini-bg, rgba(255, 255, 255, 0.14));
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
   overflow: hidden;
@@ -1456,6 +1589,10 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
     radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.58) 0 2px, transparent 3px),
     radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.42) 0 2px, transparent 3px),
     linear-gradient(135deg, #f5edd6, #d8c9aa);
+}
+
+.style-mini-night {
+  background: radial-gradient(circle at 46% 38%, #18233f, #080d1b 58%, #010207);
 }
 
 .style-mini-street {
@@ -1539,6 +1676,23 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   bottom: 2px;
 }
 
+.style-mini-modern-rules span {
+  box-shadow:
+    inset 0 0 0 1px var(--mini-hole),
+    0 1px 0 rgba(20, 25, 34, 0.08);
+}
+
+.style-mini-modern-rules span::before,
+.style-mini-modern-rules span::after {
+  left: 11px;
+  right: 11px;
+  height: 1px;
+}
+
+.style-mini-neon {
+  background: radial-gradient(circle at 50% 42%, #16101d, #05070d 58%, #000000);
+}
+
 .style-mini-neon::before {
   background:
     radial-gradient(circle, var(--mini-hole) 0 42%, transparent 43%),
@@ -1567,6 +1721,12 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   border: 2px solid rgba(255, 239, 220, 0.88);
   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.72));
   pointer-events: none;
+}
+
+.style-mini-electric {
+  background:
+    radial-gradient(circle at 48% 52%, rgba(255, 82, 24, 0.2), transparent 46%),
+    linear-gradient(145deg, #0a286f, #02030a 72%);
 }
 
 .style-mini-electric::before {
@@ -1609,7 +1769,7 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   }
 
   .export-status {
-    display: none;
+    font-size: 0.76rem;
   }
 
   .floating-menu {
@@ -1653,7 +1813,8 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   }
 
   .share-menu {
-    width: min(286px, calc(100vw - 24px));
+    width: min(330px, calc(100vw - 24px));
+    max-height: calc(100vh - 86px);
     padding-top: 18px;
   }
 

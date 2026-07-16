@@ -8,8 +8,16 @@
   var fontChoice = document.getElementById("font-choice");
   var textSizeInput = document.getElementById("text-size-adjust");
   var textSizeOutput = document.getElementById("text-size-output");
+  var textHeightInput = document.getElementById("text-height-adjust");
+  var textHeightOutput = document.getElementById("text-height-output");
+  var textWidthInput = document.getElementById("text-width-adjust");
+  var textWidthOutput = document.getElementById("text-width-output");
   var capitaliseToggle = document.getElementById("capitalise-text");
   var letterRulesToggle = document.getElementById("letter-rules");
+  var outerLetterRulesToggle = document.getElementById("outer-letter-rules");
+  var hexagonalLetterRulesToggle = document.getElementById("hexagonal-letter-rules");
+  var joinLetterRuleSpacesToggle = document.getElementById("join-letter-rule-spaces");
+  var letterRulesOptions = document.getElementById("letter-rules-options");
   var whiteCenterToggle = document.getElementById("white-center");
   var gradientsToggle = document.getElementById("use-gradients");
   var shadowToggle = document.getElementById("use-shadow");
@@ -20,6 +28,12 @@
   var exportSvgButton = document.getElementById("export-svg-button");
   var undoButton = document.getElementById("undo-button");
   var copyLinkButton = document.getElementById("copy-link-button");
+  var nativeShareButton = document.getElementById("native-share-button");
+  var copyImageButton = document.getElementById("copy-image-button");
+  var importButton = document.getElementById("import-button");
+  var importFileInput = document.getElementById("import-file-input");
+  var shareFormatHint = document.getElementById("share-format-hint");
+  var shareFormatButtons = Array.prototype.slice.call(document.querySelectorAll("[data-share-format]"));
   var shareButton = document.getElementById("share-button");
   var shareMenu = document.getElementById("share-menu");
   var exportStatus = document.getElementById("export-status");
@@ -27,6 +41,7 @@
   var form = document.getElementById("roundel-form");
   var roundelStage = document.getElementById("roundel-stage");
   var heritageLiveText = null;
+  var nightBackground = document.getElementById("night-background");
   var streetBackground = document.getElementById("street-background");
   var streetSignRig = document.getElementById("street-sign-rig");
   var streetSignDepth = document.getElementById("street-sign-depth");
@@ -97,7 +112,11 @@
   var svgNamespace = "http://www.w3.org/2000/svg";
   var centerX = 600;
   var centerY = 420;
+  var sceneFrame = { x: 54, y: 60, width: 1092, height: 720 };
   var minFontSize = 34;
+  var barWidthFloor = Number(barWidthInput.getAttribute("min")) || 280;
+  var barHeightAdjustmentFloor = Number(barHeightInput.getAttribute("min")) || -72;
+  var textWidthMaximum = Number(textWidthInput.getAttribute("max")) || 140;
   var transitionDuration = 520;
   var activeAnimationFrame = 0;
   var rangeUpdateFrame = 0;
@@ -119,6 +138,11 @@
   var activePresetKey = "enamel";
   var storageKey = "roundel-maker-state-v2";
   var introSeenKey = "roundel-maker-intro-seen-v1";
+  var roundelMetadataNamespace = "https://abekert.github.io/roundel/metadata/1.0/";
+  var shareFormat = "clean";
+  var shareAssetCache = { key: "", promise: null, blob: null };
+  var isSharedRemixSession = new URLSearchParams(window.location.search).get("ref") === "share";
+  var hasEmittedRemixCreated = false;
   var undoStack = [];
   var maxUndoSteps = 40;
   var isApplyingState = false;
@@ -161,12 +185,15 @@
   var identityArtLayout = { x: 0, y: 0, scaleX: 1, scaleY: 1 };
   var stationArtLayout = { x: 144, y: 136, scaleX: 0.76, scaleY: 0.76 };
   var wallArtLayout = { x: 54, y: 8, scaleX: 0.91, scaleY: 0.91 };
-  var streetDepthOffset = { x: -54, y: 34 };
+  var streetDepthOffset = { x: 12, y: 14 };
   var wallShadowOffset = { x: 56, y: 56 };
-  var streetArtTransform = "matrix(0.965 0.018 -0.035 0.995 32 18)";
+  var streetArtTransform = "";
   var stationArtTransform = "translate(" + stationArtLayout.x + " " + stationArtLayout.y + ") scale(" + stationArtLayout.scaleX + ")";
   var wallArtTransform = "translate(" + wallArtLayout.x + " " + wallArtLayout.y + ") scale(" + wallArtLayout.scaleX + ")";
   var backgroundScenes = {
+    "night": {
+      layers: [nightBackground]
+    },
     "street-post": {
       transform: streetArtTransform,
       layers: [streetBackground, streetSignRig, streetSignDepth]
@@ -191,6 +218,7 @@
     }
   };
   var sceneTransitionLayers = [
+    nightBackground,
     streetBackground,
     streetSignRig,
     streetSignDepth,
@@ -574,17 +602,19 @@
       ornamentOpacity: "0.65"
     },
     heritage: {
-      barWidth: 930,
+      barWidth: 840,
+      textSize: 30,
       font: "gill",
       whiteCenter: true,
       gradients: false,
       shadow: true,
       blueOutline: true,
-      whiteInset: true,
+      whiteInset: false,
+      hexagonalLetterRules: true,
       outerRadius: 292,
       innerRadius: 180,
-      singleBarHeight: 156,
-      doubleBarHeight: 256,
+      singleBarHeight: 138,
+      doubleBarHeight: 220,
       centerFill: "#efe8c9",
       ringSolid: "#cf130f",
       ringGradient: ["#ed2b21", "#cf130f", "#9f0c08"],
@@ -603,6 +633,42 @@
       ornaments: "letter-rules",
       ornamentColor: "#f3ecd5",
       ornamentOpacity: "0.9"
+    },
+    modernRules: {
+      barWidth: 900,
+      textSize: 16,
+      font: "gill",
+      whiteCenter: true,
+      gradients: false,
+      shadow: true,
+      blueOutline: true,
+      whiteInset: true,
+      outerLetterRules: true,
+      hexagonalLetterRules: false,
+      joinLetterRuleSpaces: true,
+      outerRulesOutsideInset: true,
+      outerRadius: 292,
+      innerRadius: 178,
+      singleBarHeight: 172,
+      doubleBarHeight: 272,
+      centerFill: "#ffffff",
+      ringSolid: "#dc241f",
+      ringGradient: ["#dc241f", "#dc241f", "#dc241f"],
+      ringOutlineColor: "#dc241f",
+      ringOutlineWidth: 0,
+      ringOutlineOpacity: "0",
+      barSolid: "#003688",
+      barGradient: ["#003688", "#003688", "#003688"],
+      barRadius: 2,
+      outlineColor: "#001b5e",
+      outlineWidth: 8,
+      outlineOpacity: "0.32",
+      insetColor: "#ffffff",
+      insetWidth: 3,
+      insetOpacity: "0.92",
+      ornaments: "letter-rules",
+      ornamentColor: "#ffffff",
+      ornamentOpacity: "1"
     },
     redDisc: {
       barWidth: 820,
@@ -833,6 +899,7 @@
       shadow: true,
       blueOutline: true,
       whiteInset: true,
+      background: "night",
       outerRadius: 294,
       innerRadius: 178,
       singleBarHeight: 184,
@@ -896,7 +963,7 @@
       shadow: true,
       blueOutline: true,
       whiteInset: true,
-      plaque: true,
+      background: "plaque",
       neon: true,
       outerRadius: 286,
       innerRadius: 170,
@@ -1037,41 +1104,42 @@
   });
 
   var styleCatalog = [
-    { group: "Sign styles", id: "classic", label: "Classic" },
-    { group: "Sign styles", id: "platform", label: "Platform" },
-    { group: "Sign styles", id: "poster", label: "Poster" },
-    { group: "Sign styles", id: "heritage", label: "Heritage", miniClass: "style-mini-heritage" },
-    { group: "Scenes", id: "wallMount", label: "Wall", miniClass: "style-mini-bg style-mini-wall" },
+    { group: "Popular", id: "classic", label: "Classic" },
+    { group: "Popular", id: "platform", label: "Platform" },
+    { group: "Popular", id: "poster", label: "Poster" },
+    { group: "Popular", id: "heritage", label: "Heritage", miniClass: "style-mini-heritage" },
+    { group: "Popular", id: "wallMount", label: "Wall", miniClass: "style-mini-bg style-mini-wall" },
     {
-      group: "Scenes",
+      group: "Popular",
       id: "whiteTiles",
       label: "White tiles",
       miniClass: "style-mini-bg style-mini-brick",
       preview: { "--mini-bg": "#f5f3ec", "--mini-brick": "#ffffff", "--mini-brick-alt": "#e5e1d8", "--mini-line": "#2d2b27" }
     },
     {
-      group: "Scenes",
+      group: "Popular",
       id: "redTiles",
       label: "Red tiles",
       miniClass: "style-mini-bg style-mini-brick",
       preview: { "--mini-bg": "#8f2b25", "--mini-brick": "#bd493d", "--mini-brick-alt": "#7d241f", "--mini-line": "#d3a196" }
     },
     {
-      group: "Scenes",
+      group: "Popular",
       id: "yellowBrick",
       label: "Yellow brick",
       miniClass: "style-mini-bg style-mini-brick",
       preview: { "--mini-bg": "#a48d5d", "--mini-brick": "#c7b075", "--mini-brick-alt": "#806b44", "--mini-line": "#6f624f" }
     },
-    { group: "Sign styles", id: "enamel", label: "Enamel" },
-    { group: "Sign styles", id: "museum", label: "Museum" },
-    { group: "Sign styles", id: "redDisc", label: "Red disc" },
+    { group: "Styles", id: "enamel", label: "Enamel" },
+    { group: "Styles", id: "modernRules", label: "Modern rules", miniClass: "style-mini-heritage style-mini-modern-rules" },
+    { group: "Styles", id: "museum", label: "Museum" },
+    { group: "Styles", id: "redDisc", label: "Red disc" },
     { group: "Scenes", id: "signboard", label: "Signboard", miniClass: "style-mini-bg style-mini-board" },
-    { group: "Scenes", id: "night", label: "Night" },
+    { group: "Scenes", id: "night", label: "Night", miniClass: "style-mini-bg style-mini-night" },
     { group: "Scenes", id: "streetSign", label: "Street", miniClass: "style-mini-bg style-mini-street" },
     { group: "Scenes", id: "stationFloor", label: "Station", miniClass: "style-mini-bg style-mini-station" },
-    { group: "Scenes", id: "neon", label: "Neon", miniClass: "style-mini-neon", preview: { "--mini-glow": "#68f8ff" } },
-    { group: "Scenes", id: "electric", label: "Electric", miniClass: "style-mini-electric", preview: { "--mini-glow": "#2f6fff" } },
+    { group: "Scenes", id: "neon", label: "Neon", miniClass: "style-mini-bg style-mini-neon", preview: { "--mini-glow": "#68f8ff" } },
+    { group: "Scenes", id: "electric", label: "Electric", miniClass: "style-mini-bg style-mini-electric", preview: { "--mini-glow": "#2f6fff" } },
     { group: "Transport", id: "underground", label: "Underground" },
     { group: "Transport", id: "rail", label: "TfL Rail" },
     { group: "Transport", id: "elizabeth", label: "Elizabeth" },
@@ -1201,7 +1269,15 @@
     return presets[activePresetKey] || presets.enamel;
   }
 
+  function noteRemixCreation() {
+    if (isSharedRemixSession && !hasEmittedRemixCreated) {
+      hasEmittedRemixCreated = true;
+      emitRoundelEvent("remix_created", { source: "shared-project" });
+    }
+  }
+
   function markCustom() {
+    noteRemixCreation();
     if (presetChoice.value !== "custom") {
       presetChoice.value = "custom";
     }
@@ -1231,6 +1307,9 @@
   }
 
   function syncControlStates() {
+    var letterRulesEnabled = Boolean(letterRulesToggle && letterRulesToggle.checked);
+    var hexagonalRulesEnabled = Boolean(hexagonalLetterRulesToggle && hexagonalLetterRulesToggle.checked);
+
     presetButtons.forEach(function (button) {
       setPressed(button, presetChoice.value !== "custom" && button.getAttribute("data-preset") === activePresetKey);
     });
@@ -1242,6 +1321,36 @@
     backgroundButtons.forEach(function (button) {
       setPressed(button, button.getAttribute("data-background") === getBackgroundChoice());
     });
+
+    [outerLetterRulesToggle, hexagonalLetterRulesToggle].forEach(function (control) {
+      var label;
+
+      if (!control) {
+        return;
+      }
+
+      control.disabled = !letterRulesEnabled;
+      label = control.closest("label");
+
+      if (label) {
+        label.setAttribute("aria-disabled", letterRulesEnabled ? "false" : "true");
+      }
+    });
+
+    if (joinLetterRuleSpacesToggle) {
+      var joinSpacesEnabled = letterRulesEnabled && !hexagonalRulesEnabled;
+      var joinSpacesLabel = joinLetterRuleSpacesToggle.closest("label");
+
+      joinLetterRuleSpacesToggle.disabled = !joinSpacesEnabled;
+
+      if (joinSpacesLabel) {
+        joinSpacesLabel.setAttribute("aria-disabled", joinSpacesEnabled ? "false" : "true");
+      }
+    }
+
+    if (letterRulesOptions) {
+      letterRulesOptions.classList.toggle("is-enabled", letterRulesEnabled);
+    }
   }
 
   function isDesktopMenuMode() {
@@ -1653,6 +1762,8 @@
     closeMenus();
     shareMenu.hidden = false;
     shareButton.setAttribute("aria-expanded", "true");
+    emitRoundelEvent("share_opened", { format: shareFormat });
+    prepareShareAsset().catch(function () {});
     scheduleMobileMenuIdle();
   }
 
@@ -1710,6 +1821,12 @@
     if (Object.prototype.hasOwnProperty.call(values, "textSize")) {
       setRangeControl(textSizeInput, values.textSize);
     }
+    if (Object.prototype.hasOwnProperty.call(values, "textHeight")) {
+      setRangeControl(textHeightInput, values.textHeight);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "textWidth")) {
+      setRangeControl(textWidthInput, values.textWidth);
+    }
     if (Object.prototype.hasOwnProperty.call(values, "font")) {
       fontChoice.value = fontStacks[values.font] ? values.font : fontChoice.value;
     }
@@ -1718,6 +1835,15 @@
     }
     if (Object.prototype.hasOwnProperty.call(values, "letterRules")) {
       letterRulesToggle.checked = Boolean(values.letterRules);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "outerLetterRules")) {
+      outerLetterRulesToggle.checked = Boolean(values.outerLetterRules);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "hexagonalLetterRules")) {
+      hexagonalLetterRulesToggle.checked = Boolean(values.hexagonalLetterRules);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "joinLetterRuleSpaces")) {
+      joinLetterRuleSpacesToggle.checked = Boolean(values.joinLetterRuleSpaces);
     }
     if (Object.prototype.hasOwnProperty.call(values, "whiteCenter")) {
       whiteCenterToggle.checked = Boolean(values.whiteCenter);
@@ -1745,9 +1871,14 @@
     return {
       barWidth: preset.barWidth,
       barHeight: 0,
-      textSize: 0,
+      textSize: preset.textSize || 0,
+      textHeight: preset.textHeight || 100,
+      textWidth: preset.textWidth || 100,
       font: preset.font,
       letterRules: preset.ornaments === "letter-rules",
+      outerLetterRules: Boolean(preset.outerLetterRules),
+      hexagonalLetterRules: Boolean(preset.hexagonalLetterRules),
+      joinLetterRuleSpaces: Boolean(preset.joinLetterRuleSpaces),
       whiteCenter: preset.whiteCenter,
       gradients: preset.gradients,
       shadow: preset.shadow,
@@ -1759,7 +1890,7 @@
   }
 
   function normalizeBackgroundChoice(value, legacyPlaque) {
-    if (value === "none" || value === "plaque" || value === "street-post" || value === "electric-exhibit" || value === "station-floor" || value === "stone-wall" || Object.prototype.hasOwnProperty.call(backgroundFills, value)) {
+    if (value === "none" || value === "plaque" || Object.prototype.hasOwnProperty.call(backgroundScenes, value) || Object.prototype.hasOwnProperty.call(backgroundFills, value)) {
       return value;
     }
 
@@ -1781,9 +1912,14 @@
       barWidth: getBarWidth(),
       barHeight: getBarHeightAdjustment(),
       textSize: getTextSizeAdjustment(),
+      textHeight: getTextHeightPercent(),
+      textWidth: getTextWidthPercent(),
       font: fontChoice.value,
       capitalise: capitaliseToggle.checked,
       letterRules: letterRulesToggle.checked,
+      outerLetterRules: outerLetterRulesToggle.checked,
+      hexagonalLetterRules: hexagonalLetterRulesToggle.checked,
+      joinLetterRuleSpaces: joinLetterRuleSpacesToggle.checked,
       whiteCenter: whiteCenterToggle.checked,
       gradients: gradientsToggle.checked,
       shadow: shadowToggle.checked,
@@ -1872,9 +2008,14 @@
       barWidth: params.get("bar"),
       barHeight: params.get("thick"),
       textSize: params.get("size"),
+      textHeight: params.get("textheight") || 100,
+      textWidth: params.get("textwidth") || 100,
       font: params.get("font"),
       capitalise: getBoolParam(params, "caps", true),
       letterRules: params.has("rules") ? getBoolParam(params, "rules", false) : null,
+      outerLetterRules: params.has("outerrules") ? getBoolParam(params, "outerrules", false) : null,
+      hexagonalLetterRules: params.has("hexrules") ? getBoolParam(params, "hexrules", false) : null,
+      joinLetterRuleSpaces: params.has("joinspaces") ? getBoolParam(params, "joinspaces", false) : null,
       whiteCenter: getBoolParam(params, "center", true),
       gradients: getBoolParam(params, "grad", true),
       shadow: getBoolParam(params, "shadow", true),
@@ -1894,9 +2035,14 @@
     params.set("bar", String(state.barWidth));
     params.set("thick", String(state.barHeight));
     params.set("size", String(state.textSize));
+    params.set("textheight", String(state.textHeight));
+    params.set("textwidth", String(state.textWidth));
     params.set("font", state.font);
     params.set("caps", state.capitalise ? "1" : "0");
     params.set("rules", state.letterRules ? "1" : "0");
+    params.set("outerrules", state.outerLetterRules ? "1" : "0");
+    params.set("hexrules", state.hexagonalLetterRules ? "1" : "0");
+    params.set("joinspaces", state.joinLetterRuleSpaces ? "1" : "0");
     params.set("center", state.whiteCenter ? "1" : "0");
     params.set("grad", state.gradients ? "1" : "0");
     params.set("shadow", state.shadow ? "1" : "0");
@@ -1912,9 +2058,28 @@
     var url = new URL(window.location.href);
 
     url.search = appendStateParams(getCurrentState()).toString();
+    url.searchParams.set("ref", "share");
     url.hash = "";
 
     return url.toString();
+  }
+
+  function emitRoundelEvent(name, detail) {
+    var eventDetail = detail || {};
+    var event;
+
+    // This intentionally does not transmit data. Analytics integrations can
+    // listen for this privacy-safe event without receiving sign text or URLs.
+    if (typeof window.CustomEvent === "function") {
+      event = new CustomEvent("roundel:analytics", {
+        detail: Object.assign({ name: name }, eventDetail)
+      });
+    } else {
+      event = document.createEvent("CustomEvent");
+      event.initCustomEvent("roundel:analytics", false, false, Object.assign({ name: name }, eventDetail));
+    }
+
+    window.dispatchEvent(event);
   }
 
   function fallbackCopyText(value) {
@@ -1944,10 +2109,12 @@
   }
 
   function copyShareLink() {
-    copyText(getShareUrl()).then(function () {
+    return copyText(getShareUrl()).then(function () {
       exportStatus.textContent = "Link copied.";
+      emitRoundelEvent("share_link_copied", { mechanism: "clipboard" });
     }).catch(function () {
       exportStatus.textContent = "Copy failed.";
+      emitRoundelEvent("share_failed", { mechanism: "link-clipboard" });
     });
   }
 
@@ -2187,6 +2354,8 @@
         barWidth: state.barWidth || presets[presetKey].barWidth,
         barHeight: state.barHeight || 0,
         textSize: state.textSize || 0,
+        textHeight: state.textHeight || 100,
+        textWidth: state.textWidth || 100,
         font: fontStacks[state.font] ? state.font : presets[presetKey].font,
         capitalise: state.capitalise !== false,
         whiteCenter: state.whiteCenter !== false,
@@ -2198,6 +2367,15 @@
 
       if (state.letterRules !== null && typeof state.letterRules !== "undefined") {
         writeRoundelControls({ letterRules: state.letterRules });
+      }
+      if (state.outerLetterRules !== null && typeof state.outerLetterRules !== "undefined") {
+        writeRoundelControls({ outerLetterRules: state.outerLetterRules });
+      }
+      if (state.hexagonalLetterRules !== null && typeof state.hexagonalLetterRules !== "undefined") {
+        writeRoundelControls({ hexagonalLetterRules: state.hexagonalLetterRules });
+      }
+      if (state.joinLetterRuleSpaces !== null && typeof state.joinLetterRuleSpaces !== "undefined") {
+        writeRoundelControls({ joinLetterRuleSpaces: state.joinLetterRuleSpaces });
       }
       if (state.background !== null && typeof state.background !== "undefined") {
         writeRoundelControls({ background: state.background, plaque: state.plaque });
@@ -2383,9 +2561,11 @@
   }
 
   function getHeritageSizing(fontSize, lineCount) {
+    var hexagonalScale = hexagonalLetterRulesToggle && hexagonalLetterRulesToggle.checked ? 0.84 : 1;
+
     return {
       edgeSize: fontSize * (lineCount > 1 ? 1.1 : 1.22),
-      innerSize: fontSize * (lineCount > 1 ? 0.78 : 0.84),
+      innerSize: fontSize * (lineCount > 1 ? 0.78 : 0.84) * hexagonalScale,
       innerSpacing: Math.max(1.2, fontSize * (lineCount > 1 ? 0.014 : 0.018)),
       gap: Math.max(2, fontSize * 0.018)
     };
@@ -2419,8 +2599,32 @@
     return Number(barWidthInput.value) || 896;
   }
 
+  function getBaseBarWidth() {
+    return getActivePreset().barWidth;
+  }
+
   function getTextSizeAdjustment() {
     return Number(textSizeInput.value) || 0;
+  }
+
+  function getTextHeightPercent() {
+    return Number(textHeightInput.value) || 100;
+  }
+
+  function getTextWidthPercent() {
+    return Number(textWidthInput.value) || 100;
+  }
+
+  function getTextHeightScale() {
+    return getTextHeightPercent() / 100;
+  }
+
+  function getTextWidthScale() {
+    return getTextWidthPercent() / 100;
+  }
+
+  function formatPercent(value) {
+    return Math.round(value) + "%";
   }
 
   function getBarHeightAdjustment() {
@@ -2435,11 +2639,15 @@
     return String(value);
   }
 
-  function getBarHeight(lineCount) {
+  function getBaseBarHeight(lineCount) {
     var preset = getActivePreset();
-    var baseHeight = lineCount > 1 ? preset.doubleBarHeight : preset.singleBarHeight;
+    return lineCount > 1 ? preset.doubleBarHeight : preset.singleBarHeight;
+  }
+
+  function getBarHeight(lineCount) {
+    var baseHeight = getBaseBarHeight(lineCount);
     var adjustedHeight = baseHeight + getBarHeightAdjustment();
-    var minimumHeight = lineCount > 1 ? 180 : 104;
+    var minimumHeight = lineCount > 1 ? 120 : 64;
     var maximumHeight = lineCount > 1 ? 330 : 220;
 
     return Math.max(minimumHeight, Math.min(maximumHeight, adjustedHeight));
@@ -2464,11 +2672,119 @@
   }
 
   function getVerticalPadding(lineCount) {
-    if (isHeritageTypography()) {
-      return lineCount > 1 ? 28 : 18;
+    return isHeritageTypography() ?
+      (lineCount > 1 ? 28 : 18) :
+      (lineCount > 1 ? 46 : 52);
+  }
+
+  function getMinimumVerticalPadding(lineCount) {
+    return lineCount > 1 ? 10 : 8;
+  }
+
+  function getMinimumBarHeight(lines, fontSize) {
+    var layoutMinimum = lines.length > 1 ? 120 : 64;
+    var renderedHeight = getLineHeight(fontSize, lines.length) * lines.length;
+    var inkBounds = getRenderedTextInkBounds();
+    var box;
+
+    if (inkBounds) {
+      renderedHeight = inkBounds.height;
+    } else {
+      try {
+        box = textNode.getBBox();
+        renderedHeight = box.height;
+      } catch (error) {
+        // Keep the line-height estimate when SVG metrics are unavailable.
+      }
     }
 
-    return lineCount > 1 ? 46 : 52;
+    return Math.ceil(Math.max(
+      layoutMinimum,
+      renderedHeight * getTextHeightScale() + getMinimumVerticalPadding(lines.length)
+    ));
+  }
+
+  function clampTextWidthToMaximumBar(lines) {
+    var maximumBarWidth = Number(barWidthInput.getAttribute("max")) || 1040;
+    var availableWidth = Math.max(24, maximumBarWidth - getHorizontalPadding(lines.length, maximumBarWidth));
+    var minimumPercent = Number(textWidthInput.getAttribute("min")) || 60;
+    var renderedWidth;
+    var maximumPercent;
+
+    try {
+      renderedWidth = textNode.getBBox().width;
+    } catch (error) {
+      renderedWidth = 0;
+    }
+
+    maximumPercent = renderedWidth > 0 ? Math.floor(availableWidth / renderedWidth * 100) : textWidthMaximum;
+    maximumPercent = Math.max(minimumPercent, Math.min(textWidthMaximum, maximumPercent));
+    textWidthInput.setAttribute("max", String(maximumPercent));
+
+    if (getTextWidthPercent() > maximumPercent) {
+      textWidthInput.value = String(maximumPercent);
+    }
+  }
+
+  function clampBarWidthToText(lines) {
+    var step = Number(barWidthInput.getAttribute("step")) || 1;
+    var maximumWidth = Number(barWidthInput.getAttribute("max")) || 1040;
+    var renderedWidth;
+    var minimumWidth = barWidthFloor;
+
+    try {
+      renderedWidth = textNode.getBBox().width * getTextWidthScale();
+    } catch (error) {
+      renderedWidth = 0;
+    }
+
+    while (
+      renderedWidth > minimumWidth - getHorizontalPadding(lines.length, minimumWidth) &&
+      minimumWidth < maximumWidth
+    ) {
+      minimumWidth += step;
+    }
+
+    minimumWidth = Math.min(maximumWidth, minimumWidth);
+    barWidthInput.setAttribute("min", String(minimumWidth));
+
+    if (getBarWidth() < minimumWidth) {
+      barWidthInput.value = String(minimumWidth);
+    }
+  }
+
+  function applyTextProportions() {
+    var transform = [
+      "translate(" + centerX + " " + centerY + ")",
+      "scale(" + getTextWidthScale() + " " + getTextHeightScale() + ")",
+      "translate(" + (-centerX) + " " + (-centerY) + ")"
+    ].join(" ");
+
+    textNode.setAttribute("transform", transform);
+
+    if (isHeritageTypography()) {
+      barOrnaments.setAttribute("transform", transform);
+    } else {
+      barOrnaments.removeAttribute("transform");
+    }
+  }
+
+  function clampBarHeightToText(lines, fontSize) {
+    var baseHeight = getBaseBarHeight(lines.length);
+    var step = Number(barHeightInput.getAttribute("step")) || 1;
+    var maximumAdjustment = Number(barHeightInput.getAttribute("max"));
+    var minimumHeight = getMinimumBarHeight(lines, fontSize);
+    var minimumAdjustment = Math.ceil((minimumHeight - baseHeight) / step) * step;
+    var currentAdjustment;
+
+    minimumAdjustment = Math.max(barHeightAdjustmentFloor, minimumAdjustment);
+    minimumAdjustment = Math.min(maximumAdjustment, minimumAdjustment);
+    barHeightInput.setAttribute("min", String(minimumAdjustment));
+    currentAdjustment = getBarHeightAdjustment();
+
+    if (currentAdjustment < minimumAdjustment) {
+      barHeightInput.value = String(minimumAdjustment);
+    }
   }
 
   function setRect(rect, x, y, width, height, radius) {
@@ -2924,7 +3240,7 @@
       x: scale.x * layout.scaleX,
       y: scale.y * layout.scaleY
     };
-    var lineHeight = getLineHeight(fontSize, lines.length) * editorScale.y;
+    var lineHeight = getLineHeight(fontSize, lines.length) * editorScale.y * getTextHeightScale();
     var verticalPadding = Math.max(0, (editorHeight * scale.y - lineHeight * lines.length) / 2);
     var horizontalPadding = Math.max(8, getHorizontalPadding(lines.length, barWidth) * editorScale.x / 2);
     var textColor = textNode.getAttribute("fill") || "#ffffff";
@@ -2939,11 +3255,11 @@
     input.style.fontFamily = getFontStack();
     input.style.fontSize = Math.max(18, fontSize * editorScale.x) + "px";
     input.style.lineHeight = lineHeight + "px";
-    input.style.color = heritageTypography ? "transparent" : textColor;
+    input.style.color = "transparent";
     input.style.caretColor = textColor;
     input.style.textTransform = capitaliseToggle.checked ? "uppercase" : "none";
     input.style.fontWeight = heritageTypography ? "500" : "700";
-    input.style.textShadow = heritageTypography ? "none" : "";
+    input.style.textShadow = "none";
     roundelStage.classList.toggle("is-heritage-live", heritageTypography);
 
     if (heritageTypography) {
@@ -2952,13 +3268,8 @@
       hideHeritageLiveText();
     }
 
-    if (getBackgroundChoice() === "street-post") {
-      input.style.transform = "translate(2.2%, 4.2%) rotate(-2.1deg) skewX(5deg) scaleX(0.94)";
-      input.style.transformOrigin = "50% 50%";
-    } else {
-      input.style.transform = "";
-      input.style.transformOrigin = "";
-    }
+    input.style.transform = "scale(" + getTextWidthScale() + ", " + getTextHeightScale() + ")";
+    input.style.transformOrigin = "50% 50%";
 
     if (leftBarGrip) {
       leftBarGrip.style.left = ((editorX - 18) / 1200 * 100) + "%";
@@ -3389,6 +3700,71 @@
     }
   }
 
+  function getTextPartInkBounds(node) {
+    var box;
+    var value;
+    var fontSize;
+    var fontWeight;
+    var metrics;
+    var fontAscent;
+    var fontDescent;
+    var fontHeight;
+    var scale;
+
+    if (!node || !node.getBBox) {
+      return null;
+    }
+
+    try {
+      box = node.getBBox();
+      value = node.textContent || "";
+      fontSize = Number(node.getAttribute("font-size") || textNode.getAttribute("font-size")) || 0;
+      fontWeight = Number(node.getAttribute("font-weight") || textNode.getAttribute("font-weight")) || 700;
+      measureContext.font = fontWeight + " " + fontSize + "px " + getFontStack();
+      metrics = measureContext.measureText(value);
+      fontAscent = Number(metrics.fontBoundingBoxAscent || metrics.emHeightAscent);
+      fontDescent = Number(metrics.fontBoundingBoxDescent || metrics.emHeightDescent);
+      fontHeight = fontAscent + fontDescent;
+
+      if (
+        fontHeight > 0 &&
+        isFinite(metrics.actualBoundingBoxAscent) &&
+        isFinite(metrics.actualBoundingBoxDescent)
+      ) {
+        scale = box.height / fontHeight;
+
+        return {
+          top: box.y + (fontAscent - metrics.actualBoundingBoxAscent) * scale,
+          bottom: box.y + box.height - (fontDescent - metrics.actualBoundingBoxDescent) * scale
+        };
+      }
+
+      return { top: box.y, bottom: box.y + box.height };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getRenderedTextInkBounds() {
+    var top = Infinity;
+    var bottom = -Infinity;
+
+    Array.prototype.forEach.call(textNode.children, function (node) {
+      var bounds = getTextPartInkBounds(node);
+
+      if (bounds) {
+        top = Math.min(top, bounds.top);
+        bottom = Math.max(bottom, bounds.bottom);
+      }
+    });
+
+    return isFinite(top) && isFinite(bottom) && bottom > top ? {
+      top: top,
+      bottom: bottom,
+      height: bottom - top
+    } : null;
+  }
+
   function centerTextToBar() {
     try {
       var box = textNode.getBBox();
@@ -3397,8 +3773,63 @@
       Array.prototype.forEach.call(textNode.children, function (line) {
         line.setAttribute("y", String(Number(line.getAttribute("y")) + correction));
       });
+
+      if (getBarHeightAdjustment() < 0) {
+        var inkBounds = getRenderedTextInkBounds();
+        var inkCorrection = inkBounds ? centerY - (inkBounds.top + inkBounds.bottom) / 2 : 0;
+
+        if (inkCorrection) {
+          Array.prototype.forEach.call(textNode.children, function (line) {
+            line.setAttribute("y", String(Number(line.getAttribute("y")) + inkCorrection));
+          });
+        }
+      }
     } catch (error) {
       textNode.setAttribute("y", String(centerY));
+    }
+  }
+
+  function balanceHeritageLineSpacing(index) {
+    var firstNode = textNode.querySelector("[data-line-index='" + index + "'][data-heritage-part='first']");
+    var innerNode = textNode.querySelector("[data-line-index='" + index + "'][data-heritage-part='inner']");
+    var lastNode = textNode.querySelector("[data-line-index='" + index + "'][data-heritage-part='last']");
+    var firstBox;
+    var innerBox;
+    var lastBox;
+    var targetGap;
+    var trailingGap;
+    var lineStart;
+    var lineEnd;
+    var centeringCorrection;
+
+    if (!firstNode || !innerNode || !lastNode) {
+      return;
+    }
+
+    try {
+      firstBox = firstNode.getBBox();
+      innerBox = innerNode.getBBox();
+      lastBox = lastNode.getBBox();
+      targetGap = Math.max(0, innerBox.x - (firstBox.x + firstBox.width));
+      trailingGap = lastBox.x - (innerBox.x + innerBox.width);
+      lastNode.setAttribute("x", String(Number(lastNode.getAttribute("x")) + targetGap - trailingGap));
+
+      firstBox = firstNode.getBBox();
+      innerBox = innerNode.getBBox();
+      lastBox = lastNode.getBBox();
+      lineStart = Math.min(firstBox.x, innerBox.x, lastBox.x);
+      lineEnd = Math.max(
+        firstBox.x + firstBox.width,
+        innerBox.x + innerBox.width,
+        lastBox.x + lastBox.width
+      );
+      centeringCorrection = centerX - (lineStart + lineEnd) / 2;
+
+      [firstNode, innerNode, lastNode].forEach(function (node) {
+        node.setAttribute("x", String(Number(node.getAttribute("x")) + centeringCorrection));
+      });
+    } catch (error) {
+      return;
     }
   }
 
@@ -3465,6 +3896,7 @@
           tspan.setAttribute("data-line-index", String(index));
           tspan.setAttribute("data-heritage-part", "last");
           textNode.appendChild(tspan);
+          balanceHeritageLineSpacing(index);
           return;
         }
       }
@@ -3474,6 +3906,7 @@
       tspan.textContent = line;
       tspan.setAttribute("x", String(centerX));
       tspan.setAttribute("y", String(y));
+      tspan.setAttribute("data-line-index", String(index));
       textNode.appendChild(tspan);
     });
 
@@ -3511,6 +3944,7 @@
 
         innerNode.setAttribute("textLength", String(innerAvailable));
         innerNode.setAttribute("lengthAdjust", "spacingAndGlyphs");
+        balanceHeritageLineSpacing(index);
       });
       return;
     }
@@ -3530,7 +3964,7 @@
       barHeight,
       maximumFontSize,
       fontChoice.value,
-      isHeritageTypography() ? "heritage" : "standard"
+      isHeritageTypography() ? "heritage:" + (hexagonalLetterRulesToggle.checked ? "hexagons" : "lines") : "standard"
     ].join("|");
     var low;
     var high;
@@ -3604,9 +4038,33 @@
     line.setAttribute("x2", String(x2));
     line.setAttribute("y1", String(y));
     line.setAttribute("y2", String(y));
-    line.setAttribute("stroke-linecap", "square");
+    line.setAttribute("stroke-linecap", "butt");
     line.setAttribute("stroke-width", String(strokeWidth));
     barOrnaments.appendChild(line);
+  }
+
+  function appendRuleHexagon(x1, x2, y, height) {
+    var width = x2 - x1;
+    var halfHeight = height / 2;
+    var chamfer = Math.min(height * 0.62, width * 0.24);
+    var hexagon;
+
+    if (width <= Math.max(2, height * 0.7)) {
+      return;
+    }
+
+    hexagon = document.createElementNS(svgNamespace, "path");
+    hexagon.setAttribute("d", [
+      "M" + formatSvgNumber(x1 + chamfer) + " " + formatSvgNumber(y),
+      "L" + formatSvgNumber(x1) + " " + formatSvgNumber(y - halfHeight),
+      "H" + formatSvgNumber(x2),
+      "L" + formatSvgNumber(x2 - chamfer) + " " + formatSvgNumber(y),
+      "L" + formatSvgNumber(x2) + " " + formatSvgNumber(y + halfHeight),
+      "H" + formatSvgNumber(x1),
+      "Z"
+    ].join(""));
+    hexagon.setAttribute("stroke", "none");
+    barOrnaments.appendChild(hexagon);
   }
 
   function getInteriorRuleBounds(lineNode, line, fontSize) {
@@ -3640,7 +4098,6 @@
 
   function getHeritageRuleBounds(index, fontSize) {
     var innerNode = textNode.querySelector("[data-line-index='" + index + "'][data-heritage-part='inner']");
-    var inset = Math.max(2, fontSize * 0.025);
     var box;
 
     if (!innerNode || !innerNode.getBBox) {
@@ -3651,8 +4108,8 @@
       box = innerNode.getBBox();
 
       return {
-        start: box.x + inset,
-        end: box.x + box.width - inset,
+        start: box.x,
+        end: box.x + box.width,
         top: box.y + Math.max(2, fontSize * 0.02),
         bottom: box.y + box.height - Math.max(2, fontSize * 0.02)
       };
@@ -3661,14 +4118,249 @@
     }
   }
 
+  function getFullLineRuleBounds(index, lineNode, line, fontSize, lineCount) {
+    var lineParts = Array.prototype.slice.call(textNode.querySelectorAll("[data-line-index='" + index + "']"));
+    var start = Infinity;
+    var end = -Infinity;
+    var width;
+
+    lineParts.forEach(function (part) {
+      var box;
+
+      if (!part.getBBox) {
+        return;
+      }
+
+      try {
+        box = part.getBBox();
+        start = Math.min(start, box.x);
+        end = Math.max(end, box.x + box.width);
+      } catch (error) {
+        return;
+      }
+    });
+
+    if (isFinite(start) && isFinite(end) && end > start) {
+      return { start: start, end: end };
+    }
+
+    width = isHeritageTypography() ? measureHeritageLine(line, fontSize, lineCount) : measureText(line, fontSize);
+
+    if (!width && lineNode && lineNode.getComputedTextLength) {
+      try {
+        width = lineNode.getComputedTextLength();
+      } catch (error) {
+        width = 0;
+      }
+    }
+
+    return width > 0 ? {
+      start: centerX - width / 2,
+      end: centerX + width / 2
+    } : null;
+  }
+
+  function getHeritageEdgeInkBounds(index, fallbackTop, fallbackBottom) {
+    var firstNode = textNode.querySelector("[data-line-index='" + index + "'][data-heritage-part='first']");
+    var character;
+    var fontSize;
+    var fontWeight;
+    var box;
+    var metrics;
+    var fontAscent;
+    var fontDescent;
+    var fontHeight;
+    var scale;
+
+    if (!firstNode || !firstNode.getBBox) {
+      return { top: fallbackTop, bottom: fallbackBottom };
+    }
+
+    try {
+      box = firstNode.getBBox();
+      character = (firstNode.textContent || "").slice(0, 1);
+      fontSize = Number(firstNode.getAttribute("font-size")) || 0;
+      fontWeight = Number(firstNode.getAttribute("font-weight")) || 400;
+      measureContext.font = fontWeight + " " + fontSize + "px " + getFontStack();
+      metrics = measureContext.measureText(character);
+      fontAscent = Number(metrics.fontBoundingBoxAscent || metrics.emHeightAscent);
+      fontDescent = Number(metrics.fontBoundingBoxDescent || metrics.emHeightDescent);
+      fontHeight = fontAscent + fontDescent;
+
+      if (
+        fontHeight > 0 &&
+        isFinite(metrics.actualBoundingBoxAscent) &&
+        isFinite(metrics.actualBoundingBoxDescent)
+      ) {
+        scale = box.height / fontHeight;
+
+        return {
+          top: box.y + (fontAscent - metrics.actualBoundingBoxAscent) * scale,
+          bottom: box.y + box.height - (fontDescent - metrics.actualBoundingBoxDescent) * scale
+        };
+      }
+
+      return { top: fallbackTop, bottom: fallbackBottom };
+    } catch (error) {
+      return { top: fallbackTop, bottom: fallbackBottom };
+    }
+  }
+
+  function getHeritageCharacterRuleBounds(index, fontSize, lineCount, bounds) {
+    var innerNode = textNode.querySelector("[data-line-index='" + index + "'][data-heritage-part='inner']");
+    var value = innerNode ? innerNode.textContent || "" : "";
+    var charCount = innerNode && innerNode.getNumberOfChars ? innerNode.getNumberOfChars() : value.length;
+    var cells = [];
+    var sizing;
+    var box;
+    var advances;
+    var totalAdvance;
+    var scale;
+    var cursor;
+    var indexInLine;
+    var characters = [];
+
+    if (!innerNode || !value || charCount === 0) {
+      return cells;
+    }
+
+    try {
+      for (indexInLine = 0; indexInLine < charCount; indexInLine += 1) {
+        var startPoint = innerNode.getStartPositionOfChar(indexInLine);
+        var endPoint = innerNode.getEndPositionOfChar(indexInLine);
+
+        characters.push({
+          index: indexInLine,
+          isSpace: /\s/.test(value.charAt(indexInLine)),
+          start: Math.min(startPoint.x, endPoint.x),
+          end: Math.max(startPoint.x, endPoint.x)
+        });
+      }
+
+      characters.forEach(function (character, characterIndex) {
+        var previous = characters[characterIndex - 1];
+        var next = characters[characterIndex + 1];
+        var cellStart;
+        var cellEnd;
+
+        if (character.isSpace) {
+          return;
+        }
+
+        cellStart = previous && !previous.isSpace ? (previous.end + character.start) / 2 : character.start;
+        cellEnd = next && !next.isSpace ? (character.end + next.start) / 2 : character.end;
+
+        if (characterIndex === 0) {
+          cellStart = bounds.start;
+        }
+
+        if (characterIndex === characters.length - 1) {
+          cellEnd = bounds.end;
+        }
+
+        if (cellEnd > cellStart) {
+          cells.push({ index: character.index, start: cellStart, end: cellEnd });
+        }
+      });
+
+      if (cells.length) {
+        return cells;
+      }
+    } catch (error) {
+      cells = [];
+      characters = [];
+    }
+
+    if (!innerNode.getBBox) {
+      return cells;
+    }
+
+    try {
+      box = innerNode.getBBox();
+      sizing = getHeritageSizing(fontSize, lineCount);
+      advances = value.split("").map(function (character) {
+        return measureTextWithWeight(character, sizing.innerSize, 500) + sizing.innerSpacing;
+      });
+      totalAdvance = advances.reduce(function (total, advance) {
+        return total + advance;
+      }, 0);
+      scale = totalAdvance > 0 ? box.width / totalAdvance : 1;
+      cursor = bounds.start;
+
+      advances.forEach(function (advance, characterIndex) {
+        var scaledAdvance = advance * scale;
+
+        if (!/\s/.test(value.charAt(characterIndex)) && scaledAdvance > 0) {
+          cells.push({
+            index: characterIndex,
+            start: cursor,
+            end: characterIndex === advances.length - 1 ? bounds.end : cursor + scaledAdvance
+          });
+        }
+
+        cursor += scaledAdvance;
+      });
+    } catch (error) {
+      return [];
+    }
+
+    return cells;
+  }
+
+  function getHeritageRuleRuns(index, bounds, fontSize, lineCount) {
+    var cells = getHeritageCharacterRuleBounds(index, fontSize, lineCount, bounds);
+    var runs = [];
+
+    cells.forEach(function (cell) {
+      var current = runs[runs.length - 1];
+
+      if (current && cell.index === current.lastIndex + 1) {
+        current.end = cell.end;
+        current.lastIndex = cell.index;
+        return;
+      }
+
+      runs.push({
+        start: cell.start,
+        end: cell.end,
+        lastIndex: cell.index
+      });
+    });
+
+    return runs;
+  }
+
+  function appendHexagonalLetterRules(index, bounds, fontSize, lineCount) {
+    var cells = getHeritageCharacterRuleBounds(index, fontSize, lineCount, bounds);
+    var height = Math.max(lineCount > 1 ? 6.5 : 8, fontSize * (lineCount > 1 ? 0.085 : 0.09));
+    var edgeInkBounds = getHeritageEdgeInkBounds(
+      index,
+      bounds.top - height / 2,
+      bounds.bottom + height / 2
+    );
+    var top = edgeInkBounds.top + height / 2;
+    var bottom = edgeInkBounds.bottom - height / 2;
+
+    cells.forEach(function (cell) {
+      appendRuleHexagon(cell.start, cell.end, top, height);
+      appendRuleHexagon(cell.start, cell.end, bottom, height);
+    });
+
+    return cells.length > 0;
+  }
+
   function appendLetterRules(lines, fontSize) {
-    var lineNodes = Array.prototype.slice.call(textNode.children);
+    var preset = getActivePreset();
     var strokeWidth = lines.length > 1 ? 2.6 : 3.2;
+    var outerRulesEnabled = Boolean(outerLetterRulesToggle && outerLetterRulesToggle.checked);
+    var hexagonalRulesEnabled = Boolean(hexagonalLetterRulesToggle && hexagonalLetterRulesToggle.checked);
+    var joinSpacesEnabled = Boolean(joinLetterRuleSpacesToggle && joinLetterRuleSpacesToggle.checked);
 
     lines.forEach(function (line, index) {
-      var lineNode = lineNodes[index];
+      var lineNode = textNode.querySelector("[data-line-index='" + index + "']");
       var heritageBounds = getHeritageRuleBounds(index, fontSize);
       var bounds = heritageBounds || getInteriorRuleBounds(lineNode, line || "", fontSize);
+      var outerBounds = outerRulesEnabled ? getFullLineRuleBounds(index, lineNode, line || "", fontSize, lines.length) : null;
       var y = lineNode ? Number(lineNode.getAttribute("y")) || centerY : centerY;
       var offset = fontSize * (lines.length > 1 ? 0.31 : 0.42);
 
@@ -3676,8 +4368,57 @@
         return;
       }
 
-      appendRuleLine(bounds.start, bounds.end, heritageBounds ? bounds.top : y - offset, strokeWidth);
-      appendRuleLine(bounds.start, bounds.end, heritageBounds ? bounds.bottom : y + offset, strokeWidth);
+      var top = heritageBounds ? bounds.top : y - offset;
+      var bottom = heritageBounds ? bounds.bottom : y + offset;
+      var renderedHexagons = hexagonalRulesEnabled && heritageBounds ? appendHexagonalLetterRules(index, bounds, fontSize, lines.length) : false;
+
+      if (!renderedHexagons) {
+        var ruleRuns = heritageBounds && !joinSpacesEnabled ? getHeritageRuleRuns(index, bounds, fontSize, lines.length) : [];
+        var edgeInkBounds = heritageBounds ? getHeritageEdgeInkBounds(
+          index,
+          top - strokeWidth / 2,
+          bottom + strokeWidth / 2
+        ) : null;
+        var lineTop = edgeInkBounds ? edgeInkBounds.top + strokeWidth / 2 : top;
+        var lineBottom = edgeInkBounds ? edgeInkBounds.bottom - strokeWidth / 2 : bottom;
+
+        if (!ruleRuns.length) {
+          ruleRuns.push(bounds);
+        }
+
+        ruleRuns.forEach(function (run) {
+          appendRuleLine(run.start, run.end, lineTop, strokeWidth);
+          appendRuleLine(run.start, run.end, lineBottom, strokeWidth);
+        });
+      }
+
+      if (outerRulesEnabled) {
+        var outerOffset = Math.max(strokeWidth * 2.2, fontSize * (lines.length > 1 ? 0.065 : 0.06));
+        var outerStrokeWidth = Math.max(1.8, strokeWidth * 0.78);
+        var outerStart = outerBounds ? outerBounds.start : bounds.start;
+        var outerEnd = outerBounds ? outerBounds.end : bounds.end;
+        var outerTop = top - outerOffset;
+        var outerBottom = bottom + outerOffset;
+
+        if (preset.outerRulesOutsideInset && whiteInsetToggle.checked && !renderedHexagons) {
+          var barTop = readNumberAttribute(barFill, "y", outerTop);
+          var barHeight = readNumberAttribute(barFill, "height", 0);
+          var barBottom = barTop + barHeight;
+          var outlineStrokeWidth = blueOutlineToggle.checked ? readNumberAttribute(barBorder, "stroke-width", preset.outlineWidth || 0) : 0;
+          var insetTop = readNumberAttribute(barInset, "y", outerTop);
+          var insetHeight = readNumberAttribute(barInset, "height", 0);
+          var insetBottom = insetTop + insetHeight;
+          var insetStrokeWidth = readNumberAttribute(barInset, "stroke-width", preset.insetWidth || 0);
+
+          // Place the outer rules in the gutters outside White inset, centred
+          // between the visible inset and Bar outline edges.
+          outerTop = (barTop + outlineStrokeWidth / 2 + insetTop - insetStrokeWidth / 2) / 2;
+          outerBottom = (insetBottom + insetStrokeWidth / 2 + barBottom - outlineStrokeWidth / 2) / 2;
+        }
+
+        appendRuleLine(outerStart, outerEnd, outerTop, outerStrokeWidth);
+        appendRuleLine(outerStart, outerEnd, outerBottom, outerStrokeWidth);
+      }
     });
   }
 
@@ -3695,9 +4436,11 @@
     clearOrnaments();
 
     if (isHeritageTypography()) {
-      barOrnaments.setAttribute("fill", "none");
-      barOrnaments.setAttribute("stroke", preset.ornamentColor);
-      barOrnaments.setAttribute("opacity", preset.ornamentOpacity);
+      var letterRuleColor = textNode.getAttribute("fill") || preset.ornamentColor;
+
+      barOrnaments.setAttribute("fill", letterRuleColor);
+      barOrnaments.setAttribute("stroke", letterRuleColor);
+      barOrnaments.setAttribute("opacity", "1");
       appendLetterRules(lines, fontSize);
       return;
     }
@@ -3859,20 +4602,32 @@
 
     var sourceLines = normalizeLines(input.value);
     var lines = getDisplayLines(sourceLines);
-    var barWidth = getBarWidth();
-    var barHeight = getBarHeight(lines.length);
+    var barWidth;
+    var barHeight;
     var fontSize;
     var titleText = lines.join(" / ");
+
+    // Bar dimensions only change the Bar geometry. Type is fitted against the
+    // preset's default dimensions, then each dimension slider is stopped
+    // before the selected type proportions would no longer fit.
+    fontSize = fitAndUpdateText(lines, getBaseBarWidth(), getBaseBarHeight(lines.length));
+    clampTextWidthToMaximumBar(lines);
+    clampBarWidthToText(lines);
+    clampBarHeightToText(lines, fontSize);
+    barWidth = getBarWidth();
+    barHeight = getBarHeight(lines.length);
 
     barWidthOutput.textContent = String(barWidth);
     barHeightOutput.textContent = formatSigned(getBarHeightAdjustment());
     textSizeOutput.textContent = formatSigned(getTextSizeAdjustment());
+    textHeightOutput.textContent = formatPercent(getTextHeightPercent());
+    textWidthOutput.textContent = formatPercent(getTextWidthPercent());
     updateRingGeometry();
     updateBarGeometry(barWidth, barHeight);
     syncStreetDepthGeometry();
     syncWallMountGeometry();
-    fontSize = fitAndUpdateText(lines, barWidth, barHeight);
     updateOrnaments(lines, barWidth, barHeight, fontSize);
+    applyTextProportions();
     updateStyleOptions();
     syncLiveEditor(lines, barWidth, barHeight, fontSize);
     syncControlStates();
@@ -3899,6 +4654,9 @@
 
     activePresetKey = key;
     presetChoice.value = key;
+    barWidthInput.setAttribute("min", String(barWidthFloor));
+    barHeightInput.setAttribute("min", String(barHeightAdjustmentFloor));
+    textWidthInput.setAttribute("max", String(textWidthMaximum));
     writeRoundelControls(getPresetControlValues(preset));
 
     if (!options || !options.deferRender) {
@@ -3925,10 +4683,375 @@
     return getDisplayLines(normalizeLines(input.value)).join(" ");
   }
 
-  function getSerializedSvg() {
-    updateRoundel({ suppressPersist: true });
+  function getExportFilename(extension) {
+    return "roundel-sign-" + slugify(getExportText()) + "." + extension;
+  }
 
-    return new XMLSerializer().serializeToString(svg);
+  function getProjectMetadata(format) {
+    var text = getExportText();
+    var editUrl = getShareUrl();
+    var stateJson = JSON.stringify(getCurrentState());
+
+    return {
+      schema: "1",
+      title: "Roundel sign — \"" + text + "\"",
+      description: "Unofficial transport-inspired artwork created with Roundel Sign Maker, an application by Alexander Bekert. Remix this sign: " + editUrl,
+      software: "Roundel Sign Maker",
+      applicationAuthor: "Alexander Bekert",
+      creationTime: new Date().toISOString(),
+      editUrl: editUrl,
+      stateJson: stateJson,
+      format: format || "clean"
+    };
+  }
+
+  function addSvgMetadataText(parent, name, value) {
+    var node = document.createElementNS(roundelMetadataNamespace, "roundel:" + name);
+    node.textContent = value;
+    parent.appendChild(node);
+  }
+
+  function decorateExportSvg(exportSvg, metadata) {
+    var exportTitle = exportSvg.querySelector("#roundel-title");
+    var descriptionNode = exportSvg.querySelector("#roundel-description");
+    var metadataNode = exportSvg.querySelector("#roundel-metadata");
+    var projectNode;
+
+    if (exportTitle) {
+      exportTitle.textContent = metadata.title;
+    }
+
+    if (!descriptionNode) {
+      descriptionNode = document.createElementNS(svgNamespace, "desc");
+      descriptionNode.setAttribute("id", "roundel-description");
+      exportSvg.insertBefore(descriptionNode, exportTitle ? exportTitle.nextSibling : exportSvg.firstChild);
+    }
+    descriptionNode.textContent = metadata.description;
+
+    if (metadataNode) {
+      metadataNode.parentNode.removeChild(metadataNode);
+    }
+
+    metadataNode = document.createElementNS(svgNamespace, "metadata");
+    metadataNode.setAttribute("id", "roundel-metadata");
+    metadataNode.setAttribute("data-schema", metadata.schema);
+    projectNode = document.createElementNS(roundelMetadataNamespace, "roundel:project");
+    projectNode.setAttribute("schema", metadata.schema);
+    addSvgMetadataText(projectNode, "title", metadata.title);
+    addSvgMetadataText(projectNode, "description", metadata.description);
+    addSvgMetadataText(projectNode, "software", metadata.software);
+    addSvgMetadataText(projectNode, "applicationAuthor", metadata.applicationAuthor);
+    addSvgMetadataText(projectNode, "creationTime", metadata.creationTime);
+    addSvgMetadataText(projectNode, "editUrl", metadata.editUrl);
+    addSvgMetadataText(projectNode, "format", metadata.format);
+    addSvgMetadataText(projectNode, "state", metadata.stateJson);
+    metadataNode.appendChild(projectNode);
+    exportSvg.insertBefore(metadataNode, descriptionNode.nextSibling);
+  }
+
+  function getSerializedSvg(metadata) {
+    var exportSvg;
+
+    metadata = metadata || getProjectMetadata("svg");
+    updateRoundel({ suppressPersist: true });
+    exportSvg = svg.cloneNode(true);
+    exportSvg.setAttribute("viewBox", [sceneFrame.x, sceneFrame.y, sceneFrame.width, sceneFrame.height].join(" "));
+    exportSvg.setAttribute("width", String(sceneFrame.width));
+    exportSvg.setAttribute("height", String(sceneFrame.height));
+    decorateExportSvg(exportSvg, metadata);
+
+    return new XMLSerializer().serializeToString(exportSvg);
+  }
+
+  function encodeUtf8(value) {
+    var encoded;
+    var bytes;
+    var index;
+
+    if (window.TextEncoder) {
+      return new TextEncoder().encode(value);
+    }
+
+    encoded = unescape(encodeURIComponent(value));
+    bytes = new Uint8Array(encoded.length);
+    for (index = 0; index < encoded.length; index += 1) {
+      bytes[index] = encoded.charCodeAt(index);
+    }
+    return bytes;
+  }
+
+  function decodeUtf8(bytes) {
+    var value = "";
+    var index;
+
+    if (window.TextDecoder) {
+      return new TextDecoder("utf-8").decode(bytes);
+    }
+
+    for (index = 0; index < bytes.length; index += 1) {
+      value += String.fromCharCode(bytes[index]);
+    }
+    return decodeURIComponent(escape(value));
+  }
+
+  function concatenateBytes(parts) {
+    var length = parts.reduce(function (total, part) {
+      return total + part.length;
+    }, 0);
+    var bytes = new Uint8Array(length);
+    var offset = 0;
+
+    parts.forEach(function (part) {
+      bytes.set(part, offset);
+      offset += part.length;
+    });
+    return bytes;
+  }
+
+  var pngCrcTable = null;
+
+  function getPngCrcTable() {
+    var table;
+    var value;
+    var index;
+    var bit;
+
+    if (pngCrcTable) {
+      return pngCrcTable;
+    }
+
+    table = new Uint32Array(256);
+    for (index = 0; index < 256; index += 1) {
+      value = index;
+      for (bit = 0; bit < 8; bit += 1) {
+        value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+      }
+      table[index] = value >>> 0;
+    }
+    pngCrcTable = table;
+    return pngCrcTable;
+  }
+
+  function getPngCrc(bytes) {
+    var table = getPngCrcTable();
+    var crc = 0xffffffff;
+    var index;
+
+    for (index = 0; index < bytes.length; index += 1) {
+      crc = table[(crc ^ bytes[index]) & 0xff] ^ (crc >>> 8);
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function createPngChunk(type, data) {
+    var typeBytes = encodeUtf8(type);
+    var chunk = new Uint8Array(12 + data.length);
+    var view = new DataView(chunk.buffer);
+
+    view.setUint32(0, data.length, false);
+    chunk.set(typeBytes, 4);
+    chunk.set(data, 8);
+    view.setUint32(8 + data.length, getPngCrc(concatenateBytes([typeBytes, data])), false);
+    return chunk;
+  }
+
+  function createPngInternationalTextChunk(keyword, value) {
+    return createPngChunk("iTXt", concatenateBytes([
+      encodeUtf8(keyword),
+      new Uint8Array([0, 0, 0, 0, 0]),
+      encodeUtf8(value)
+    ]));
+  }
+
+  function escapeXml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+  }
+
+  function getXmpPacket(metadata) {
+    return [
+      "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\">",
+      "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">",
+      "<rdf:Description rdf:about=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\" xmlns:roundel=\"" + roundelMetadataNamespace + "\" xmp:CreatorTool=\"" + escapeXml(metadata.software) + "\" roundel:ApplicationAuthor=\"" + escapeXml(metadata.applicationAuthor) + "\" roundel:EditURL=\"" + escapeXml(metadata.editUrl) + "\" roundel:Format=\"" + escapeXml(metadata.format) + "\">",
+      "<dc:title><rdf:Alt><rdf:li xml:lang=\"x-default\">" + escapeXml(metadata.title) + "</rdf:li></rdf:Alt></dc:title>",
+      "<dc:description><rdf:Alt><rdf:li xml:lang=\"x-default\">" + escapeXml(metadata.description) + "</rdf:li></rdf:Alt></dc:description>",
+      "<roundel:State>" + escapeXml(metadata.stateJson) + "</roundel:State>",
+      "</rdf:Description></rdf:RDF></x:xmpmeta>"
+    ].join("");
+  }
+
+  function getPngMetadataChunks(metadata) {
+    return [
+      ["Title", metadata.title],
+      ["Description", metadata.description],
+      ["Software", metadata.software],
+      ["Creation Time", metadata.creationTime],
+      ["Comment", "Edit or remix this sign at " + metadata.editUrl],
+      ["Roundel:URL", metadata.editUrl],
+      ["Roundel:State", metadata.stateJson],
+      ["Roundel:Format", metadata.format],
+      ["XML:com.adobe.xmp", getXmpPacket(metadata)]
+    ].map(function (entry) {
+      return createPngInternationalTextChunk(entry[0], entry[1]);
+    });
+  }
+
+  function readBlobAsArrayBuffer(blob) {
+    if (blob.arrayBuffer) {
+      return blob.arrayBuffer();
+    }
+
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(reader.result); };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(blob);
+    });
+  }
+
+  function readBlobAsText(blob) {
+    if (blob.text) {
+      return blob.text();
+    }
+
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(reader.result); };
+      reader.onerror = reject;
+      reader.readAsText(blob);
+    });
+  }
+
+  function addPngMetadata(blob, metadata) {
+    return readBlobAsArrayBuffer(blob).then(function (buffer) {
+      var bytes = new Uint8Array(buffer);
+      var signature = [137, 80, 78, 71, 13, 10, 26, 10];
+      var view = new DataView(buffer);
+      var offset = 8;
+      var insertOffset = -1;
+      var index;
+      var length;
+      var type;
+      var chunks;
+
+      for (index = 0; index < signature.length; index += 1) {
+        if (bytes[index] !== signature[index]) {
+          throw new Error("Canvas returned an invalid PNG.");
+        }
+      }
+
+      while (offset + 12 <= bytes.length) {
+        length = view.getUint32(offset, false);
+        type = String.fromCharCode(bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]);
+        if (type === "IEND") {
+          insertOffset = offset;
+          break;
+        }
+        offset += length + 12;
+      }
+
+      if (insertOffset < 0) {
+        throw new Error("PNG is missing its end marker.");
+      }
+
+      chunks = getPngMetadataChunks(metadata);
+      return new Blob([
+        bytes.slice(0, insertOffset),
+        concatenateBytes(chunks),
+        bytes.slice(insertOffset)
+      ], { type: "image/png" });
+    });
+  }
+
+  function drawShareCardFooter(context, width, top, height) {
+    var iconX = 82;
+    var iconY = top + height / 2;
+    var radius = 42;
+
+    context.fillStyle = "#11151c";
+    context.fillRect(0, top, width, height);
+    context.fillStyle = "#dc241f";
+    context.fillRect(0, top, width, 8);
+
+    context.strokeStyle = "#dc241f";
+    context.lineWidth = 19;
+    context.beginPath();
+    context.arc(iconX, iconY, radius, 0, Math.PI * 2);
+    context.stroke();
+    context.fillStyle = "#003688";
+    context.fillRect(iconX - 57, iconY - 16, 114, 32);
+
+    context.fillStyle = "#f7f5ef";
+    context.font = "700 38px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+    context.fillText("Made with Roundel", 154, top + 83);
+    context.fillStyle = "#b7bec9";
+    context.font = "500 26px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+    context.fillText("Remix yours → abekert.github.io/roundel", 154, top + 132);
+  }
+
+  function renderPngCanvas(svgSource, format) {
+    return new Promise(function (resolve, reject) {
+      var svgBlob = new Blob([svgSource], { type: "image/svg+xml;charset=utf-8" });
+      var url = URL.createObjectURL(svgBlob);
+      var image = new Image();
+
+      image.onload = function () {
+        var scale = 2;
+        var imageWidth = Math.round(sceneFrame.width * scale);
+        var imageHeight = Math.round(sceneFrame.height * scale);
+        var footerHeight = format === "card" ? 190 : 0;
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+
+        try {
+          canvas.width = imageWidth;
+          canvas.height = imageHeight + footerHeight;
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(image, 0, 0, imageWidth, imageHeight);
+          if (footerHeight) {
+            drawShareCardFooter(context, imageWidth, imageHeight, footerHeight);
+          }
+          resolve(canvas);
+        } catch (error) {
+          reject(error);
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+      };
+
+      image.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("Could not render the SVG artwork."));
+      };
+      image.src = url;
+    });
+  }
+
+  function canvasToPngBlob(canvas) {
+    return new Promise(function (resolve, reject) {
+      canvas.toBlob(function (blob) {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Could not create a PNG."));
+        }
+      }, "image/png");
+    });
+  }
+
+  function createPngAsset(format) {
+    var metadata = getProjectMetadata(format);
+    var svgSource = getSerializedSvg(metadata);
+
+    return renderPngCanvas(svgSource, format)
+      .then(canvasToPngBlob)
+      .then(function (blob) {
+        return addPngMetadata(blob, metadata);
+      });
   }
 
   function downloadBlob(blob, filename) {
@@ -3937,7 +5060,9 @@
 
     link.download = filename;
     link.href = url;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 
     window.setTimeout(function () {
       URL.revokeObjectURL(url);
@@ -3950,57 +5075,321 @@
     if (exportSvgButton) {
       exportSvgButton.disabled = isBusy;
     }
+    if (nativeShareButton) {
+      nativeShareButton.disabled = isBusy;
+    }
+    if (copyImageButton) {
+      copyImageButton.disabled = isBusy;
+    }
+  }
+
+  function prepareShareAsset() {
+    var key = stateSignature(getCurrentState()) + "|" + shareFormat;
+    var promise;
+
+    if (shareAssetCache.key === key && shareAssetCache.promise) {
+      return shareAssetCache.promise;
+    }
+
+    setExportBusy(true);
+    exportStatus.textContent = "Preparing image…";
+    promise = createPngAsset(shareFormat);
+    shareAssetCache = { key: key, promise: promise, blob: null };
+    promise.then(function (blob) {
+      if (shareAssetCache.key === key) {
+        shareAssetCache.blob = blob;
+        setExportBusy(false);
+        exportStatus.textContent = "Image ready. The editable project is embedded.";
+        emitRoundelEvent("share_asset_ready", { format: shareFormat });
+      }
+    }, function () {
+      if (shareAssetCache.key === key) {
+        setExportBusy(false);
+        exportStatus.textContent = "Image preparation failed.";
+        emitRoundelEvent("share_failed", { mechanism: "render" });
+      }
+    });
+    return promise;
+  }
+
+  function canCopyImage() {
+    return Boolean(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem);
+  }
+
+  function canShareFiles() {
+    var testFile;
+
+    if (!navigator.share || !navigator.canShare || !window.File) {
+      return false;
+    }
+
+    try {
+      testFile = new File([new Uint8Array(0)], "roundel.png", { type: "image/png" });
+      return navigator.canShare({ files: [testFile] });
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function updateShareCapabilities() {
+    var imageClipboard = canCopyImage();
+
+    if (!nativeShareButton || !copyImageButton) {
+      return;
+    }
+
+    if (navigator.share && canShareFiles()) {
+      nativeShareButton.textContent = "Share image";
+    } else if (navigator.share) {
+      nativeShareButton.textContent = "Share edit link";
+    } else if (imageClipboard) {
+      nativeShareButton.textContent = "Copy image";
+    } else {
+      nativeShareButton.textContent = "Download image";
+    }
+
+    copyImageButton.hidden = !imageClipboard || !navigator.share;
+  }
+
+  function copyPngToClipboard() {
+    var blob = shareAssetCache.blob;
+    var item;
+
+    if (!blob || !canCopyImage()) {
+      exportStatus.textContent = "Image clipboard is not available here.";
+      return Promise.reject(new Error("Image clipboard unavailable."));
+    }
+
+    item = new ClipboardItem({ "image/png": blob });
+    return navigator.clipboard.write([item]).then(function () {
+      exportStatus.textContent = "Image copied. Paste it into a message or post.";
+      emitRoundelEvent("share_image_copied", { format: shareFormat });
+    }).catch(function (error) {
+      exportStatus.textContent = "Couldn’t copy the image. Try downloading it.";
+      emitRoundelEvent("share_failed", { mechanism: "image-clipboard" });
+      throw error;
+    });
+  }
+
+  function runPrimaryShare() {
+    var blob = shareAssetCache.blob;
+    var editUrl = getShareUrl();
+    var title = "My " + getExportText() + " roundel";
+    var shareText = "I made this with Roundel Sign Maker, an application by Alexander Bekert. Remix it: " + editUrl;
+    var file;
+    var data;
+
+    if (!blob) {
+      exportStatus.textContent = "The image is still preparing…";
+      prepareShareAsset().catch(function () {});
+      return;
+    }
+
+    if (navigator.share && canShareFiles()) {
+      file = new File([blob], getExportFilename("png"), { type: "image/png", lastModified: Date.now() });
+      data = { title: title, text: shareText, files: [file] };
+    } else if (navigator.share) {
+      data = { title: title, text: "Made with Roundel Sign Maker by Alexander Bekert.", url: editUrl };
+    } else if (canCopyImage()) {
+      copyPngToClipboard().catch(function () {});
+      return;
+    } else {
+      downloadBlob(blob, getExportFilename("png"));
+      exportStatus.textContent = "PNG downloaded.";
+      emitRoundelEvent("share_downloaded", { format: shareFormat });
+      return;
+    }
+
+    navigator.share(data).then(function () {
+      exportStatus.textContent = "Shared. Your edit link travels with it.";
+      emitRoundelEvent("share_sheet_completed", {
+        format: shareFormat,
+        mechanism: data.files ? "file" : "link"
+      });
+    }).catch(function (error) {
+      if (error && error.name === "AbortError") {
+        exportStatus.textContent = "Share cancelled.";
+        emitRoundelEvent("share_sheet_cancelled", { format: shareFormat });
+        return;
+      }
+      exportStatus.textContent = "Couldn’t open sharing. Try Copy image or Download PNG.";
+      emitRoundelEvent("share_failed", { mechanism: "native-share" });
+    });
+  }
+
+  function selectShareFormat(format) {
+    shareFormat = format === "card" ? "card" : "clean";
+    shareFormatButtons.forEach(function (button) {
+      var isActive = button.getAttribute("data-share-format") === shareFormat;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+    if (shareFormatHint) {
+      shareFormatHint.textContent = shareFormat === "card" ?
+        "Adds a visible Made with Roundel footer that survives screenshots and reposts." :
+        "A clean PNG with an embedded editable project.";
+    }
+    emitRoundelEvent("share_format_selected", { format: shareFormat });
+    prepareShareAsset().catch(function () {});
   }
 
   function exportSvg() {
-    var text = getExportText();
-    var svgBlob = new Blob([getSerializedSvg()], { type: "image/svg+xml;charset=utf-8" });
+    var metadata = getProjectMetadata("svg");
+    var svgBlob = new Blob([getSerializedSvg(metadata)], { type: "image/svg+xml;charset=utf-8" });
 
-    downloadBlob(svgBlob, "roundel-sign-" + slugify(text) + ".svg");
-    exportStatus.textContent = "SVG exported.";
+    downloadBlob(svgBlob, getExportFilename("svg"));
+    exportStatus.textContent = "Editable SVG downloaded.";
+    emitRoundelEvent("share_downloaded", { format: "svg" });
   }
 
   function exportPng() {
-    var text = getExportText();
-    var svgSource = getSerializedSvg();
-    var svgBlob = new Blob([svgSource], { type: "image/svg+xml;charset=utf-8" });
-    var url = URL.createObjectURL(svgBlob);
-    var image = new Image();
-
-    setExportBusy(true);
-    exportStatus.textContent = "Preparing PNG...";
-
-    image.onload = function () {
-      var scale = 2;
-      var canvas = document.createElement("canvas");
-      var context = canvas.getContext("2d");
-
-      try {
-        canvas.width = 1200 * scale;
-        canvas.height = 840 * scale;
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-        var link = document.createElement("a");
-        link.download = "roundel-sign-" + slugify(text) + ".png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-        exportStatus.textContent = "PNG exported.";
-      } catch (error) {
-        exportStatus.textContent = "Export failed.";
-      } finally {
-        URL.revokeObjectURL(url);
-        setExportBusy(false);
-      }
-    };
-
-    image.onerror = function () {
-      URL.revokeObjectURL(url);
-      setExportBusy(false);
+    prepareShareAsset().then(function (blob) {
+      downloadBlob(blob, getExportFilename("png"));
+      exportStatus.textContent = shareFormat === "card" ? "Share card downloaded." : "PNG downloaded.";
+      emitRoundelEvent("share_downloaded", { format: shareFormat });
+    }).catch(function () {
       exportStatus.textContent = "Export failed.";
-    };
+    });
+  }
 
-    image.src = url;
+  function getPngTextMetadata(buffer) {
+    var bytes = new Uint8Array(buffer);
+    var signature = [137, 80, 78, 71, 13, 10, 26, 10];
+    var view = new DataView(buffer);
+    var values = {};
+    var offset = 8;
+    var length;
+    var type;
+    var dataStart;
+    var dataEnd;
+    var cursor;
+    var keywordEnd;
+    var languageEnd;
+    var translatedKeywordEnd;
+    var compressionFlag;
+    var keyword;
+    var index;
+
+    if (bytes.length < signature.length) {
+      throw new Error("This is not a PNG file.");
+    }
+    for (index = 0; index < signature.length; index += 1) {
+      if (bytes[index] !== signature[index]) {
+        throw new Error("This is not a PNG file.");
+      }
+    }
+
+    while (offset + 12 <= bytes.length) {
+      length = view.getUint32(offset, false);
+      dataStart = offset + 8;
+      dataEnd = dataStart + length;
+      if (dataEnd + 4 > bytes.length) {
+        throw new Error("The PNG file is incomplete.");
+      }
+      type = String.fromCharCode(bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]);
+
+      if (type === "iTXt") {
+        keywordEnd = dataStart;
+        while (keywordEnd < dataEnd && bytes[keywordEnd] !== 0) {
+          keywordEnd += 1;
+        }
+        cursor = keywordEnd + 1;
+        if (cursor + 4 <= dataEnd) {
+          keyword = decodeUtf8(bytes.slice(dataStart, keywordEnd));
+          compressionFlag = bytes[cursor];
+          cursor += 2;
+          languageEnd = cursor;
+          while (languageEnd < dataEnd && bytes[languageEnd] !== 0) {
+            languageEnd += 1;
+          }
+          cursor = languageEnd + 1;
+          translatedKeywordEnd = cursor;
+          while (translatedKeywordEnd < dataEnd && bytes[translatedKeywordEnd] !== 0) {
+            translatedKeywordEnd += 1;
+          }
+          cursor = translatedKeywordEnd + 1;
+          if (compressionFlag === 0 && cursor <= dataEnd) {
+            values[keyword] = decodeUtf8(bytes.slice(cursor, dataEnd));
+          }
+        }
+      }
+
+      offset = dataEnd + 4;
+      if (type === "IEND") {
+        break;
+      }
+    }
+    return values;
+  }
+
+  function getImportedSvgState(source) {
+    var documentNode = new DOMParser().parseFromString(source, "image/svg+xml");
+    var parserErrors = documentNode.getElementsByTagName("parsererror");
+    var stateNodes;
+
+    if (parserErrors.length) {
+      throw new Error("The SVG file is not valid XML.");
+    }
+
+    stateNodes = documentNode.getElementsByTagNameNS(roundelMetadataNamespace, "state");
+    if (!stateNodes.length) {
+      throw new Error("No editable Roundel project was found in this SVG.");
+    }
+    return JSON.parse(stateNodes[0].textContent);
+  }
+
+  function validateImportedState(state) {
+    if (!state || typeof state !== "object" || Array.isArray(state) || typeof state.text !== "string") {
+      throw new Error("The embedded Roundel project is not valid.");
+    }
+    return state;
+  }
+
+  function getImportedFileState(file) {
+    var isSvg = file.type === "image/svg+xml" || /\.svg$/i.test(file.name);
+
+    if (isSvg) {
+      return readBlobAsText(file).then(function (source) {
+        return validateImportedState(getImportedSvgState(source));
+      });
+    }
+
+    return readBlobAsArrayBuffer(file).then(function (buffer) {
+      var metadata = getPngTextMetadata(buffer);
+
+      if (!metadata["Roundel:State"]) {
+        throw new Error("No editable Roundel project was found. The app that reposted this PNG may have removed its metadata.");
+      }
+      return validateImportedState(JSON.parse(metadata["Roundel:State"]));
+    });
+  }
+
+  function importRoundelFile(file) {
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 25 * 1024 * 1024) {
+      exportStatus.textContent = "Choose a PNG or SVG smaller than 25 MB.";
+      emitRoundelEvent("remix_import_failed", { format: "oversize" });
+      return;
+    }
+
+    exportStatus.textContent = "Reading embedded project…";
+    getImportedFileState(file).then(function (state) {
+      recordUndoState();
+      applyState(state, { animate: true });
+      exportStatus.textContent = "Project restored. You can edit and share your remix.";
+      emitRoundelEvent("remix_imported", {
+        format: file.type === "image/svg+xml" || /\.svg$/i.test(file.name) ? "svg" : "png"
+      });
+      prepareShareAsset().catch(function () {});
+    }).catch(function (error) {
+      exportStatus.textContent = error && error.message ? error.message : "Couldn’t restore this project.";
+      emitRoundelEvent("remix_import_failed", {
+        format: file.type === "image/svg+xml" || /\.svg$/i.test(file.name) ? "svg" : "png"
+      });
+    });
   }
 
   function updateDragValue(event) {
@@ -4222,11 +5611,31 @@
     markCustom();
     scheduleRangeUpdate();
   });
+  textHeightInput.addEventListener("input", function () {
+    markCustom();
+    scheduleRangeUpdate();
+  });
+  textWidthInput.addEventListener("input", function () {
+    markCustom();
+    scheduleRangeUpdate();
+  });
   capitaliseToggle.addEventListener("change", function () {
     markCustom();
     updateRoundel({ animate: true });
   });
   letterRulesToggle.addEventListener("change", function () {
+    markCustom();
+    updateRoundel({ animate: true });
+  });
+  outerLetterRulesToggle.addEventListener("change", function () {
+    markCustom();
+    updateRoundel({ animate: true });
+  });
+  hexagonalLetterRulesToggle.addEventListener("change", function () {
+    markCustom();
+    updateRoundel({ animate: true });
+  });
+  joinLetterRuleSpacesToggle.addEventListener("change", function () {
     markCustom();
     updateRoundel({ animate: true });
   });
@@ -4254,11 +5663,27 @@
   exportSvgButton.addEventListener("click", exportSvg);
   undoButton.addEventListener("click", undoLastChange);
   copyLinkButton.addEventListener("click", copyShareLink);
+  nativeShareButton.addEventListener("click", runPrimaryShare);
+  copyImageButton.addEventListener("click", function () {
+    copyPngToClipboard().catch(function () {});
+  });
+  importButton.addEventListener("click", function () {
+    importFileInput.click();
+  });
+  importFileInput.addEventListener("change", function () {
+    importRoundelFile(importFileInput.files && importFileInput.files[0]);
+    importFileInput.value = "";
+  });
+  shareFormatButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      selectShareFormat(button.getAttribute("data-share-format"));
+    });
+  });
   if (shareButton) {
     shareButton.addEventListener("click", toggleShareMenu);
   }
 
-  [barWidthInput, barHeightInput, textSizeInput].forEach(function (control) {
+  [barWidthInput, barHeightInput, textSizeInput, textHeightInput, textWidthInput].forEach(function (control) {
     control.addEventListener("pointerdown", recordUndoState);
     control.addEventListener("keydown", function (event) {
       if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].indexOf(event.key) !== -1) {
@@ -4270,6 +5695,9 @@
   Array.prototype.forEach.call(document.querySelectorAll([
     "#capitalise-text",
     "#letter-rules",
+    "#outer-letter-rules",
+    "#hexagonal-letter-rules",
+    "#join-letter-rule-spaces",
     "#white-center",
     "#use-gradients",
     "#use-shadow",
@@ -4277,6 +5705,9 @@
     "#white-inset",
     "label[for='capitalise-text']",
     "label[for='letter-rules']",
+    "label[for='outer-letter-rules']",
+    "label[for='hexagonal-letter-rules']",
+    "label[for='join-letter-rule-spaces']",
     "label[for='white-center']",
     "label[for='use-gradients']",
     "label[for='use-shadow']",
@@ -4345,11 +5776,16 @@
   var initialStateFromUrl = getStateFromUrl();
   var shouldPlayIntro = !window.location.search;
 
+  updateShareCapabilities();
   applyPreset(activePresetKey, { suppressPersist: true });
   applyState(initialStateFromUrl || getStoredState(), { suppressPersist: true });
   persistState();
   updateUndoButton();
   showHudChrome();
+
+  if (isSharedRemixSession) {
+    emitRoundelEvent("remix_opened", { source: "shared-project" });
+  }
 
   if (shouldPlayIntro) {
     playFirstRunIntro();

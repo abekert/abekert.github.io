@@ -42,7 +42,7 @@
     <meta name="twitter:image" content="https://abekert.github.io/images/roundel-og.png" />
     <meta name="twitter:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
 
-    <link rel="stylesheet" href="styles.css?v=20260713.1" />
+    <link rel="stylesheet" href="styles.css?v=20260716.6" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -81,10 +81,32 @@
               Share
             </button>
             <div class="share-menu" id="share-menu" role="dialog" aria-label="Share and export" hidden>
-              <p class="export-status" id="export-status" role="status" aria-live="polite"></p>
-              <button class="menu-action menu-action-secondary" id="copy-link-button" type="button">Copy link</button>
-              <button class="menu-action" id="export-button" type="button">Export PNG</button>
-              <button class="menu-action menu-action-secondary" id="export-svg-button" type="button">Export SVG</button>
+              <div class="share-menu-heading">
+                <strong>Share your roundel</strong>
+                <span>Anyone can open the edit link and remix it.</span>
+              </div>
+              <div class="share-format" role="group" aria-label="Image format">
+                <button class="share-format-button is-active" data-share-format="clean" type="button" aria-pressed="true">
+                  <strong>Clean</strong>
+                  <span>Just your artwork</span>
+                </button>
+                <button class="share-format-button" data-share-format="card" type="button" aria-pressed="false">
+                  <strong>Share card</strong>
+                  <span>Adds a remix footer</span>
+                </button>
+              </div>
+              <p class="share-format-hint" id="share-format-hint">A clean PNG with an embedded editable project.</p>
+              <button class="menu-action" id="native-share-button" type="button">Share image</button>
+              <button class="menu-action menu-action-secondary" id="copy-image-button" type="button" hidden>Copy image</button>
+              <button class="menu-action menu-action-secondary" id="copy-link-button" type="button">Copy edit link</button>
+              <details class="share-more">
+                <summary>Download or remix</summary>
+                <button class="menu-action menu-action-secondary" id="export-button" type="button">Download PNG</button>
+                <button class="menu-action menu-action-secondary" id="export-svg-button" type="button">Download editable SVG</button>
+                <button class="menu-action menu-action-secondary" id="import-button" type="button">Remix from PNG or SVG</button>
+                <input id="import-file-input" type="file" accept=".png,.svg,image/png,image/svg+xml" hidden />
+              </details>
+              <p class="export-status" id="export-status" role="status" aria-live="polite">Preparing image…</p>
             </div>
           </div>
         </header>
@@ -128,6 +150,7 @@
           </select>
           <select id="background-choice" name="background-choice" hidden>
             <option value="none" selected>Transparent</option>
+            <option value="night">Night</option>
             <option value="plaque">Signboard</option>
             <option value="brick-white">White brick</option>
             <option value="brick-red">Red brick</option>
@@ -213,6 +236,11 @@
               <stop offset="0" stop-color="#12101a" />
               <stop offset="0.52" stop-color="#05070d" />
               <stop offset="1" stop-color="#000000" />
+            </radialGradient>
+            <radialGradient id="night-backdrop-wash" cx="46%" cy="38%" r="78%">
+              <stop offset="0" stop-color="#18233f" />
+              <stop offset="0.56" stop-color="#080d1b" />
+              <stop offset="1" stop-color="#010207" />
             </radialGradient>
             <linearGradient id="plaque-grime" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0" stop-color="#8b8272" stop-opacity="0.16" />
@@ -447,11 +475,17 @@
             <filter id="street-soft-blur" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="3.5" />
             </filter>
-            <clipPath id="neon-flag-clip">
-              <path d="M2 54L280 2L320 248L18 224Z" />
+            <clipPath id="scene-frame-clip" clipPathUnits="userSpaceOnUse">
+              <rect x="54" y="60" width="1092" height="720" rx="28" />
             </clipPath>
           </defs>
+          <g id="scene-frame" clip-path="url(#scene-frame-clip)">
           <rect width="1200" height="840" fill="transparent" />
+          <g id="night-background" style="display: none;" opacity="0">
+            <rect width="1200" height="840" fill="#010207" />
+            <rect width="1200" height="840" fill="url(#night-backdrop-wash)" />
+            <ellipse cx="600" cy="430" rx="430" ry="300" fill="#244c9f" opacity="0.08" />
+          </g>
           <g id="street-background" style="display: none;" opacity="0">
             <rect width="1200" height="840" fill="url(#street-sky)" />
             <g filter="url(#street-soft-blur)" opacity="0.72">
@@ -661,20 +695,21 @@
             </g>
           </g>
           <g id="street-sign-rig" style="display: none;" opacity="0" pointer-events="none">
-            <g transform="matrix(0.965 0.018 -0.035 0.995 32 18)">
-              <rect x="574" y="548" width="56" height="296" rx="18" fill="url(#street-pole-fill)" />
-              <rect x="588" y="548" width="10" height="296" fill="#2b74d0" opacity="0.56" />
-              <ellipse cx="602" cy="550" rx="48" ry="16" fill="#03091d" opacity="0.72" />
-              <rect x="528" y="510" width="152" height="72" rx="18" fill="#050812" opacity="0.82" />
-              <path d="M542 514H668" stroke="#384252" stroke-opacity="0.72" stroke-width="8" stroke-linecap="round" />
+            <g>
+              <rect x="574" y="136" width="52" height="708" rx="17" fill="url(#street-pole-fill)" />
+              <rect x="585" y="146" width="9" height="688" rx="4.5" fill="#2b74d0" opacity="0.58" />
+              <path d="M615 148V832" stroke="#020616" stroke-opacity="0.5" stroke-width="8" stroke-linecap="round" />
+              <ellipse cx="600" cy="140" rx="26" ry="9" fill="#101936" />
+              <ellipse cx="595" cy="137" rx="14" ry="4" fill="#5a83ba" opacity="0.38" />
+              <rect x="528" y="378" width="144" height="84" rx="24" fill="#050812" opacity="0.88" />
+              <path d="M544 386H656" stroke="#49566a" stroke-opacity="0.68" stroke-width="8" stroke-linecap="round" />
             </g>
           </g>
           <g id="plaque-background" style="display: none;">
-            <rect x="72" y="82" width="1056" height="676" rx="8" fill="#d9d2bf" filter="url(#plaque-shadow)" />
-            <rect x="84" y="68" width="1032" height="676" rx="7" fill="url(#plaque-wash)" stroke="#b8af9c" stroke-width="4" />
-            <rect x="104" y="92" width="992" height="628" rx="3" fill="none" stroke="#ffffff" stroke-opacity="0.72" stroke-width="10" />
-            <rect x="96" y="80" width="1008" height="652" rx="5" fill="url(#plaque-fibers)" />
-            <rect x="96" y="80" width="1008" height="652" rx="5" fill="url(#plaque-grime)" />
+            <rect x="54" y="60" width="1092" height="720" rx="28" fill="url(#plaque-wash)" stroke="#b8af9c" stroke-width="4" />
+            <rect x="74" y="80" width="1052" height="680" rx="18" fill="none" stroke="#ffffff" stroke-opacity="0.72" stroke-width="10" />
+            <rect x="54" y="60" width="1092" height="720" rx="28" fill="url(#plaque-fibers)" />
+            <rect x="54" y="60" width="1092" height="720" rx="28" fill="url(#plaque-grime)" />
             <g opacity="0.18">
               <path d="M176 102c-10 80-6 170 4 250 8 70 4 160-10 248" fill="none" stroke="#7d7364" stroke-width="9" stroke-linecap="round" />
               <path d="M330 88c-8 98 6 166 3 244-3 88-18 172-7 372" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" />
@@ -713,32 +748,32 @@
               <rect x="120" y="314" width="960" height="212" rx="20" fill="#00eaff" opacity="0.08" filter="url(#neon-cyan-glow)" />
             </g>
             <g id="neon-flags" style="display: none;" opacity="0.78">
-              <g transform="translate(76 214) rotate(-10 160 126)" clip-path="url(#neon-flag-clip)" filter="url(#neon-white-glow)">
+              <g transform="translate(76 214) rotate(-10 160 126)" filter="url(#neon-white-glow)">
                 <path d="M2 54L280 2L320 248L18 224Z" fill="#06184a" />
-                <path d="M-24 34L342 260M-14 244L328 0" stroke="#f6f6f0" stroke-width="38" />
-                <path d="M-14 38L330 250M2 238L316 6" stroke="#d91f2b" stroke-width="18" />
-                <path d="M154 -20L178 272M-20 124L342 112" stroke="#f7f1e4" stroke-width="48" />
-                <path d="M162 -20L170 272M-20 119L342 118" stroke="#d91f2b" stroke-width="24" />
+                <path d="M2 54L3.84 73.52L281.44 244.94L320 248L315.68 221.42L34.66 47.89ZM18 224L43.87 226.06L288.1 51.81L281.3 9.98L15.69 199.48Z" fill="#f6f6f0" />
+                <path d="M2 54L2.44 58.71L308.06 247.05L320 248L317.34 231.62L22.8 50.11ZM18 224L34.34 225.3L286.07 39.31L282.82 19.33L17.21 215.57Z" fill="#d91f2b" />
+                <path d="M133.97 29.31L150.84 234.56L199.32 238.41L181.4 20.44ZM10.75 146.99L302.01 137.34L294.24 89.57L6.25 99.12Z" fill="#f7f1e4" />
+                <path d="M151.26 26.08L156.98 235.05L181.04 236.96L175.14 21.61ZM9.24 130.92L300.83 130.11L296.93 106.12L6.98 106.93Z" fill="#d91f2b" />
               </g>
-              <g transform="translate(804 214) rotate(10 160 126)" clip-path="url(#neon-flag-clip)" filter="url(#neon-white-glow)">
+              <g transform="translate(804 214) rotate(10 160 126)" filter="url(#neon-white-glow)">
                 <path d="M2 54L280 2L320 248L18 224Z" fill="#06184a" />
-                <path d="M-24 34L342 260M-14 244L328 0" stroke="#f6f6f0" stroke-width="38" />
-                <path d="M-14 38L330 250M2 238L316 6" stroke="#d91f2b" stroke-width="18" />
-                <path d="M154 -20L178 272M-20 124L342 112" stroke="#f7f1e4" stroke-width="48" />
-                <path d="M162 -20L170 272M-20 119L342 118" stroke="#d91f2b" stroke-width="24" />
+                <path d="M2 54L3.84 73.52L281.44 244.94L320 248L315.68 221.42L34.66 47.89ZM18 224L43.87 226.06L288.1 51.81L281.3 9.98L15.69 199.48Z" fill="#f6f6f0" />
+                <path d="M2 54L2.44 58.71L308.06 247.05L320 248L317.34 231.62L22.8 50.11ZM18 224L34.34 225.3L286.07 39.31L282.82 19.33L17.21 215.57Z" fill="#d91f2b" />
+                <path d="M133.97 29.31L150.84 234.56L199.32 238.41L181.4 20.44ZM10.75 146.99L302.01 137.34L294.24 89.57L6.25 99.12Z" fill="#f7f1e4" />
+                <path d="M151.26 26.08L156.98 235.05L181.04 236.96L175.14 21.61ZM9.24 130.92L300.83 130.11L296.93 106.12L6.98 106.93Z" fill="#d91f2b" />
               </g>
             </g>
             <circle cx="600" cy="420" r="332" fill="none" stroke="#ff4d31" stroke-opacity="0.32" stroke-width="18" filter="url(#neon-red-glow)" />
             <rect x="130" y="322" width="940" height="196" rx="18" fill="none" stroke="#00eaff" stroke-opacity="0.28" stroke-width="12" filter="url(#neon-cyan-glow)" />
           </g>
           <g id="street-sign-depth" style="display: none;" opacity="0" pointer-events="none">
-            <g id="street-depth-art" transform="matrix(0.965 0.018 -0.035 0.995 32 18)">
-              <circle id="street-depth-ring-edge" cx="658" cy="446" r="222" fill="none" stroke="#04070d" stroke-width="132" opacity="0.78" />
-              <circle id="street-depth-ring-back" cx="658" cy="446" r="222" fill="none" stroke="url(#street-sign-side-fill)" stroke-width="112" opacity="0.92" />
-              <circle id="street-depth-ring-outer-rim" cx="658" cy="446" r="278" fill="none" stroke="url(#street-sign-side-edge)" stroke-width="9" opacity="0.9" />
-              <circle id="street-depth-ring-inner-rim" cx="658" cy="446" r="166" fill="none" stroke="#05070d" stroke-width="10" opacity="0.82" />
-              <path id="street-depth-ring-sheen" d="M772 186C842 214 894 268 920 338" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="7" stroke-linecap="round" />
-              <rect id="street-depth-bar-back" x="208" y="369" width="900" height="154" rx="1" fill="url(#street-sign-side-fill)" stroke="#05070d" stroke-width="9" opacity="0.9" />
+            <g id="street-depth-art">
+              <circle id="street-depth-ring-edge" cx="612" cy="434" r="222" fill="none" stroke="#04070d" stroke-width="130" opacity="0.78" />
+              <circle id="street-depth-ring-back" cx="612" cy="434" r="222" fill="none" stroke="url(#street-sign-side-fill)" stroke-width="112" opacity="0.92" />
+              <circle id="street-depth-ring-outer-rim" cx="612" cy="434" r="278" fill="none" stroke="url(#street-sign-side-edge)" stroke-width="9" opacity="0.9" />
+              <circle id="street-depth-ring-inner-rim" cx="612" cy="434" r="166" fill="none" stroke="#05070d" stroke-width="10" opacity="0.82" />
+              <path id="street-depth-ring-sheen" d="M729 195C796 223 858 282 882 367" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="7" stroke-linecap="round" />
+              <rect id="street-depth-bar-back" x="162" y="357" width="900" height="154" rx="4" fill="url(#street-sign-side-fill)" stroke="#05070d" stroke-width="9" opacity="0.9" />
               <path id="street-depth-bar-top" d="" fill="url(#street-sign-side-edge)" opacity="0.62" />
               <path id="street-depth-bar-bottom" d="" fill="#05070d" opacity="0.88" />
               <path id="street-depth-bar-left" d="" fill="url(#street-sign-side-fill)" opacity="0.96" />
@@ -780,6 +815,7 @@
             />
             <rect id="neon-bar-tube" x="140" y="322" width="920" height="196" rx="16" fill="none" stroke="#67f8ff" stroke-width="8" stroke-opacity="0.9" filter="url(#neon-cyan-glow)" />
             <rect id="neon-bar-inner-tube" x="174" y="356" width="852" height="128" rx="8" fill="none" stroke="#f7ffff" stroke-width="3" stroke-opacity="0.7" filter="url(#neon-white-glow)" />
+          </g>
           </g>
               </svg>
 
@@ -877,7 +913,7 @@
                 <label class="range-field" for="bar-height-adjust">
                   <span>Thickness</span>
                   <div class="range-row">
-                    <input id="bar-height-adjust" name="bar-height-adjust" type="range" min="-28" max="36" step="2" value="0" />
+                    <input id="bar-height-adjust" name="bar-height-adjust" type="range" min="-72" max="36" step="2" value="0" />
                     <output id="bar-height-output" for="bar-height-adjust">0</output>
                   </div>
                 </label>
@@ -905,8 +941,22 @@
                 <label class="range-field text-options-range" for="text-size-adjust">
                   <span>Size</span>
                   <div class="range-row">
-                    <input id="text-size-adjust" name="text-size-adjust" type="range" min="-14" max="14" step="1" value="0" />
+                    <input id="text-size-adjust" name="text-size-adjust" type="range" min="-14" max="48" step="1" value="0" />
                     <output id="text-size-output" for="text-size-adjust">0</output>
+                  </div>
+                </label>
+                <label class="range-field" for="text-height-adjust">
+                  <span>Height</span>
+                  <div class="range-row">
+                    <input id="text-height-adjust" name="text-height-adjust" type="range" min="60" max="140" step="1" value="100" />
+                    <output id="text-height-output" for="text-height-adjust">100%</output>
+                  </div>
+                </label>
+                <label class="range-field" for="text-width-adjust">
+                  <span>Width</span>
+                  <div class="range-row">
+                    <input id="text-width-adjust" name="text-width-adjust" type="range" min="60" max="140" step="1" value="100" />
+                    <output id="text-width-output" for="text-width-adjust">100%</output>
                   </div>
                 </label>
                 <div class="toggle-grid text-options-case">
@@ -918,6 +968,20 @@
                     <input id="letter-rules" name="letter-rules" type="checkbox" />
                     <span>Letter rules</span>
                   </label>
+                  <div class="letter-rules-options" id="letter-rules-options" aria-label="Letter rule styles">
+                    <label class="toggle toggle-dependent" for="outer-letter-rules">
+                      <input id="outer-letter-rules" name="outer-letter-rules" type="checkbox" disabled />
+                      <span>Outer lines</span>
+                    </label>
+                    <label class="toggle toggle-dependent" for="hexagonal-letter-rules">
+                      <input id="hexagonal-letter-rules" name="hexagonal-letter-rules" type="checkbox" disabled />
+                      <span>Hexagons</span>
+                    </label>
+                    <label class="toggle toggle-dependent toggle-wide" for="join-letter-rule-spaces">
+                      <input id="join-letter-rule-spaces" name="join-letter-rule-spaces" type="checkbox" disabled />
+                      <span>Join spaces</span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -927,6 +991,10 @@
                   <button class="background-button" data-background="none" type="button" style="--swatch-base: transparent; --swatch-line: rgba(255,255,255,0.48);">
                     <span class="background-swatch background-swatch-none" aria-hidden="true"></span>
                     <span>Transparent</span>
+                  </button>
+                  <button class="background-button" data-background="night" type="button" style="--swatch-base: #080d1b; --swatch-line: #244c9f;">
+                    <span class="background-swatch background-swatch-night" aria-hidden="true"></span>
+                    <span>Night</span>
                   </button>
                   <button class="background-button" data-background="plaque" type="button" style="--swatch-base: #eee7d5; --swatch-line: #9f9584;">
                     <span class="background-swatch background-swatch-plaque" aria-hidden="true"></span>
@@ -966,6 +1034,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260713.24"></script>
+    <script src="app.js?v=20260716.28"></script>
   </body>
 </html>

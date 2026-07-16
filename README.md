@@ -50,7 +50,8 @@ visual layering, parallax behavior, and rewrite pitfalls are documented in
 The roundel sign maker lives at `/roundel/`. It is a standalone static tool with
 its own HTML, CSS, and JS in `roundel/`. Its visual maintenance rules, including
 the custom Wall Style shadow invariants and known regressions, are documented in
-`roundel/AGENTS.md`.
+`roundel/AGENTS.md`. The share flow, portable PNG/SVG project metadata, remix
+format, and analytics event contract are documented in `roundel/SHARING.md`.
 
 ## Maintenance notes for AI/editor passes
 
