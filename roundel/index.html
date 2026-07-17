@@ -42,7 +42,7 @@
     <meta name="twitter:image" content="https://abekert.github.io/images/roundel-og.png" />
     <meta name="twitter:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
 
-    <link rel="stylesheet" href="styles.css?v=20260716.12" />
+    <link rel="stylesheet" href="styles.css?v=20260717.8" />
     <script src="/assets/js/analytics.js"></script>
     <script type="application/ld+json">
       {
@@ -132,7 +132,7 @@
           type="button"
           aria-controls="menu-font"
           aria-expanded="false"
-        >Type</button>
+        >Font</button>
         <button
           class="hud-panel-trigger hud-panel-surface"
           data-menu="background"
@@ -172,7 +172,7 @@
                 viewBox="0 0 1200 840"
                 xmlns="http://www.w3.org/2000/svg"
               >
-          <title id="roundel-title">Roundel sign reading UNDERGROUND</title>
+          <title id="roundel-title">Roundel sign reading MAKE</title>
           <defs>
             <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
               <feDropShadow dx="0" dy="26" stdDeviation="26" flood-color="#1f2933" flood-opacity="0.2" />
@@ -782,14 +782,14 @@
               <path id="street-depth-bar-right" d="" fill="url(#street-sign-side-fill)" opacity="0.96" />
             </g>
           </g>
-          <g id="roundel-art" filter="url(#soft-shadow)">
-            <circle id="ring-circle" cx="600" cy="420" r="292" fill="url(#ring-highlight)" mask="url(#ring-mask)" />
+          <g id="roundel-art">
+            <circle id="ring-circle" cx="600" cy="420" r="292" fill="#dc241f" mask="url(#ring-mask)" />
             <circle id="center-fill" cx="600" cy="420" r="178" fill="#ffffff" />
             <circle id="ring-outer-outline" cx="600" cy="420" r="292" fill="none" stroke="#111111" stroke-width="0" />
             <circle id="ring-inner-outline" cx="600" cy="420" r="178" fill="none" stroke="#111111" stroke-width="0" />
-            <rect id="bar-fill" x="150" y="329" width="900" height="182" rx="8" fill="url(#bar-highlight)" />
-            <rect id="bar-border" x="150" y="329" width="900" height="182" rx="8" fill="none" stroke="#09105f" stroke-opacity="0.28" stroke-width="8" />
-            <rect id="bar-inset" x="172" y="351" width="856" height="138" rx="3" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="4" />
+            <rect id="bar-fill" x="155" y="332" width="890" height="176" rx="2" fill="#0019a8" />
+            <rect id="bar-border" x="155" y="332" width="890" height="176" rx="2" fill="none" stroke="#00115f" stroke-opacity="0.24" stroke-width="8" style="display: none;" />
+            <rect id="bar-inset" x="177" y="354" width="846" height="132" rx="1" fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="4" style="display: none;" />
             <g id="bar-ornaments" fill="#ffffff"></g>
             <text
               id="roundel-text"
@@ -802,7 +802,7 @@
               font-size="116"
               font-weight="700"
               letter-spacing="0"
-            >UNDERGROUND</text>
+            >MAKE</text>
           </g>
           <g id="neon-tube-layer" style="display: none;" opacity="0" pointer-events="none">
             <circle id="neon-outer-tube" cx="600" cy="420" r="304" fill="none" stroke="#fff0dc" stroke-width="8" stroke-opacity="0.92" filter="url(#neon-white-glow)" />
@@ -882,11 +882,16 @@
                 autocomplete="off"
                 spellcheck="false"
                 aria-label="Sign text"
-              >UNDERGROUND</textarea>
+              >MAKE</textarea>
               <div class="drag-readout" id="drag-readout" aria-hidden="true"></div>
 
               <div class="floating-menu menu-ring" id="menu-ring" data-menu-panel="ring" role="dialog" aria-label="Ring options" hidden>
-                <div class="menu-title">Ring</div>
+                <div class="menu-header">
+                  <button class="menu-close" data-close-menu type="button" aria-label="Close Ring options" title="Close">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  </button>
+                  <div class="menu-title">Ring</div>
+                </div>
                 <div class="toggle-grid">
                   <label class="toggle" for="white-center">
                     <input id="white-center" name="white-center" type="checkbox" checked />
@@ -904,19 +909,30 @@
               </div>
 
               <div class="floating-menu menu-bar" id="menu-bar" data-menu-panel="bar" role="dialog" aria-label="Bar options" hidden>
-                <div class="menu-title">Bar</div>
+                <div class="menu-header">
+                  <button class="menu-close" data-close-menu type="button" aria-label="Close Bar options" title="Close">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  </button>
+                  <div class="menu-title">Bar</div>
+                </div>
                 <label class="range-field" for="bar-width">
                   <span>Width</span>
-                  <div class="range-row">
+                  <div class="range-row has-reset">
                     <input id="bar-width" name="bar-width" type="range" min="280" max="1040" step="10" value="900" />
                     <output id="bar-width-output" for="bar-width">900</output>
+                    <button class="range-reset" data-reset-control="bar-width" type="button" aria-label="Reset Bar width" title="Reset Bar width" disabled>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v6h6" /><path d="M5.6 8.4A8 8 0 1 1 4 13" /></svg>
+                    </button>
                   </div>
                 </label>
                 <label class="range-field" for="bar-height-adjust">
                   <span>Thickness</span>
-                  <div class="range-row">
+                  <div class="range-row has-reset">
                     <input id="bar-height-adjust" name="bar-height-adjust" type="range" min="-72" max="36" step="2" value="0" />
                     <output id="bar-height-output" for="bar-height-adjust">0</output>
+                    <button class="range-reset" data-reset-control="bar-height-adjust" type="button" aria-label="Reset Thickness" title="Reset Thickness" disabled>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v6h6" /><path d="M5.6 8.4A8 8 0 1 1 4 13" /></svg>
+                    </button>
                   </div>
                 </label>
                 <div class="toggle-grid">
@@ -931,8 +947,13 @@
                 </div>
               </div>
 
-              <div class="floating-menu menu-font" id="menu-font" data-menu-panel="font" role="dialog" aria-label="Text options" hidden>
-                <div class="menu-title">Type</div>
+              <div class="floating-menu menu-font" id="menu-font" data-menu-panel="font" role="dialog" aria-label="Font options" hidden>
+                <div class="menu-header">
+                  <button class="menu-close" data-close-menu type="button" aria-label="Close Font options" title="Close">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  </button>
+                  <div class="menu-title">Font</div>
+                </div>
                 <div class="font-grid" aria-label="Font styles">
                   <button class="font-button" data-font="gill" type="button">Gill Sans</button>
                   <button class="font-button" data-font="avenir" type="button">Avenir</button>
@@ -942,23 +963,32 @@
                 </div>
                 <label class="range-field text-options-range" for="text-size-adjust">
                   <span>Size</span>
-                  <div class="range-row">
+                  <div class="range-row has-reset">
                     <input id="text-size-adjust" name="text-size-adjust" type="range" min="-14" max="48" step="1" value="0" />
                     <output id="text-size-output" for="text-size-adjust">0</output>
+                    <button class="range-reset" data-reset-control="text-size-adjust" type="button" aria-label="Reset Size" title="Reset Size" disabled>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v6h6" /><path d="M5.6 8.4A8 8 0 1 1 4 13" /></svg>
+                    </button>
                   </div>
                 </label>
                 <label class="range-field" for="text-height-adjust">
                   <span>Height</span>
-                  <div class="range-row">
+                  <div class="range-row has-reset">
                     <input id="text-height-adjust" name="text-height-adjust" type="range" min="60" max="140" step="1" value="100" />
                     <output id="text-height-output" for="text-height-adjust">100%</output>
+                    <button class="range-reset" data-reset-control="text-height-adjust" type="button" aria-label="Reset text Height" title="Reset text Height" disabled>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v6h6" /><path d="M5.6 8.4A8 8 0 1 1 4 13" /></svg>
+                    </button>
                   </div>
                 </label>
                 <label class="range-field" for="text-width-adjust">
                   <span>Width</span>
-                  <div class="range-row">
+                  <div class="range-row has-reset">
                     <input id="text-width-adjust" name="text-width-adjust" type="range" min="60" max="140" step="1" value="100" />
                     <output id="text-width-output" for="text-width-adjust">100%</output>
+                    <button class="range-reset" data-reset-control="text-width-adjust" type="button" aria-label="Reset text Width" title="Reset text Width" disabled>
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v6h6" /><path d="M5.6 8.4A8 8 0 1 1 4 13" /></svg>
+                    </button>
                   </div>
                 </label>
                 <div class="toggle-grid text-options-case">
@@ -966,6 +996,16 @@
                     <input id="capitalise-text" name="capitalise-text" type="checkbox" checked />
                     <span>CAPITALISE</span>
                   </label>
+                  <label class="toggle toggle-wide" for="space-dots">
+                    <input id="space-dots" name="space-dots" type="checkbox" />
+                    <span>Space dots</span>
+                  </label>
+                  <div class="space-dots-options" id="space-dots-options" aria-label="Space dot styles">
+                    <label class="toggle toggle-dependent" for="large-space-dots" aria-disabled="true">
+                      <input id="large-space-dots" name="large-space-dots" type="checkbox" disabled />
+                      <span>Large dots</span>
+                    </label>
+                  </div>
                   <label class="toggle toggle-wide" for="letter-rules">
                     <input id="letter-rules" name="letter-rules" type="checkbox" />
                     <span>Letter rules</span>
@@ -988,7 +1028,12 @@
               </div>
 
               <div class="floating-menu menu-background" id="menu-background" data-menu-panel="background" role="dialog" aria-label="Background options" hidden>
-                <div class="menu-title">Scene</div>
+                <div class="menu-header">
+                  <button class="menu-close" data-close-menu type="button" aria-label="Close Scene options" title="Close">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  </button>
+                  <div class="menu-title">Scene</div>
+                </div>
                 <div class="background-grid" aria-label="Background styles">
                   <button class="background-button" data-background="none" type="button" style="--swatch-base: transparent; --swatch-line: rgba(255,255,255,0.48);">
                     <span class="background-swatch background-swatch-none" aria-hidden="true"></span>
@@ -1036,6 +1081,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260716.28"></script>
+    <script src="app.js?v=20260717.4"></script>
   </body>
 </html>

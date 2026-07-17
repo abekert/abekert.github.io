@@ -13,6 +13,9 @@
   var textWidthInput = document.getElementById("text-width-adjust");
   var textWidthOutput = document.getElementById("text-width-output");
   var capitaliseToggle = document.getElementById("capitalise-text");
+  var spaceDotsToggle = document.getElementById("space-dots");
+  var largeSpaceDotsToggle = document.getElementById("large-space-dots");
+  var spaceDotsOptions = document.getElementById("space-dots-options");
   var letterRulesToggle = document.getElementById("letter-rules");
   var outerLetterRulesToggle = document.getElementById("outer-letter-rules");
   var hexagonalLetterRulesToggle = document.getElementById("hexagonal-letter-rules");
@@ -41,6 +44,7 @@
   var form = document.getElementById("roundel-form");
   var roundelStage = document.getElementById("roundel-stage");
   var heritageLiveText = null;
+  var heritageInputCaret = null;
   var nightBackground = document.getElementById("night-background");
   var streetBackground = document.getElementById("street-background");
   var streetSignRig = document.getElementById("street-sign-rig");
@@ -97,9 +101,12 @@
   var presetButtons = [];
   var fontButtons = Array.prototype.slice.call(document.querySelectorAll("[data-font]"));
   var backgroundButtons = Array.prototype.slice.call(document.querySelectorAll("[data-background]"));
+  var rangeResetButtons = Array.prototype.slice.call(document.querySelectorAll("[data-reset-control]"));
+  var rangeControls = [barWidthInput, barHeightInput, textSizeInput, textHeightInput, textWidthInput];
   var menuButtons = Array.prototype.slice.call(document.querySelectorAll("[data-menu]"));
   var hudPanelTriggers = Array.prototype.slice.call(document.querySelectorAll(".hud-panel-trigger"));
   var menuPanels = Array.prototype.slice.call(document.querySelectorAll("[data-menu-panel]"));
+  var menuCloseButtons = Array.prototype.slice.call(document.querySelectorAll("[data-close-menu]"));
   var barGrips = Array.prototype.slice.call(document.querySelectorAll(".bar-grip"));
   var leftBarGrip = document.querySelector(".bar-grip-left");
   var rightBarGrip = document.querySelector(".bar-grip-right");
@@ -120,6 +127,7 @@
   var transitionDuration = 520;
   var activeAnimationFrame = 0;
   var rangeUpdateFrame = 0;
+  var activeRangeAdjustment = null;
   var fittedFontSizeCacheKey = "";
   var fittedFontSizeCacheValue = 0;
   var hasRendered = false;
@@ -170,6 +178,7 @@
   var desktopMenuBridgeInset = 6;
   var activeMenuName = "";
   var activeMenuAnchor = null;
+  var suppressedMenuHoverAnchor = null;
   var fontStacks = {
     gill: "'Gill Sans', 'Gill Sans MT', 'Avenir Next', 'Trebuchet MS', Arial, sans-serif",
     avenir: "'Avenir Next', Avenir, 'Gill Sans', 'Trebuchet MS', Arial, sans-serif",
@@ -398,7 +407,7 @@
       barSolid: "#ffffff",
       barGradient: ["#ffffff", "#ffffff", "#ffffff"],
       outlineColor: "#e1251b",
-      outlineWidth: 6,
+      outlineWidth: 10,
       outlineOpacity: "1",
       insetOpacity: "0",
       textColor: "#e1251b",
@@ -445,12 +454,12 @@
       ringSolid: "transparent",
       ringGradient: ["transparent", "transparent", "transparent"],
       ringOutlineColor: "#e4002b",
-      ringOutlineWidth: 4,
+      ringOutlineWidth: 7,
       ringOutlineOpacity: "1",
       barSolid: "#ffffff",
       barGradient: ["#ffffff", "#ffffff", "#ffffff"],
       outlineColor: "#e4002b",
-      outlineWidth: 4,
+      outlineWidth: 7,
       outlineOpacity: "1",
       insetOpacity: "0",
       textColor: "#e4002b",
@@ -463,7 +472,12 @@
 
   function createTransportPreset(scheme, overrides) {
     var preset = {
-      barWidth: 700,
+      barWidth: 570,
+      textSize: 0,
+      transport: true,
+      transportVerticalPadding: 24,
+      spaceDots: false,
+      largeSpaceDots: false,
       font: "gill",
       whiteCenter: true,
       gradients: false,
@@ -472,9 +486,9 @@
       whiteInset: false,
       background: "none",
       outerRadius: 230,
-      innerRadius: 140,
-      singleBarHeight: 68,
-      doubleBarHeight: 116,
+      innerRadius: 145,
+      singleBarHeight: 96,
+      doubleBarHeight: 156,
       centerFill: "#ffffff",
       ringSolid: "#e1251b",
       ringGradient: ["#e1251b", "#e1251b", "#e1251b"],
@@ -1095,11 +1109,11 @@
     }
 
     presets[key] = createTransportPreset(colorSchemes[key], {
-      barWidth: key === "airline" ? 760 : 700,
-      singleBarHeight: key === "airline" || key === "cycles" ? 76 : 68,
-      doubleBarHeight: key === "airline" || key === "cycles" ? 126 : 116,
-      outerRadius: key === "airline" ? 226 : 230,
-      innerRadius: key === "airline" ? 142 : 140
+      singleBarHeight: key === "airline" || key === "cycles" ? 90 : 96,
+      doubleBarHeight: key === "airline" || key === "cycles" ? 150 : 156,
+      transportVerticalPadding: key === "airline" || key === "cycles" ? 16 : 24,
+      spaceDots: key === "airline" || key === "dial" || key === "rail",
+      largeSpaceDots: key === "airline"
     });
   });
 
@@ -1309,6 +1323,7 @@
   function syncControlStates() {
     var letterRulesEnabled = Boolean(letterRulesToggle && letterRulesToggle.checked);
     var hexagonalRulesEnabled = Boolean(hexagonalLetterRulesToggle && hexagonalLetterRulesToggle.checked);
+    var spaceDotsEnabled = Boolean(spaceDotsToggle && spaceDotsToggle.checked);
 
     presetButtons.forEach(function (button) {
       setPressed(button, presetChoice.value !== "custom" && button.getAttribute("data-preset") === activePresetKey);
@@ -1350,6 +1365,20 @@
 
     if (letterRulesOptions) {
       letterRulesOptions.classList.toggle("is-enabled", letterRulesEnabled);
+    }
+
+    if (largeSpaceDotsToggle) {
+      var largeDotsLabel = largeSpaceDotsToggle.closest("label");
+
+      largeSpaceDotsToggle.disabled = !spaceDotsEnabled;
+
+      if (largeDotsLabel) {
+        largeDotsLabel.setAttribute("aria-disabled", spaceDotsEnabled ? "false" : "true");
+      }
+    }
+
+    if (spaceDotsOptions) {
+      spaceDotsOptions.classList.toggle("is-enabled", spaceDotsEnabled);
     }
   }
 
@@ -1559,6 +1588,20 @@
     scheduleDesktopMenuClose();
   }
 
+  function suppressMenuHoverUntilLeave(anchor) {
+    suppressedMenuHoverAnchor = anchor || null;
+  }
+
+  function clearMenuHoverSuppression(anchor) {
+    if (!anchor || suppressedMenuHoverAnchor === anchor) {
+      suppressedMenuHoverAnchor = null;
+    }
+  }
+
+  function isMenuHoverSuppressed(anchor) {
+    return Boolean(anchor && suppressedMenuHoverAnchor === anchor);
+  }
+
   function openMenu(name, anchor) {
     var menuAnchor = anchor || getMenuAnchor(name);
 
@@ -1597,6 +1640,7 @@
   }
 
   function closeMenus() {
+    finishRangeAdjustment();
     clearDesktopMenuClose();
     activeMenuName = "";
     activeMenuAnchor = null;
@@ -1833,6 +1877,12 @@
     if (Object.prototype.hasOwnProperty.call(values, "capitalise")) {
       capitaliseToggle.checked = Boolean(values.capitalise);
     }
+    if (Object.prototype.hasOwnProperty.call(values, "spaceDots")) {
+      spaceDotsToggle.checked = Boolean(values.spaceDots);
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "largeSpaceDots")) {
+      largeSpaceDotsToggle.checked = Boolean(values.largeSpaceDots);
+    }
     if (Object.prototype.hasOwnProperty.call(values, "letterRules")) {
       letterRulesToggle.checked = Boolean(values.letterRules);
     }
@@ -1875,6 +1925,8 @@
       textHeight: preset.textHeight || 100,
       textWidth: preset.textWidth || 100,
       font: preset.font,
+      spaceDots: Boolean(preset.spaceDots),
+      largeSpaceDots: Boolean(preset.largeSpaceDots),
       letterRules: preset.ornaments === "letter-rules",
       outerLetterRules: Boolean(preset.outerLetterRules),
       hexagonalLetterRules: Boolean(preset.hexagonalLetterRules),
@@ -1887,6 +1939,30 @@
       background: background,
       plaque: background === "plaque"
     };
+  }
+
+  function getRangeResetDefaults() {
+    var preset = getActivePreset();
+
+    return {
+      "bar-width": preset.barWidth,
+      "bar-height-adjust": 0,
+      "text-size-adjust": preset.textSize || 0,
+      "text-height-adjust": preset.textHeight || 100,
+      "text-width-adjust": preset.textWidth || 100
+    };
+  }
+
+  function syncRangeResetButtons() {
+    var defaults = getRangeResetDefaults();
+
+    rangeResetButtons.forEach(function (button) {
+      var controlId = button.getAttribute("data-reset-control");
+      var control = document.getElementById(controlId);
+      var isDefault = control && Number(control.value) === Number(defaults[controlId]);
+
+      button.disabled = Boolean(isDefault);
+    });
   }
 
   function normalizeBackgroundChoice(value, legacyPlaque) {
@@ -1916,6 +1992,8 @@
       textWidth: getTextWidthPercent(),
       font: fontChoice.value,
       capitalise: capitaliseToggle.checked,
+      spaceDots: spaceDotsToggle.checked,
+      largeSpaceDots: largeSpaceDotsToggle.checked,
       letterRules: letterRulesToggle.checked,
       outerLetterRules: outerLetterRulesToggle.checked,
       hexagonalLetterRules: hexagonalLetterRulesToggle.checked,
@@ -2012,6 +2090,8 @@
       textWidth: params.get("textwidth") || 100,
       font: params.get("font"),
       capitalise: getBoolParam(params, "caps", true),
+      spaceDots: params.has("dots") ? getBoolParam(params, "dots", false) : null,
+      largeSpaceDots: params.has("largedots") ? getBoolParam(params, "largedots", false) : null,
       letterRules: params.has("rules") ? getBoolParam(params, "rules", false) : null,
       outerLetterRules: params.has("outerrules") ? getBoolParam(params, "outerrules", false) : null,
       hexagonalLetterRules: params.has("hexrules") ? getBoolParam(params, "hexrules", false) : null,
@@ -2039,6 +2119,8 @@
     params.set("textwidth", String(state.textWidth));
     params.set("font", state.font);
     params.set("caps", state.capitalise ? "1" : "0");
+    params.set("dots", state.spaceDots ? "1" : "0");
+    params.set("largedots", state.largeSpaceDots ? "1" : "0");
     params.set("rules", state.letterRules ? "1" : "0");
     params.set("outerrules", state.outerLetterRules ? "1" : "0");
     params.set("hexrules", state.hexagonalLetterRules ? "1" : "0");
@@ -2257,10 +2339,8 @@
   function playFirstRunIntro() {
     var shouldGuide = !hasSeenIntro();
 
-    window.setTimeout(function () {
-      playIntro({ boot: true, sequence: true, guide: shouldGuide });
-      markIntroSeen();
-    }, 180);
+    playIntro({ boot: true, sequence: true, guide: shouldGuide });
+    markIntroSeen();
   }
 
   function showDragReadout(event, label, value) {
@@ -2376,6 +2456,12 @@
       }
       if (state.joinLetterRuleSpaces !== null && typeof state.joinLetterRuleSpaces !== "undefined") {
         writeRoundelControls({ joinLetterRuleSpaces: state.joinLetterRuleSpaces });
+      }
+      if (state.spaceDots !== null && typeof state.spaceDots !== "undefined") {
+        writeRoundelControls({ spaceDots: state.spaceDots });
+      }
+      if (state.largeSpaceDots !== null && typeof state.largeSpaceDots !== "undefined") {
+        writeRoundelControls({ largeSpaceDots: state.largeSpaceDots });
       }
       if (state.background !== null && typeof state.background !== "undefined") {
         writeRoundelControls({ background: state.background, plaque: state.plaque });
@@ -2521,27 +2607,89 @@
   }
 
   function getDisplayLines(lines) {
-    if (!capitaliseToggle.checked) {
-      return lines;
+    var displayLines = capitaliseToggle.checked ? lines.map(function (line) {
+      return line.toLocaleUpperCase("en-GB");
+    }) : lines.slice();
+    var spaceDot = getSpaceDotGlyph();
+
+    if (spaceDotsToggle && spaceDotsToggle.checked) {
+      displayLines = displayLines.map(function (line) {
+        return line.replace(/ /g, spaceDot);
+      });
     }
 
-    return lines.map(function (line) {
-      return line.toLocaleUpperCase("en-GB");
-    });
+    return displayLines;
+  }
+
+  function getSpaceDotGlyph() {
+    return largeSpaceDotsToggle && largeSpaceDotsToggle.checked ? "•" : "·";
+  }
+
+  function getSpaceDotSpacing(value, fontSize) {
+    value = String(value || "");
+
+    var offsets = new Array(value.length).fill(0);
+    var extraAdvance = 0;
+    var dot;
+    var sidePadding;
+    var index;
+
+    if (!spaceDotsToggle || !spaceDotsToggle.checked || !value) {
+      return { offsets: offsets, extraAdvance: extraAdvance };
+    }
+
+    dot = getSpaceDotGlyph();
+    sidePadding = Math.max(1.5, fontSize * 0.065);
+
+    for (index = 0; index < value.length; index += 1) {
+      if (value.charAt(index) !== dot) {
+        continue;
+      }
+
+      offsets[index] += sidePadding;
+      extraAdvance += sidePadding;
+
+      if (index + 1 < value.length) {
+        offsets[index + 1] += sidePadding;
+        extraAdvance += sidePadding;
+      }
+    }
+
+    return { offsets: offsets, extraAdvance: extraAdvance };
+  }
+
+  function applySpaceDotSpacing(node, value, fontSize) {
+    var spacing = getSpaceDotSpacing(value, fontSize);
+
+    if (!spacing.extraAdvance) {
+      node.removeAttribute("dx");
+      return;
+    }
+
+    node.setAttribute("dx", spacing.offsets.map(function (offset) {
+      return formatSvgNumber(offset);
+    }).join(" "));
   }
 
   function measureText(value, fontSize) {
     measureContext.font = "700 " + fontSize + "px " + getFontStack();
-    return measureContext.measureText(value).width;
+    return measureContext.measureText(value).width + getSpaceDotSpacing(value, fontSize).extraAdvance;
   }
 
   function measureTextWithWeight(value, fontSize, weight) {
     measureContext.font = String(weight || 700) + " " + fontSize + "px " + getFontStack();
-    return measureContext.measureText(value).width;
+    return measureContext.measureText(value).width + getSpaceDotSpacing(value, fontSize).extraAdvance;
   }
 
   function isHeritageTypography() {
     return Boolean(letterRulesToggle && letterRulesToggle.checked);
+  }
+
+  function usesSvgInputCaret() {
+    return isHeritageTypography() ||
+      Boolean(spaceDotsToggle && spaceDotsToggle.checked) ||
+      getTextWidthPercent() !== 100 ||
+      getTextHeightPercent() !== 100;
   }
 
   function getHeritageTextParts(line) {
@@ -2662,6 +2810,10 @@
     var minimum = lineCount > 1 ? 80 : 68;
     var maximum = lineCount > 1 ? 150 : 130;
 
+    if (getActivePreset().transport) {
+      return lineCount > 1 ? 32 : 24;
+    }
+
     if (isHeritageTypography()) {
       ratio = lineCount > 1 ? 0.12 : 0.1;
       minimum = lineCount > 1 ? 58 : 44;
@@ -2672,9 +2824,19 @@
   }
 
   function getVerticalPadding(lineCount) {
+    var preset = getActivePreset();
+
+    if (preset.transport) {
+      return lineCount > 1 ? 20 : preset.transportVerticalPadding;
+    }
+
     return isHeritageTypography() ?
       (lineCount > 1 ? 28 : 18) :
       (lineCount > 1 ? 46 : 52);
+  }
+
+  function getMinimumHorizontalPadding(lineCount) {
+    return lineCount > 1 ? 32 : 24;
   }
 
   function getMinimumVerticalPadding(lineCount) {
@@ -2704,33 +2866,12 @@
     ));
   }
 
-  function clampTextWidthToMaximumBar(lines) {
-    var maximumBarWidth = Number(barWidthInput.getAttribute("max")) || 1040;
-    var availableWidth = Math.max(24, maximumBarWidth - getHorizontalPadding(lines.length, maximumBarWidth));
-    var minimumPercent = Number(textWidthInput.getAttribute("min")) || 60;
-    var renderedWidth;
-    var maximumPercent;
-
-    try {
-      renderedWidth = textNode.getBBox().width;
-    } catch (error) {
-      renderedWidth = 0;
-    }
-
-    maximumPercent = renderedWidth > 0 ? Math.floor(availableWidth / renderedWidth * 100) : textWidthMaximum;
-    maximumPercent = Math.max(minimumPercent, Math.min(textWidthMaximum, maximumPercent));
-    textWidthInput.setAttribute("max", String(maximumPercent));
-
-    if (getTextWidthPercent() > maximumPercent) {
-      textWidthInput.value = String(maximumPercent);
-    }
-  }
-
   function clampBarWidthToText(lines) {
     var step = Number(barWidthInput.getAttribute("step")) || 1;
     var maximumWidth = Number(barWidthInput.getAttribute("max")) || 1040;
     var renderedWidth;
-    var minimumWidth = barWidthFloor;
+    var requiredWidth;
+    var minimumWidth;
 
     try {
       renderedWidth = textNode.getBBox().width * getTextWidthScale();
@@ -2738,13 +2879,9 @@
       renderedWidth = 0;
     }
 
-    while (
-      renderedWidth > minimumWidth - getHorizontalPadding(lines.length, minimumWidth) &&
-      minimumWidth < maximumWidth
-    ) {
-      minimumWidth += step;
-    }
-
+    requiredWidth = renderedWidth + getMinimumHorizontalPadding(lines.length);
+    minimumWidth = barWidthFloor + Math.ceil((requiredWidth - barWidthFloor) / step) * step;
+    minimumWidth = Math.max(barWidthFloor, minimumWidth);
     minimumWidth = Math.min(maximumWidth, minimumWidth);
     barWidthInput.setAttribute("min", String(minimumWidth));
 
@@ -3154,6 +3291,250 @@
     return heritageLiveText;
   }
 
+  function ensureHeritageInputCaret() {
+    if (!heritageInputCaret) {
+      heritageInputCaret = document.createElement("span");
+      heritageInputCaret.className = "heritage-input-caret";
+      heritageInputCaret.setAttribute("aria-hidden", "true");
+      heritageInputCaret.hidden = true;
+      roundelStage.appendChild(heritageInputCaret);
+    }
+
+    return heritageInputCaret;
+  }
+
+  function hideHeritageInputCaret() {
+    if (heritageInputCaret) {
+      heritageInputCaret.hidden = true;
+    }
+  }
+
+  function getInputCaretLinePosition() {
+    var value = input.value.replace(/\r/g, "");
+    var selection = Math.max(0, Math.min(value.length, input.selectionStart || 0));
+    var beforeCaret = value.slice(0, selection);
+    var rawLines = value.split("\n");
+    var lineIndex = Math.min(1, beforeCaret.split("\n").length - 1);
+    var lineStart = lineIndex === 0 ? 0 : value.indexOf("\n") + 1;
+    var rawLine = rawLines[lineIndex] || "";
+    var rawOffset = Math.max(0, selection - lineStart);
+    var normalizedBefore = rawLine.slice(0, rawOffset).trimStart().replace(/\s+/g, " ");
+    var displayedLines = getDisplayLines(normalizeLines(value));
+    var displayedLine = displayedLines[lineIndex] || displayedLines[0] || "";
+
+    return {
+      lineIndex: Math.min(lineIndex, displayedLines.length - 1),
+      offset: Math.min(displayedLine.length, normalizedBefore.length),
+      length: displayedLine.length
+    };
+  }
+
+  function getHeritageCaretCharacter(lineIndex, characterIndex) {
+    var nodes = Array.prototype.slice.call(textNode.querySelectorAll("[data-line-index='" + lineIndex + "']"));
+    var remaining = characterIndex;
+    var node;
+    var length;
+    var index;
+
+    for (index = 0; index < nodes.length; index += 1) {
+      node = nodes[index];
+      length = (node.textContent || "").length;
+
+      if (remaining < length) {
+        return { node: node, index: remaining };
+      }
+
+      remaining -= length;
+    }
+
+    return null;
+  }
+
+  function getSvgCharacterBoundary(character, useEnd) {
+    var point;
+
+    if (!character || !character.node) {
+      return null;
+    }
+
+    try {
+      point = useEnd ?
+        character.node.getEndPositionOfChar(character.index) :
+        character.node.getStartPositionOfChar(character.index);
+
+      return { x: point.x, node: character.node };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function transformSvgPoint(matrix, x, y) {
+    return {
+      x: matrix.a * x + matrix.c * y + matrix.e,
+      y: matrix.b * x + matrix.d * y + matrix.f
+    };
+  }
+
+  function getHeritageCaretGeometry(lineIndex, offset, length) {
+    var previousBoundary = offset > 0 ? getSvgCharacterBoundary(
+      getHeritageCaretCharacter(lineIndex, offset - 1),
+      true
+    ) : null;
+    var nextBoundary = offset < length ? getSvgCharacterBoundary(
+      getHeritageCaretCharacter(lineIndex, offset),
+      false
+    ) : null;
+    var reference = nextBoundary || previousBoundary;
+    var box;
+    var matrix;
+    var localX;
+    var screenTop;
+    var screenBottom;
+
+    if (!reference || !reference.node || !reference.node.getScreenCTM) {
+      return null;
+    }
+
+    try {
+      box = reference.node.getBBox();
+      matrix = reference.node.getScreenCTM();
+      localX = previousBoundary && nextBoundary ?
+        (previousBoundary.x + nextBoundary.x) / 2 :
+        reference.x;
+      screenTop = transformSvgPoint(matrix, localX, box.y + box.height * 0.08);
+      screenBottom = transformSvgPoint(matrix, localX, box.y + box.height * 0.92);
+
+      return {
+        x: screenTop.x,
+        top: Math.min(screenTop.y, screenBottom.y),
+        bottom: Math.max(screenTop.y, screenBottom.y)
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getRawSelectionForDisplayedPosition(lineIndex, offset) {
+    var value = input.value.replace(/\r/g, "");
+    var rawLines = value.split("\n");
+    var rawLine = rawLines[lineIndex] || "";
+    var lineStart = 0;
+    var firstContentIndex = rawLine.search(/\S/);
+    var lastContentIndex = rawLine.search(/\s+$/);
+    var contentEnd;
+    var normalizedOffset = 0;
+    var index;
+
+    for (index = 0; index < lineIndex; index += 1) {
+      lineStart += (rawLines[index] || "").length + 1;
+    }
+
+    if (firstContentIndex < 0) {
+      return lineStart;
+    }
+
+    contentEnd = lastContentIndex < 0 ? rawLine.length : lastContentIndex;
+
+    if (offset <= 0) {
+      return lineStart + firstContentIndex;
+    }
+
+    index = firstContentIndex;
+    while (index < contentEnd) {
+      if (/\s/.test(rawLine.charAt(index))) {
+        while (index < contentEnd && /\s/.test(rawLine.charAt(index))) {
+          index += 1;
+        }
+      } else {
+        index += 1;
+      }
+
+      normalizedOffset += 1;
+      if (normalizedOffset >= offset) {
+        return lineStart + index;
+      }
+    }
+
+    return lineStart + contentEnd;
+  }
+
+  function setHeritageCaretFromPoint(clientX, clientY) {
+    var lines;
+    var best = null;
+
+    if (!usesSvgInputCaret()) {
+      return;
+    }
+
+    lines = getDisplayLines(normalizeLines(input.value));
+    lines.forEach(function (line, lineIndex) {
+      var offset;
+
+      for (offset = 0; offset <= line.length; offset += 1) {
+        var geometry = getHeritageCaretGeometry(lineIndex, offset, line.length);
+        var score;
+
+        if (!geometry) {
+          continue;
+        }
+
+        score = Math.abs(clientX - geometry.x) +
+          Math.abs(clientY - (geometry.top + geometry.bottom) / 2) * 3;
+
+        if (!best || score < best.score) {
+          best = { lineIndex: lineIndex, offset: offset, score: score };
+        }
+      }
+    });
+
+    if (best) {
+      var selection = getRawSelectionForDisplayedPosition(best.lineIndex, best.offset);
+      input.setSelectionRange(selection, selection);
+    }
+  }
+
+  function syncHeritageInputCaret() {
+    var caret = ensureHeritageInputCaret();
+    var position;
+    var geometry;
+    var stageBox;
+    var textColor;
+
+    if (
+      !usesSvgInputCaret() ||
+      document.activeElement !== input ||
+      input.selectionStart !== input.selectionEnd
+    ) {
+      hideHeritageInputCaret();
+      return;
+    }
+
+    position = getInputCaretLinePosition();
+    geometry = getHeritageCaretGeometry(position.lineIndex, position.offset, position.length);
+
+    if (!geometry) {
+      hideHeritageInputCaret();
+      return;
+    }
+
+    try {
+      stageBox = roundelStage.getBoundingClientRect();
+      textColor = textNode.getAttribute("fill") || "#ffffff";
+
+      caret.style.left = (geometry.x - stageBox.left) + "px";
+      caret.style.top = (geometry.top - stageBox.top) + "px";
+      caret.style.height = Math.max(12, geometry.bottom - geometry.top) + "px";
+      caret.style.backgroundColor = textColor;
+      caret.hidden = false;
+    } catch (error) {
+      hideHeritageInputCaret();
+    }
+  }
+
+  function scheduleHeritageInputCaretSync() {
+    requestFrame(syncHeritageInputCaret);
+  }
+
   function appendHeritageLiveLine(container, line, fontSize, lineCount, scale, textColor) {
     var parts = getHeritageTextParts(line);
     var sizing = getHeritageSizing(fontSize, lineCount);
@@ -3246,6 +3627,7 @@
     var textColor = textNode.getAttribute("fill") || "#ffffff";
     var gripHeight = Math.max(42, Math.min(92, editorHeight * scale.y * 0.58));
     var heritageTypography = isHeritageTypography();
+    var svgInputCaret = usesSvgInputCaret();
 
     input.style.left = (editorX / 1200 * 100) + "%";
     input.style.top = (editorY / 840 * 100) + "%";
@@ -3256,7 +3638,7 @@
     input.style.fontSize = Math.max(18, fontSize * editorScale.x) + "px";
     input.style.lineHeight = lineHeight + "px";
     input.style.color = "transparent";
-    input.style.caretColor = textColor;
+    input.style.caretColor = svgInputCaret ? "transparent" : textColor;
     input.style.textTransform = capitaliseToggle.checked ? "uppercase" : "none";
     input.style.fontWeight = heritageTypography ? "500" : "700";
     input.style.textShadow = "none";
@@ -3268,7 +3650,16 @@
       hideHeritageLiveText();
     }
 
-    input.style.transform = "scale(" + getTextWidthScale() + ", " + getTextHeightScale() + ")";
+    if (svgInputCaret) {
+      syncHeritageInputCaret();
+    } else {
+      hideHeritageInputCaret();
+    }
+
+    // Keep the editor's hit area anchored to the Bar. The visible SVG text is
+    // scaled independently; widening this transparent textarea used to expand
+    // its focus outline and let it cover the Bar resize grips.
+    input.style.transform = "none";
     input.style.transformOrigin = "50% 50%";
 
     if (leftBarGrip) {
@@ -3796,8 +4187,16 @@
     var firstBox;
     var innerBox;
     var lastBox;
+    var firstExpectedWidth;
+    var innerExpectedWidth;
+    var lastExpectedWidth;
+    var innerFontSize;
+    var innerSpacing;
     var targetGap;
     var trailingGap;
+    var gapCorrection;
+    var maximumCorrection;
+    var originalLastX;
     var lineStart;
     var lineEnd;
     var centeringCorrection;
@@ -3810,9 +4209,51 @@
       firstBox = firstNode.getBBox();
       innerBox = innerNode.getBBox();
       lastBox = lastNode.getBBox();
+      innerFontSize = Number(innerNode.getAttribute("font-size")) || 0;
+      innerSpacing = Number(innerNode.getAttribute("letter-spacing")) || 0;
+      firstExpectedWidth = measureHeritagePart(
+        firstNode.textContent || "",
+        Number(firstNode.getAttribute("font-size")) || innerFontSize,
+        Number(firstNode.getAttribute("font-weight")) || 400,
+        0
+      );
+      innerExpectedWidth = measureHeritagePart(
+        innerNode.textContent || "",
+        innerFontSize,
+        Number(innerNode.getAttribute("font-weight")) || 500,
+        innerSpacing
+      );
+      lastExpectedWidth = measureHeritagePart(
+        lastNode.textContent || "",
+        Number(lastNode.getAttribute("font-size")) || innerFontSize,
+        Number(lastNode.getAttribute("font-weight")) || 400,
+        0
+      );
+
+      // Some engines can briefly expose stale SVG text bounds while a font or
+      // style transition is settling. Never turn that transient measurement
+      // into a permanent horizontal offset.
+      if (
+        !isFinite(firstBox.x) || !isFinite(innerBox.x) || !isFinite(lastBox.x) ||
+        !isFinite(firstBox.width) || !isFinite(innerBox.width) || !isFinite(lastBox.width) ||
+        firstBox.width < firstExpectedWidth * 0.55 || firstBox.width > firstExpectedWidth * 1.55 ||
+        innerBox.width < innerExpectedWidth * 0.55 || innerBox.width > innerExpectedWidth * 1.55 ||
+        lastBox.width < lastExpectedWidth * 0.55 || lastBox.width > lastExpectedWidth * 1.55
+      ) {
+        return;
+      }
+
       targetGap = Math.max(0, innerBox.x - (firstBox.x + firstBox.width));
       trailingGap = lastBox.x - (innerBox.x + innerBox.width);
-      lastNode.setAttribute("x", String(Number(lastNode.getAttribute("x")) + targetGap - trailingGap));
+      gapCorrection = targetGap - trailingGap;
+      maximumCorrection = Math.max(8, innerFontSize * 0.2);
+
+      if (!isFinite(gapCorrection) || Math.abs(gapCorrection) > maximumCorrection) {
+        return;
+      }
+
+      originalLastX = Number(lastNode.getAttribute("x"));
+      lastNode.setAttribute("x", String(originalLastX + gapCorrection));
 
       firstBox = firstNode.getBBox();
       innerBox = innerNode.getBBox();
@@ -3824,6 +4265,11 @@
         lastBox.x + lastBox.width
       );
       centeringCorrection = centerX - (lineStart + lineEnd) / 2;
+
+      if (!isFinite(centeringCorrection) || Math.abs(centeringCorrection) > maximumCorrection) {
+        lastNode.setAttribute("x", String(originalLastX));
+        return;
+      }
 
       [firstNode, innerNode, lastNode].forEach(function (node) {
         node.setAttribute("x", String(Number(node.getAttribute("x")) + centeringCorrection));
@@ -3883,6 +4329,7 @@
           tspan.setAttribute("dominant-baseline", "central");
           tspan.setAttribute("data-line-index", String(index));
           tspan.setAttribute("data-heritage-part", "inner");
+          applySpaceDotSpacing(tspan, parts.inner, heritageSizing.innerSize);
           textNode.appendChild(tspan);
 
           tspan = document.createElementNS(svgNamespace, "tspan");
@@ -3907,6 +4354,7 @@
       tspan.setAttribute("x", String(centerX));
       tspan.setAttribute("y", String(y));
       tspan.setAttribute("data-line-index", String(index));
+      applySpaceDotSpacing(tspan, line, fontSize);
       textNode.appendChild(tspan);
     });
 
@@ -3928,35 +4376,6 @@
     }
   }
 
-  function constrainTextToBar(lines, barWidth, fontSize) {
-    var availableWidth = Math.max(24, barWidth - getHorizontalPadding(lines.length, barWidth));
-
-    if (isHeritageTypography()) {
-      Array.prototype.forEach.call(textNode.querySelectorAll("[data-heritage-part='inner']"), function (innerNode) {
-        var index = Number(innerNode.getAttribute("data-line-index")) || 0;
-        var line = lines[index] || "";
-        var parts = getHeritageTextParts(line);
-        var sizing = getHeritageSizing(fontSize, lines.length);
-        var edgeWidth = measureHeritagePart(parts.first, sizing.edgeSize, 400, 0) +
-          measureHeritagePart(parts.last, sizing.edgeSize, 400, 0) +
-          sizing.gap * 2;
-        var innerAvailable = Math.max(24, availableWidth - edgeWidth);
-
-        innerNode.setAttribute("textLength", String(innerAvailable));
-        innerNode.setAttribute("lengthAdjust", "spacingAndGlyphs");
-        balanceHeritageLineSpacing(index);
-      });
-      return;
-    }
-
-    Array.prototype.forEach.call(textNode.children, function (lineNode, index) {
-      if (measureText(lines[index] || "", fontSize) > availableWidth) {
-        lineNode.setAttribute("textLength", String(availableWidth));
-        lineNode.setAttribute("lengthAdjust", "spacingAndGlyphs");
-      }
-    });
-  }
-
   function getAutoFitFontSize(lines, barWidth, barHeight, maximumFontSize) {
     var cacheKey = [
       lines.join("\n"),
@@ -3964,7 +4383,10 @@
       barHeight,
       maximumFontSize,
       fontChoice.value,
-      isHeritageTypography() ? "heritage:" + (hexagonalLetterRulesToggle.checked ? "hexagons" : "lines") : "standard"
+      getHorizontalPadding(lines.length, barWidth),
+      getVerticalPadding(lines.length),
+      isHeritageTypography() ? "heritage:" + (hexagonalLetterRulesToggle.checked ? "hexagons" : "lines") : "standard",
+      spaceDotsToggle && spaceDotsToggle.checked ? "space-dots" : "spaces"
     ].join("|");
     var low;
     var high;
@@ -4002,10 +4424,6 @@
     var fontSize = Math.max(minFontSize, autoFitFontSize + getTextSizeAdjustment());
 
     updateText(lines, fontSize);
-
-    if (!renderedTextFits(lines, barWidth, barHeight, fontSize)) {
-      constrainTextToBar(lines, barWidth, fontSize);
-    }
 
     return fontSize;
   }
@@ -4099,22 +4517,57 @@
   function getHeritageRuleBounds(index, fontSize) {
     var innerNode = textNode.querySelector("[data-line-index='" + index + "'][data-heritage-part='inner']");
     var box;
+    var nodeX;
+    var nodeY;
+    var innerFontSize;
+    var innerSpacing;
+    var expectedWidth;
+    var verticalInset;
+    var fallbackBounds;
 
     if (!innerNode || !innerNode.getBBox) {
       return null;
     }
 
+    nodeX = Number(innerNode.getAttribute("x"));
+    nodeY = Number(innerNode.getAttribute("y"));
+    innerFontSize = Number(innerNode.getAttribute("font-size")) || fontSize;
+    innerSpacing = Number(innerNode.getAttribute("letter-spacing")) || 0;
+    expectedWidth = measureHeritagePart(
+      innerNode.textContent || "",
+      innerFontSize,
+      Number(innerNode.getAttribute("font-weight")) || 500,
+      innerSpacing
+    );
+    verticalInset = Math.max(2, fontSize * 0.02);
+    nodeX = isFinite(nodeX) ? nodeX : centerX - expectedWidth / 2;
+    nodeY = isFinite(nodeY) ? nodeY : centerY;
+    fallbackBounds = {
+      start: nodeX,
+      end: nodeX + expectedWidth,
+      top: nodeY - innerFontSize * 0.5 + verticalInset,
+      bottom: nodeY + innerFontSize * 0.5 - verticalInset
+    };
+
     try {
       box = innerNode.getBBox();
+
+      if (
+        !isFinite(box.x) || !isFinite(box.y) || !isFinite(box.width) || !isFinite(box.height) ||
+        box.width < expectedWidth * 0.55 || box.width > expectedWidth * 1.55 ||
+        Math.abs(box.x - nodeX) > Math.max(8, innerFontSize * 0.2)
+      ) {
+        return fallbackBounds;
+      }
 
       return {
         start: box.x,
         end: box.x + box.width,
-        top: box.y + Math.max(2, fontSize * 0.02),
-        bottom: box.y + box.height - Math.max(2, fontSize * 0.02)
+        top: box.y + verticalInset,
+        bottom: box.y + box.height - verticalInset
       };
     } catch (error) {
-      return null;
+      return fallbackBounds;
     }
   }
 
@@ -4212,13 +4665,13 @@
     var charCount = innerNode && innerNode.getNumberOfChars ? innerNode.getNumberOfChars() : value.length;
     var cells = [];
     var sizing;
-    var box;
     var advances;
     var totalAdvance;
     var scale;
     var cursor;
     var indexInLine;
     var characters = [];
+    var tolerance = Math.max(2, fontSize * 0.08);
 
     if (!innerNode || !value || charCount === 0) {
       return cells;
@@ -4235,6 +4688,18 @@
           start: Math.min(startPoint.x, endPoint.x),
           end: Math.max(startPoint.x, endPoint.x)
         });
+      }
+
+      if (characters.some(function (character, characterIndex) {
+        var previous = characters[characterIndex - 1];
+
+        return !isFinite(character.start) || !isFinite(character.end) ||
+          character.end < character.start ||
+          character.start < bounds.start - tolerance ||
+          character.end > bounds.end + tolerance ||
+          previous && character.start < previous.start;
+      })) {
+        throw new Error("Unstable SVG character metrics");
       }
 
       characters.forEach(function (character, characterIndex) {
@@ -4258,6 +4723,9 @@
           cellEnd = bounds.end;
         }
 
+        cellStart = Math.max(bounds.start, Math.min(bounds.end, cellStart));
+        cellEnd = Math.max(bounds.start, Math.min(bounds.end, cellEnd));
+
         if (cellEnd > cellStart) {
           cells.push({ index: character.index, start: cellStart, end: cellEnd });
         }
@@ -4271,12 +4739,7 @@
       characters = [];
     }
 
-    if (!innerNode.getBBox) {
-      return cells;
-    }
-
     try {
-      box = innerNode.getBBox();
       sizing = getHeritageSizing(fontSize, lineCount);
       advances = value.split("").map(function (character) {
         return measureTextWithWeight(character, sizing.innerSize, 500) + sizing.innerSpacing;
@@ -4284,7 +4747,7 @@
       totalAdvance = advances.reduce(function (total, advance) {
         return total + advance;
       }, 0);
-      scale = totalAdvance > 0 ? box.width / totalAdvance : 1;
+      scale = totalAdvance > 0 ? (bounds.end - bounds.start) / totalAdvance : 1;
       cursor = bounds.start;
 
       advances.forEach(function (advance, characterIndex) {
@@ -4611,7 +5074,6 @@
     // preset's default dimensions, then each dimension slider is stopped
     // before the selected type proportions would no longer fit.
     fontSize = fitAndUpdateText(lines, getBaseBarWidth(), getBaseBarHeight(lines.length));
-    clampTextWidthToMaximumBar(lines);
     clampBarWidthToText(lines);
     clampBarHeightToText(lines, fontSize);
     barWidth = getBarWidth();
@@ -4631,6 +5093,7 @@
     updateStyleOptions();
     syncLiveEditor(lines, barWidth, barHeight, fontSize);
     syncControlStates();
+    syncRangeResetButtons();
     titleNode.textContent = "Roundel sign reading " + titleText;
 
     if (animateChange) {
@@ -5529,6 +5992,8 @@
 
   menuButtons.forEach(function (button) {
     button.addEventListener("click", function (event) {
+      var menuName = button.getAttribute("data-menu");
+
       if (button.getAttribute("data-skip-click") === "true") {
         button.removeAttribute("data-skip-click");
         event.preventDefault();
@@ -5537,16 +6002,45 @@
       }
 
       event.stopPropagation();
-      openMenu(button.getAttribute("data-menu"), button);
+
+      if (activeMenuName === menuName) {
+        closeMenus();
+
+        if (
+          isDesktopMenuMode() &&
+          button.classList.contains("hud-panel-trigger") &&
+          event.detail > 0 &&
+          button.matches(":hover")
+        ) {
+          suppressMenuHoverUntilLeave(button);
+        }
+
+        return;
+      }
+
+      clearMenuHoverSuppression(button);
+      openMenu(menuName, button);
     });
   });
 
   hudPanelTriggers.forEach(function (button) {
     button.addEventListener("pointerenter", function () {
+      if (!isDesktopMenuMode() || isMenuHoverSuppressed(button)) {
+        return;
+      }
+
       openMenu(button.getAttribute("data-menu"), button);
     });
 
+    button.addEventListener("pointerleave", function () {
+      clearMenuHoverSuppression(button);
+    });
+
     button.addEventListener("focus", function () {
+      if (!button.matches(":focus-visible")) {
+        return;
+      }
+
       openMenu(button.getAttribute("data-menu"), button);
     });
   });
@@ -5557,6 +6051,14 @@
 
     panel.addEventListener("click", function (event) {
       event.stopPropagation();
+    });
+  });
+
+  menuCloseButtons.forEach(function (button) {
+    button.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      closeMenus();
     });
   });
 
@@ -5572,16 +6074,29 @@
 
   input.addEventListener("focus", function () {
     enterMobileTextEditing();
+    scheduleHeritageInputCaretSync();
   });
-  input.addEventListener("blur", exitMobileTextEditing);
+  input.addEventListener("blur", function () {
+    exitMobileTextEditing();
+    hideHeritageInputCaret();
+  });
   input.addEventListener("beforeinput", recordUndoState);
   input.addEventListener("click", function (event) {
     event.stopPropagation();
     enterMobileTextEditing();
+    setHeritageCaretFromPoint(event.clientX, event.clientY);
+    scheduleHeritageInputCaretSync();
   });
+  input.addEventListener("keyup", scheduleHeritageInputCaretSync);
+  input.addEventListener("select", scheduleHeritageInputCaretSync);
   input.addEventListener("input", function () {
     markCustom();
     updateRoundel();
+  });
+  document.addEventListener("selectionchange", function () {
+    if (document.activeElement === input) {
+      scheduleHeritageInputCaretSync();
+    }
   });
 
   function scheduleRangeUpdate() {
@@ -5593,6 +6108,62 @@
       rangeUpdateFrame = 0;
       updateRoundel();
     });
+  }
+
+  function finishRangeAdjustment(event) {
+    var eventControl;
+    var eventPointerId;
+
+    if (!activeRangeAdjustment) {
+      return;
+    }
+
+    eventControl = event && event.currentTarget;
+    eventPointerId = event && typeof event.pointerId === "number" ? event.pointerId : null;
+
+    // When moving directly to another slider, its pointerdown runs before the
+    // previous control's delayed blur. Ignore that stale blur (and any stale
+    // pointer-capture event) so it cannot cancel the newly active slider.
+    if (
+      eventControl &&
+      eventControl !== document &&
+      eventControl !== activeRangeAdjustment.control
+    ) {
+      return;
+    }
+
+    if (
+      eventPointerId !== null &&
+      activeRangeAdjustment.pointerId !== null &&
+      eventPointerId !== activeRangeAdjustment.pointerId
+    ) {
+      return;
+    }
+
+    activeRangeAdjustment.menu.classList.remove("is-range-adjusting");
+    activeRangeAdjustment.field.classList.remove("is-range-adjusting");
+    activeRangeAdjustment = null;
+  }
+
+  function startRangeAdjustment(event) {
+    var control = event.currentTarget;
+    var menu = control.closest(".floating-menu");
+    var field = control.closest(".range-field");
+
+    finishRangeAdjustment();
+
+    if (!menu || !field) {
+      return;
+    }
+
+    activeRangeAdjustment = {
+      control: control,
+      menu: menu,
+      field: field,
+      pointerId: typeof event.pointerId === "number" ? event.pointerId : null
+    };
+    menu.classList.add("is-range-adjusting");
+    field.classList.add("is-range-adjusting");
   }
 
   barWidthInput.addEventListener("input", function () {
@@ -5619,7 +6190,34 @@
     markCustom();
     scheduleRangeUpdate();
   });
+  rangeResetButtons.forEach(function (button) {
+    button.addEventListener("click", function (event) {
+      var controlId = button.getAttribute("data-reset-control");
+      var control = document.getElementById(controlId);
+      var defaults = getRangeResetDefaults();
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (!control || !Object.prototype.hasOwnProperty.call(defaults, controlId)) {
+        return;
+      }
+
+      recordUndoState();
+      setRangeControl(control, defaults[controlId]);
+      markCustom();
+      updateRoundel({ animate: true });
+    });
+  });
   capitaliseToggle.addEventListener("change", function () {
+    markCustom();
+    updateRoundel({ animate: true });
+  });
+  spaceDotsToggle.addEventListener("change", function () {
+    markCustom();
+    updateRoundel({ animate: true });
+  });
+  largeSpaceDotsToggle.addEventListener("change", function () {
     markCustom();
     updateRoundel({ animate: true });
   });
@@ -5683,8 +6281,13 @@
     shareButton.addEventListener("click", toggleShareMenu);
   }
 
-  [barWidthInput, barHeightInput, textSizeInput, textHeightInput, textWidthInput].forEach(function (control) {
-    control.addEventListener("pointerdown", recordUndoState);
+  rangeControls.forEach(function (control) {
+    control.addEventListener("pointerdown", function (event) {
+      recordUndoState();
+      startRangeAdjustment(event);
+    });
+    control.addEventListener("lostpointercapture", finishRangeAdjustment);
+    control.addEventListener("blur", finishRangeAdjustment);
     control.addEventListener("keydown", function (event) {
       if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].indexOf(event.key) !== -1) {
         recordUndoState();
@@ -5694,6 +6297,8 @@
 
   Array.prototype.forEach.call(document.querySelectorAll([
     "#capitalise-text",
+    "#space-dots",
+    "#large-space-dots",
     "#letter-rules",
     "#outer-letter-rules",
     "#hexagonal-letter-rules",
@@ -5704,6 +6309,8 @@
     "#blue-outline",
     "#white-inset",
     "label[for='capitalise-text']",
+    "label[for='space-dots']",
+    "label[for='large-space-dots']",
     "label[for='letter-rules']",
     "label[for='outer-letter-rules']",
     "label[for='hexagonal-letter-rules']",
@@ -5733,8 +6340,14 @@
   document.addEventListener("focusin", noteHudActivity);
   document.addEventListener("input", noteHudActivity);
   document.addEventListener("change", noteHudActivity);
-  document.addEventListener("pointerup", endBarDrag);
-  document.addEventListener("pointercancel", endBarDrag);
+  document.addEventListener("pointerup", function (event) {
+    endBarDrag(event);
+    finishRangeAdjustment(event);
+  });
+  document.addEventListener("pointercancel", function (event) {
+    endBarDrag(event);
+    finishRangeAdjustment(event);
+  });
   document.addEventListener("wheel", noteHudActivity, { passive: true });
   document.addEventListener("touchmove", noteHudActivity, { passive: true });
 
