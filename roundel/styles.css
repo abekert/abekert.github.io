@@ -224,21 +224,26 @@ h1 {
 }
 
 .share-button {
-  min-width: 92px;
-  padding: 0 20px;
-  border-color: rgba(242, 240, 232, 0.92);
-  background: var(--ink);
-  color: #15171a;
-  font-size: 0.86rem;
-  font-weight: 820;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  border-radius: 50%;
+  border-color: rgba(242, 240, 232, 0.28);
+  background: rgba(14, 16, 19, 0.82);
+  color: var(--ink);
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
 .share-button:hover {
-  border-color: #fff;
-  background: #fff;
-  color: #0e1013;
+  border-color: rgba(242, 240, 232, 0.5);
+  background: rgba(36, 39, 44, 0.96);
+  color: #fff;
+}
+
+.share-button[aria-expanded="true"] {
+  border-color: rgba(140, 180, 232, 0.82);
+  background: rgba(0, 68, 164, 0.92);
+  color: #fff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 14px 34px rgba(0, 36, 90, 0.38);
 }
 
 .share-menu {
@@ -604,12 +609,12 @@ body.is-sharing .hud-actions {
 }
 
 body.is-sharing .share-button {
-  border-color: #fff;
-  background: #fff;
-  color: #0e1013;
+  border-color: rgba(140, 180, 232, 0.82);
+  background: rgba(0, 68, 164, 0.92);
+  color: #fff;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-    0 14px 34px rgba(0, 0, 0, 0.32);
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 14px 34px rgba(0, 36, 90, 0.38);
 }
 
 body.is-sharing .stage-shell {
@@ -2002,11 +2007,6 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
 @media (max-width: 640px) {
   .hud-actions {
     inset: 12px 12px auto;
-  }
-
-  .share-button {
-    min-width: 82px;
-    padding: 0 14px;
   }
 
   .share-menu {

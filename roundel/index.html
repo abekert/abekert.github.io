@@ -42,7 +42,7 @@
     <meta name="twitter:image" content="https://abekert.github.io/images/roundel-og.png" />
     <meta name="twitter:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
 
-    <link rel="stylesheet" href="styles.css?v=20260717.8" />
+    <link rel="stylesheet" href="styles.css?v=20260717.10" />
     <script src="/assets/js/analytics.js"></script>
     <script type="application/ld+json">
       {
@@ -78,8 +78,20 @@
             </svg>
           </button>
           <div class="share-cluster">
-            <button class="hud-button share-button" id="share-button" type="button" aria-controls="share-menu" aria-expanded="false">
-              Share
+            <button
+              class="hud-button share-button icon-button"
+              id="share-button"
+              type="button"
+              aria-label="Share"
+              title="Share"
+              aria-controls="share-menu"
+              aria-expanded="false"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v12" />
+                <path d="m7.5 7.5 4.5-4.5 4.5 4.5" />
+                <path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8" />
+              </svg>
             </button>
             <div class="share-menu" id="share-menu" role="dialog" aria-label="Share and export" hidden>
               <div class="share-menu-heading">
