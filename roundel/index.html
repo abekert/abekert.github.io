@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <title>Roundel Sign Maker — Create Transport-Style Signs</title>
     <meta
       name="description"
@@ -42,7 +42,7 @@
     <meta name="twitter:image" content="https://abekert.github.io/images/roundel-og.png" />
     <meta name="twitter:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
 
-    <link rel="stylesheet" href="styles.css?v=20260717.14" />
+    <link rel="stylesheet" href="styles.css?v=20260717.28" />
     <script src="/assets/js/analytics.js"></script>
     <script type="application/ld+json">
       {
@@ -126,6 +126,34 @@
         </header>
         <div class="hud-panel-triggers" role="group" aria-label="Roundel controls">
           <button
+            class="hud-panel-trigger hud-panel-font"
+            data-menu="font"
+            type="button"
+            aria-controls="menu-font"
+            aria-expanded="false"
+          >Font</button>
+          <button
+            class="hud-panel-trigger hud-panel-size"
+            data-menu="font-size"
+            type="button"
+            aria-controls="menu-font-size"
+            aria-expanded="false"
+          >Size</button>
+          <button
+            class="hud-panel-trigger hud-panel-style"
+            data-menu="font-style"
+            type="button"
+            aria-controls="menu-font-style"
+            aria-expanded="false"
+          >Style</button>
+          <button
+            class="hud-panel-trigger hud-panel-surface"
+            data-menu="background"
+            type="button"
+            aria-controls="menu-background"
+            aria-expanded="false"
+          >Scene</button>
+          <button
             class="hud-panel-trigger hud-panel-colours"
             data-menu="ring"
             type="button"
@@ -139,20 +167,6 @@
             aria-controls="menu-bar"
             aria-expanded="false"
           >Bar</button>
-          <button
-            class="hud-panel-trigger hud-panel-font"
-            data-menu="font"
-            type="button"
-            aria-controls="menu-font"
-            aria-expanded="false"
-          >Font</button>
-          <button
-            class="hud-panel-trigger hud-panel-surface"
-            data-menu="background"
-            type="button"
-            aria-controls="menu-background"
-            aria-expanded="false"
-          >Scene</button>
         </div>
 
         <form class="studio-form" id="roundel-form">
@@ -975,6 +989,15 @@
                   <button class="font-button" data-font="system" type="button">System</button>
                   <button class="font-button" data-font="rounded" type="button">Rounded</button>
                 </div>
+              </div>
+
+              <div class="floating-menu menu-font-size" id="menu-font-size" data-menu-panel="font-size" role="dialog" aria-label="Font size options" hidden>
+                <div class="menu-header">
+                  <button class="menu-close" data-close-menu type="button" aria-label="Close Font size options" title="Close">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  </button>
+                  <div class="menu-title">Size</div>
+                </div>
                 <label class="range-field text-options-range" for="text-size-adjust">
                   <span>Size</span>
                   <div class="range-row has-reset">
@@ -1005,6 +1028,15 @@
                     </button>
                   </div>
                 </label>
+              </div>
+
+              <div class="floating-menu menu-font-style" id="menu-font-style" data-menu-panel="font-style" role="dialog" aria-label="Font style options" hidden>
+                <div class="menu-header">
+                  <button class="menu-close" data-close-menu type="button" aria-label="Close Font style options" title="Close">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  </button>
+                  <div class="menu-title">Style</div>
+                </div>
                 <div class="toggle-grid text-options-case">
                   <label class="toggle toggle-wide" for="capitalise-text">
                     <input id="capitalise-text" name="capitalise-text" type="checkbox" checked />
@@ -1087,6 +1119,7 @@
                   </button>
                 </div>
               </div>
+              <div class="floating-menu-pointer" id="menu-pointer" aria-hidden="true" hidden></div>
             </div>
           </div>
 
@@ -1095,6 +1128,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260717.6"></script>
+    <script src="app.js?v=20260717.13"></script>
   </body>
 </html>

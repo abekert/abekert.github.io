@@ -107,6 +107,7 @@
   var hudPanelTriggers = Array.prototype.slice.call(document.querySelectorAll(".hud-panel-trigger"));
   var menuPanels = Array.prototype.slice.call(document.querySelectorAll("[data-menu-panel]"));
   var menuCloseButtons = Array.prototype.slice.call(document.querySelectorAll("[data-close-menu]"));
+  var menuPointer = document.getElementById("menu-pointer");
   var barGrips = Array.prototype.slice.call(document.querySelectorAll(".bar-grip"));
   var leftBarGrip = document.querySelector(".bar-grip-left");
   var rightBarGrip = document.querySelector(".bar-grip-right");
@@ -1385,7 +1386,7 @@
   }
 
   function isDesktopMenuMode() {
-    return !!(desktopMenuQuery && desktopMenuQuery.matches);
+    return !!(desktopMenuQuery && desktopMenuQuery.matches && window.innerWidth > 640);
   }
 
   function getMenuPanel(name) {
@@ -1420,11 +1421,24 @@
     panel.style.removeProperty("top");
     panel.style.removeProperty("bottom");
     panel.style.removeProperty("--menu-origin");
+    panel.style.removeProperty("--menu-pointer-x");
     panel.style.removeProperty("--menu-shift-x");
+  }
+
+  function hideMenuPointer() {
+    if (!menuPointer) {
+      return;
+    }
+
+    menuPointer.hidden = true;
+    menuPointer.style.removeProperty("left");
+    menuPointer.style.removeProperty("top");
   }
 
   function positionMenuPanel(panel, anchor) {
     var dock = anchor && anchor.closest ? anchor.closest(".hud-panel-triggers") : null;
+    var activeButton;
+    var anchorRect;
     var dockRect;
     var panelWidth;
     var panelHeight;
@@ -1432,34 +1446,76 @@
     var viewportHeight;
     var gap;
     var margin;
+    var preferredLeft;
     var left;
     var top;
+    var originX;
+    var panelLeft;
+    var pointerX;
+    var pointerLeft;
+    var pointerTop;
 
     dock = dock || document.querySelector(".hud-panel-triggers");
 
-    if (!panel || !dock || !isDesktopMenuMode()) {
+    if (!panel || !dock) {
       if (panel) {
         resetMenuPanelPosition(panel);
       }
       return;
     }
 
+    activeButton = hudPanelTriggers.filter(function (button) {
+      return button.getAttribute("data-menu") === panel.getAttribute("data-menu-panel");
+    })[0] || anchor || dock;
+    anchorRect = activeButton.getBoundingClientRect();
     dockRect = dock.getBoundingClientRect();
     panelWidth = panel.offsetWidth;
     panelHeight = panel.offsetHeight;
     viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
     viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+    panelLeft = panel.getBoundingClientRect().left;
+
+    if (!isDesktopMenuMode()) {
+      panelLeft = (viewportWidth - panelWidth) / 2;
+    }
+
+    pointerX = clampNumber((anchorRect.left + anchorRect.width / 2 - panelLeft) / panelWidth * 100, 8, 92);
+
+    if (!isDesktopMenuMode()) {
+      pointerLeft = panelLeft + panelWidth * pointerX / 100;
+      pointerTop = dockRect.top - 18;
+
+      if (menuPointer) {
+        menuPointer.hidden = false;
+        menuPointer.style.left = Math.round(pointerLeft) + "px";
+        menuPointer.style.top = Math.round(pointerTop) + "px";
+      }
+
+      panel.style.setProperty("--menu-origin", pointerX.toFixed(2) + "% 100%");
+      return;
+    }
+
     gap = 12;
     margin = 14;
-    left = clampNumber(dockRect.left + dockRect.width / 2 - panelWidth / 2, margin, viewportWidth - panelWidth - margin);
+    preferredLeft = anchorRect.left + anchorRect.width / 2 - panelWidth / 2;
+    left = clampNumber(preferredLeft, margin, viewportWidth - panelWidth - margin);
     top = clampNumber(dockRect.top - gap - panelHeight, margin, viewportHeight - panelHeight - margin);
+    originX = clampNumber((anchorRect.left + anchorRect.width / 2 - left) / panelWidth * 100, 8, 92);
 
     panel.style.left = Math.round(left) + "px";
     panel.style.right = "auto";
     panel.style.top = Math.round(top) + "px";
     panel.style.bottom = "auto";
-    panel.style.setProperty("--menu-origin", "50% 100%");
+    panel.style.setProperty("--menu-origin", originX.toFixed(2) + "% 100%");
     panel.style.setProperty("--menu-shift-x", "0%");
+
+    if (menuPointer) {
+      pointerLeft = left + panelWidth * originX / 100;
+      pointerTop = top + panelHeight;
+      menuPointer.hidden = false;
+      menuPointer.style.left = Math.round(pointerLeft) + "px";
+      menuPointer.style.top = Math.round(pointerTop) + "px";
+    }
   }
 
   function positionActiveMenu() {
@@ -1612,6 +1668,14 @@
       roundelStage.setAttribute("data-active-menu", name || "");
     }
 
+    if (isDesktopMenuMode()) {
+      window.setTimeout(function () {
+        if (activeMenuName === name) {
+          positionActiveMenu();
+        }
+      }, 180);
+    }
+
     scheduleMobileMenuIdle();
   }
 
@@ -1620,6 +1684,7 @@
     clearDesktopMenuClose();
     activeMenuName = "";
     activeMenuAnchor = null;
+    hideMenuPointer();
 
     menuPanels.forEach(function (panel) {
       panel.hidden = true;
@@ -1644,7 +1709,8 @@
       activeDrag ||
       document.body.classList.contains("is-booting") ||
       document.body.classList.contains("is-sharing") ||
-      document.body.classList.contains("is-mobile-text-editing")
+      document.body.classList.contains("is-mobile-text-editing") ||
+      hasOpenFloatingMenu()
     );
   }
 
@@ -1664,6 +1730,10 @@
 
   function isMobileMenuAutoHideEnabled() {
     return Boolean(mobileTextEditingQuery && mobileTextEditingQuery.matches);
+  }
+
+  function shouldAutoCenterPreset() {
+    return !isMobileMenuAutoHideEnabled();
   }
 
   function hasOpenFloatingMenu() {
@@ -2452,7 +2522,7 @@
       transitionDuration: options.transitionDuration
     });
 
-    if (!options.skipStripScroll) {
+    if (!options.skipStripScroll && shouldAutoCenterPreset()) {
       scrollPresetButtonIntoView(activePresetKey);
     }
 
@@ -2548,6 +2618,7 @@
       return;
     }
 
+    styleStrip.classList.remove("is-scroll-gesture");
     suppressStyleClickUntil = 0;
     styleStripGesture = {
       pointerId: event.pointerId,
@@ -2570,6 +2641,7 @@
 
     if (!styleStripGesture.moved && Math.max(deltaX, deltaY) > 8) {
       styleStripGesture.moved = true;
+      styleStrip.classList.add("is-scroll-gesture");
       cancelStylePreview();
     }
   }
@@ -5150,7 +5222,7 @@
       updateRoundel(options);
     }
 
-    if (!options || !options.skipStripScroll) {
+    if ((!options || !options.skipStripScroll) && shouldAutoCenterPreset()) {
       scrollPresetButtonIntoView(activePresetKey);
     }
 
@@ -6435,6 +6507,10 @@
   updateShareCapabilities();
   applyPreset(activePresetKey, { suppressPersist: true });
   applyState(initialStateFromUrl || getStoredState(), { suppressPersist: true });
+  if (styleStrip) {
+    styleStrip.scrollLeft = 0;
+    syncStyleStripHint();
+  }
   persistState();
   updateUndoButton();
   showHudChrome();
