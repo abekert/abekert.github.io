@@ -135,6 +135,7 @@
   var reducedMotionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
   var mobileTextEditingQuery = window.matchMedia ? window.matchMedia("(max-width: 640px), (pointer: coarse)") : null;
   var desktopMenuQuery = window.matchMedia ? window.matchMedia("(hover: hover) and (pointer: fine)") : null;
+  var landscapeMenuQuery = window.matchMedia ? window.matchMedia("(orientation: landscape) and (max-width: 900px)") : null;
   var requestFrame = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : function (callback) {
     return window.setTimeout(function () {
       callback(Date.now());
@@ -1386,7 +1387,11 @@
   }
 
   function isDesktopMenuMode() {
-    return !!(desktopMenuQuery && desktopMenuQuery.matches && window.innerWidth > 640);
+    return !!(desktopMenuQuery && desktopMenuQuery.matches && window.innerWidth > 640 && !isLandscapeMenuMode());
+  }
+
+  function isLandscapeMenuMode() {
+    return Boolean(landscapeMenuQuery && landscapeMenuQuery.matches);
   }
 
   function getMenuPanel(name) {
@@ -1480,6 +1485,28 @@
     }
 
     pointerX = clampNumber((anchorRect.left + anchorRect.width / 2 - panelLeft) / panelWidth * 100, 8, 92);
+
+    if (isLandscapeMenuMode()) {
+      panelLeft = Number.parseFloat(window.getComputedStyle(panel).left);
+      if (!Number.isFinite(panelLeft)) {
+        panelLeft = panel.getBoundingClientRect().left;
+      }
+
+      panel.style.removeProperty("left");
+      panel.style.removeProperty("right");
+      panel.style.removeProperty("top");
+      panel.style.removeProperty("bottom");
+      panel.style.setProperty("--menu-origin", "0% 50%");
+      panel.style.setProperty("--menu-shift-x", "0%");
+
+      if (menuPointer) {
+        menuPointer.hidden = false;
+        menuPointer.style.left = Math.round(panelLeft) + "px";
+        menuPointer.style.top = Math.round(anchorRect.top + anchorRect.height / 2) + "px";
+      }
+
+      return;
+    }
 
     if (!isDesktopMenuMode()) {
       pointerLeft = panelLeft + panelWidth * pointerX / 100;
@@ -1668,7 +1695,7 @@
       roundelStage.setAttribute("data-active-menu", name || "");
     }
 
-    if (isDesktopMenuMode()) {
+    if (isDesktopMenuMode() || isLandscapeMenuMode()) {
       window.setTimeout(function () {
         if (activeMenuName === name) {
           positionActiveMenu();
