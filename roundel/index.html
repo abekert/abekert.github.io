@@ -42,7 +42,7 @@
     <meta name="twitter:image" content="https://abekert.github.io/images/roundel-og.png" />
     <meta name="twitter:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
 
-    <link rel="stylesheet" href="styles.css?v=20260717.10" />
+    <link rel="stylesheet" href="styles.css?v=20260717.14" />
     <script src="/assets/js/analytics.js"></script>
     <script type="application/ld+json">
       {
@@ -124,34 +124,36 @@
             </div>
           </div>
         </header>
-        <button
-          class="hud-panel-trigger hud-panel-colours"
-          data-menu="ring"
-          type="button"
-          aria-controls="menu-ring"
-          aria-expanded="false"
-        >Ring</button>
-        <button
-          class="hud-panel-trigger hud-panel-bar"
-          data-menu="bar"
-          type="button"
-          aria-controls="menu-bar"
-          aria-expanded="false"
-        >Bar</button>
-        <button
-          class="hud-panel-trigger hud-panel-font"
-          data-menu="font"
-          type="button"
-          aria-controls="menu-font"
-          aria-expanded="false"
-        >Font</button>
-        <button
-          class="hud-panel-trigger hud-panel-surface"
-          data-menu="background"
-          type="button"
-          aria-controls="menu-background"
-          aria-expanded="false"
-        >Scene</button>
+        <div class="hud-panel-triggers" role="group" aria-label="Roundel controls">
+          <button
+            class="hud-panel-trigger hud-panel-colours"
+            data-menu="ring"
+            type="button"
+            aria-controls="menu-ring"
+            aria-expanded="false"
+          >Ring</button>
+          <button
+            class="hud-panel-trigger hud-panel-bar"
+            data-menu="bar"
+            type="button"
+            aria-controls="menu-bar"
+            aria-expanded="false"
+          >Bar</button>
+          <button
+            class="hud-panel-trigger hud-panel-font"
+            data-menu="font"
+            type="button"
+            aria-controls="menu-font"
+            aria-expanded="false"
+          >Font</button>
+          <button
+            class="hud-panel-trigger hud-panel-surface"
+            data-menu="background"
+            type="button"
+            aria-controls="menu-background"
+            aria-expanded="false"
+          >Scene</button>
+        </div>
 
         <form class="studio-form" id="roundel-form">
           <input id="style-preset" name="style-preset" type="hidden" value="enamel" />
@@ -1093,6 +1095,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260717.4"></script>
+    <script src="app.js?v=20260717.6"></script>
   </body>
 </html>

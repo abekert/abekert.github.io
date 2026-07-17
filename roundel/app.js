@@ -157,6 +157,8 @@
   var activeDrag = null;
   var previewState = null;
   var previewPresetKey = "";
+  var styleStripGesture = null;
+  var suppressStyleClickUntil = 0;
   var introTextTimers = [];
   var introSequence = [
     { preset: "classic", text: "MAKE" },
@@ -1418,72 +1420,46 @@
     panel.style.removeProperty("top");
     panel.style.removeProperty("bottom");
     panel.style.removeProperty("--menu-origin");
+    panel.style.removeProperty("--menu-shift-x");
   }
 
   function positionMenuPanel(panel, anchor) {
-    var anchorRect;
-    var panelRect;
+    var dock = anchor && anchor.closest ? anchor.closest(".hud-panel-triggers") : null;
+    var dockRect;
+    var panelWidth;
+    var panelHeight;
     var viewportWidth;
     var viewportHeight;
     var gap;
     var margin;
     var left;
     var top;
-    var originX;
-    var originY;
-    var fitsRight;
-    var fitsLeft;
 
-    if (!panel || !anchor || !isDesktopMenuMode()) {
+    dock = dock || document.querySelector(".hud-panel-triggers");
+
+    if (!panel || !dock || !isDesktopMenuMode()) {
       if (panel) {
         resetMenuPanelPosition(panel);
       }
       return;
     }
 
-    anchorRect = anchor.getBoundingClientRect();
-    panelRect = panel.getBoundingClientRect();
+    dockRect = dock.getBoundingClientRect();
+    panelWidth = panel.offsetWidth;
+    panelHeight = panel.offsetHeight;
     viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
     viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-    gap = 16;
+    gap = 12;
     margin = 14;
-    originX = anchorRect.left + anchorRect.width / 2 < viewportWidth / 2 ? "0%" : "100%";
-    originY = "50%";
-    fitsRight = anchorRect.right + gap + panelRect.width <= viewportWidth - margin;
-    fitsLeft = anchorRect.left - gap - panelRect.width >= margin;
-
-    if (originX === "0%" && fitsRight) {
-      left = anchorRect.right + gap;
-    } else if (originX === "100%" && fitsLeft) {
-      left = anchorRect.left - gap - panelRect.width;
-    } else if (fitsRight) {
-      left = anchorRect.right + gap;
-      originX = "0%";
-    } else if (fitsLeft) {
-      left = anchorRect.left - gap - panelRect.width;
-      originX = "100%";
-    } else {
-      left = clampNumber(anchorRect.left + anchorRect.width / 2 - panelRect.width / 2, margin, viewportWidth - panelRect.width - margin);
-      originX = "50%";
-    }
-
-    if (anchorRect.top + anchorRect.height / 2 < viewportHeight * 0.35) {
-      top = anchorRect.bottom + gap;
-      originY = "0%";
-    } else if (anchorRect.top + anchorRect.height / 2 > viewportHeight * 0.65) {
-      top = anchorRect.top - gap - panelRect.height;
-      originY = "100%";
-    } else {
-      top = anchorRect.top + anchorRect.height / 2 - panelRect.height / 2;
-    }
-
-    top = clampNumber(top, margin, viewportHeight - panelRect.height - margin);
+    left = clampNumber(dockRect.left + dockRect.width / 2 - panelWidth / 2, margin, viewportWidth - panelWidth - margin);
+    top = clampNumber(dockRect.top - gap - panelHeight, margin, viewportHeight - panelHeight - margin);
 
     panel.style.left = Math.round(left) + "px";
     panel.style.right = "auto";
     panel.style.top = Math.round(top) + "px";
     panel.style.bottom = "auto";
-    panel.style.setProperty("--menu-origin", originX + " " + originY);
+    panel.style.setProperty("--menu-origin", "50% 100%");
+    panel.style.setProperty("--menu-shift-x", "0%");
   }
 
   function positionActiveMenu() {
@@ -2552,6 +2528,10 @@
   function handleStylePreviewMove(event) {
     var button = event.target.closest("[data-preset]");
 
+    if (event.pointerType && event.pointerType !== "mouse") {
+      return;
+    }
+
     if (!button || !styleStrip || !styleStrip.contains(button)) {
       if (previewState) {
         cancelStylePreview();
@@ -2561,6 +2541,50 @@
     }
 
     previewStyle(button.getAttribute("data-preset"));
+  }
+
+  function beginStyleStripGesture(event) {
+    if (event.pointerType !== "touch" && event.pointerType !== "pen") {
+      return;
+    }
+
+    suppressStyleClickUntil = 0;
+    styleStripGesture = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false
+    };
+  }
+
+  function trackStyleStripGesture(event) {
+    var deltaX;
+    var deltaY;
+
+    if (!styleStripGesture || styleStripGesture.pointerId !== event.pointerId) {
+      return;
+    }
+
+    deltaX = Math.abs(event.clientX - styleStripGesture.startX);
+    deltaY = Math.abs(event.clientY - styleStripGesture.startY);
+
+    if (!styleStripGesture.moved && Math.max(deltaX, deltaY) > 8) {
+      styleStripGesture.moved = true;
+      cancelStylePreview();
+    }
+  }
+
+  function endStyleStripGesture(event) {
+    if (!styleStripGesture || styleStripGesture.pointerId !== event.pointerId) {
+      return;
+    }
+
+    if (styleStripGesture.moved || event.type === "pointercancel") {
+      suppressStyleClickUntil = now() + 450;
+      cancelStylePreview();
+    }
+
+    styleStripGesture = null;
   }
 
   function handleStylePreviewGlobalMove(event) {
@@ -5953,19 +5977,38 @@
   }
 
   presetButtons.forEach(function (button) {
-    button.addEventListener("pointerenter", function () {
+    button.addEventListener("pointerenter", function (event) {
+      if (event.pointerType && event.pointerType !== "mouse") {
+        return;
+      }
+
       previewStyle(button.getAttribute("data-preset"));
     });
     button.addEventListener("focus", function () {
+      if (styleStripGesture) {
+        return;
+      }
+
       previewStyle(button.getAttribute("data-preset"));
     });
-    button.addEventListener("click", function () {
+    button.addEventListener("click", function (event) {
+      if (event.detail !== 0 && now() < suppressStyleClickUntil) {
+        event.preventDefault();
+        event.stopPropagation();
+        cancelStylePreview();
+        return;
+      }
+
       commitStylePreview(button.getAttribute("data-preset"));
     });
   });
 
   if (styleStrip) {
+    styleStrip.addEventListener("pointerdown", beginStyleStripGesture, { passive: true });
     styleStrip.addEventListener("pointermove", handleStylePreviewMove);
+    styleStrip.addEventListener("pointermove", trackStyleStripGesture, { passive: true });
+    styleStrip.addEventListener("pointerup", endStyleStripGesture, { passive: true });
+    styleStrip.addEventListener("pointercancel", endStyleStripGesture, { passive: true });
     styleStrip.addEventListener("pointerleave", cancelStylePreview);
     styleStrip.addEventListener("scroll", syncStyleStripHint, { passive: true });
   }
