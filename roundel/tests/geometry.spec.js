@@ -312,23 +312,132 @@ test.describe("text geometry", () => {
       const ringCast = document.querySelector("#wall-depth-ring-cast");
       const barCast = document.querySelector("#wall-depth-bar-cast");
       const border = document.querySelector("#bar-border");
+      const shadow = document.querySelector("#wall-mount-shadow");
+      const depthArt = document.querySelector("#wall-depth-art");
+      const roundelArt = document.querySelector("#roundel-art");
+      const ring = document.querySelector("#ring-circle").getBBox();
       const bar = document.querySelector("#bar-fill").getBBox();
+      const ringShadow = ringCast.getBBox();
+      const barShadow = barCast.getBBox();
       return {
         stage: document.querySelector("#roundel-stage").className,
         ringPath: ringCast.getAttribute("d"),
         barPath: barCast.getAttribute("d"),
+        shadowBeforeArt: Boolean(shadow.compareDocumentPosition(roundelArt) & Node.DOCUMENT_POSITION_FOLLOWING),
+        artTransform: depthArt.getAttribute("transform"),
         borderOpacity: Number(border.getAttribute("stroke-opacity")),
         borderWidth: Number(border.getAttribute("stroke-width")),
-        bar: { x: bar.x, y: bar.y, width: bar.width, height: bar.height }
+        bar: { x: bar.x, y: bar.y, width: bar.width, height: bar.height },
+        ringShadow: { x: ringShadow.x, y: ringShadow.y, width: ringShadow.width, height: ringShadow.height },
+        ring: { x: ring.x, y: ring.y, width: ring.width, height: ring.height },
+        barShadow: { x: barShadow.x, y: barShadow.y, width: barShadow.width, height: barShadow.height }
       };
     });
 
     expect(result.stage).toContain("is-wall-mount");
     expect(result.ringPath.length).toBeGreaterThan(40);
     expect(result.barPath.length).toBeGreaterThan(40);
+    expect((result.ringPath.match(/M/g) || []).length).toBe(2);
+    expect((result.ringPath.match(/A/g) || []).length).toBe(4);
+    expect((result.barPath.match(/M/g) || []).length).toBe(2);
+    expect((result.barPath.match(/A/g) || []).length).toBe(4);
+    expect((result.barPath.match(/Z/g) || []).length).toBe(2);
     expect(result.borderOpacity).toBe(1);
     expect(result.borderWidth).toBeGreaterThan(0);
+    expect(result.shadowBeforeArt).toBe(true);
+    expect(result.artTransform).toContain("translate(54 8)");
     expect(result.bar.width).toBeGreaterThan(0);
     expect(result.bar.height).toBeGreaterThan(0);
+    expect(result.ringShadow.x).toBeGreaterThanOrEqual(result.ring.x - 1);
+    expect(result.ringShadow.y).toBeGreaterThanOrEqual(result.ring.y - 1);
+    expect(result.ringShadow.width).toBeGreaterThan(result.ring.width);
+    // The sweep's tangent bridge may extend a few pixels before the face
+    // outline at rounded corners, but must remain a bounded cast.
+    expect(result.barShadow.x).toBeGreaterThanOrEqual(result.bar.x - 12);
+    expect(result.barShadow.y).toBeGreaterThanOrEqual(result.bar.y - 12);
+    expect(result.barShadow.width).toBeGreaterThan(result.bar.width);
+  });
+
+  test("Wall Style shadow corners track Bar width, height, outline, and multiline rows", async ({ page }) => {
+    await loadEditor(page);
+    await choosePreset(page, "wallMount");
+
+    for (const text of ["WALL STYLE", "WALL\nSTYLE"]) {
+      await setText(page, text);
+      for (const width of [720, 860, 1000]) {
+        for (const heightAdjustment of [-12, 0, 24]) {
+          await setRange(page, "bar-width", width);
+          await setRange(page, "bar-height-adjust", heightAdjustment);
+
+          const result = await page.evaluate(() => {
+            const bar = document.querySelector("#bar-fill");
+            const border = document.querySelector("#bar-border");
+            const cast = document.querySelector("#wall-depth-bar-cast");
+            const barBox = bar.getBBox();
+            const stroke = Number(border.getAttribute("stroke-width"));
+            const radius = Number(bar.getAttribute("rx"));
+            const faceX = barBox.x - stroke / 2;
+            const faceY = barBox.y - stroke / 2;
+            const faceWidth = barBox.width + stroke;
+            const faceHeight = barBox.height + stroke;
+            const safeRadius = Math.min(radius + stroke / 2, faceWidth / 2, faceHeight / 2);
+            const offset = 56;
+            const distance = Math.sqrt(offset * offset * 2);
+            const tangentX = offset / distance;
+            const tangentY = -offset / distance;
+            const expectedUpper = {
+              x: faceX + faceWidth - safeRadius + tangentX * safeRadius,
+              y: faceY + safeRadius + tangentY * safeRadius
+            };
+            const expectedLower = {
+              x: faceX + safeRadius - tangentX * safeRadius,
+              y: faceY + faceHeight - safeRadius - tangentY * safeRadius
+            };
+            const commands = [...cast.getAttribute("d").matchAll(/([ML])\s*(-?[0-9.]+)\s+(-?[0-9.]+)/g)].map((match) => ({
+              command: match[1],
+              x: Number(match[2]),
+              y: Number(match[3])
+            }));
+            const bridgeStart = commands.find((command, index) => command.command === "M" && index > 0);
+            const bridgeIndex = commands.indexOf(bridgeStart);
+            const bridgeUpperBack = commands[bridgeIndex + 1];
+            const bridgeLowerBack = commands[bridgeIndex + 2];
+            const bridgeLowerFront = commands[bridgeIndex + 3];
+            const shadowBox = cast.getBBox();
+            return {
+              lines: new Set([...document.querySelectorAll("#roundel-text tspan")].map((node) => node.dataset.lineIndex)).size,
+              stroke,
+              borderOpacity: Number(border.getAttribute("stroke-opacity")),
+              expectedUpper,
+              expectedLower,
+              bridgeStart,
+              bridgeUpperBack,
+              bridgeLowerBack,
+              bridgeLowerFront,
+              shadowBox: { x: shadowBox.x, y: shadowBox.y, width: shadowBox.width, height: shadowBox.height },
+              barBox: { x: barBox.x, y: barBox.y, width: barBox.width, height: barBox.height }
+            };
+          });
+
+          expect(result.stroke).toBe(13);
+          expect(result.borderOpacity).toBe(1);
+          expect(result.bridgeStart.command).toBe("M");
+          expect(result.bridgeUpperBack.command).toBe("L");
+          expect(result.bridgeLowerBack.command).toBe("L");
+          expect(result.bridgeLowerFront.command).toBe("L");
+          expect(result.bridgeStart.x).toBeCloseTo(result.expectedUpper.x, 1);
+          expect(result.bridgeStart.y).toBeCloseTo(result.expectedUpper.y, 1);
+          expect(result.bridgeUpperBack.x - result.bridgeStart.x).toBeCloseTo(56, 1);
+          expect(result.bridgeUpperBack.y - result.bridgeStart.y).toBeCloseTo(56, 1);
+          expect(result.bridgeLowerFront.x).toBeCloseTo(result.expectedLower.x, 1);
+          expect(result.bridgeLowerFront.y).toBeCloseTo(result.expectedLower.y, 1);
+          expect(result.bridgeLowerBack.x - result.bridgeLowerFront.x).toBeCloseTo(56, 1);
+          expect(result.bridgeLowerBack.y - result.bridgeLowerFront.y).toBeCloseTo(56, 1);
+          expect(result.shadowBox.width).toBeGreaterThan(result.barBox.width + 45);
+          expect(result.shadowBox.height).toBeGreaterThan(result.barBox.height + 45);
+          expect(result.lines).toBe(text.includes("\n") ? 2 : 1);
+        }
+      }
+    }
   });
 });

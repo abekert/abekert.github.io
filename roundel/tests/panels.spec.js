@@ -144,6 +144,25 @@ test.describe("portrait panels", () => {
     expect(result.width).toBeLessThanOrEqual(result.viewport);
     expect(result.documentWidth).toBeLessThanOrEqual(result.viewport);
   });
+
+  test("mobile controls reserve the safe-area inset in their fixed offsets", async ({ page }) => {
+    await loadEditor(page);
+    const result = await page.evaluate(async () => {
+      const css = await fetch("/roundel/styles.css").then((response) => response.text());
+      const dock = document.querySelector(".hud-panel-triggers").getBoundingClientRect();
+      const content = document.querySelector(".roundel-stage").getBoundingClientRect();
+      return {
+        safeAreaBottomUses: (css.match(/env\(safe-area-inset-bottom\)/g) || []).length,
+        dockBottom: dock.bottom,
+        contentBottom: content.bottom,
+        viewportHeight: innerHeight
+      };
+    });
+
+    expect(result.safeAreaBottomUses).toBeGreaterThanOrEqual(3);
+    expect(result.dockBottom).toBeLessThanOrEqual(result.viewportHeight);
+    expect(result.contentBottom).toBeLessThanOrEqual(result.viewportHeight);
+  });
 });
 
 test.describe("landscape panels", () => {
@@ -215,6 +234,7 @@ test.describe("landscape panels", () => {
   test("narrow landscape keeps a non-overlapping vertical dock", async ({ page }) => {
     await page.setViewportSize({ width: 667, height: 375 });
     await loadEditor(page);
+    await page.waitForTimeout(100);
     const result = await page.evaluate(() => {
       const buttons = [...document.querySelectorAll(".hud-panel-trigger")].map((button) => button.getBoundingClientRect());
       const dock = document.querySelector(".hud-panel-triggers").getBoundingClientRect();

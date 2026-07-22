@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { choosePreset, loadEditor, openMenu, setText } = require("./helpers");
+const { choosePreset, loadEditor, openMenu, setRange, setText } = require("./helpers");
 
 async function prepareArtwork(page, preset, text) {
   await loadEditor(page);
@@ -12,6 +12,31 @@ async function prepareArtwork(page, preset, text) {
     `
   });
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+}
+
+async function expectWallCornerSnapshot(page, corner, name) {
+  const clip = await page.locator("#bar-border").evaluate((border, selectedCorner) => {
+    const box = border.getBoundingClientRect();
+    const size = 190;
+    return selectedCorner === "upper-right" ? {
+      x: box.right - 78,
+      y: box.top - 54,
+      width: size,
+      height: size
+    } : {
+      x: box.left - 112,
+      y: box.bottom - 136,
+      width: size,
+      height: size
+    };
+  }, corner);
+  const image = await page.screenshot({
+    animations: "disabled",
+    caret: "hide",
+    clip,
+    scale: "css"
+  });
+  expect(image).toMatchSnapshot(name, { maxDiffPixels: 120 });
 }
 
 test.describe("visual regression snapshots", () => {
@@ -96,5 +121,20 @@ test.describe("visual regression snapshots", () => {
       caret: "hide",
       scale: "css"
     });
+  });
+
+  test("Wall Style corner crops remain seamless across Bar sizes and multiline text", async ({ page }) => {
+    const states = [
+      { label: "single-compact", text: "WALL STYLE", width: 720, height: -12 },
+      { label: "double-wide", text: "WALL\nSTYLE", width: 1000, height: 24 }
+    ];
+
+    for (const state of states) {
+      await prepareArtwork(page, "wallMount", state.text);
+      await setRange(page, "bar-width", state.width);
+      await setRange(page, "bar-height-adjust", state.height);
+      await expectWallCornerSnapshot(page, "upper-right", `wall-${state.label}-upper-right.png`);
+      await expectWallCornerSnapshot(page, "lower-left", `wall-${state.label}-lower-left.png`);
+    }
   });
 });

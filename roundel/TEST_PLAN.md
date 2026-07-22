@@ -13,15 +13,15 @@ the production page must not require a framework or test runtime.
 ## Current implementation status
 
 The Playwright harness and high-value regression suite are implemented in
-`tests/`. The current suite contains 63 tests and 15 visual baselines, covering
+`tests/`. The current suite contains 67 tests and 19 visual baselines, covering
 the P0 geometry, sizing, preset, panel, touch, landscape, startup, and sharing
 scenarios, plus Bar grip dragging, Heritage caret placement, Transport preset
-contracts, PNG format exports, and Wall Style cast geometry.
+contracts, PNG format exports/import round-trips and metadata, safe-area
+offsets, timestamped startup states, and Wall Style cast geometry/diagonal
+invariants across independent width, height, outline, and multiline states.
 
-The remaining backlog is limited to deeper P1 coverage: exact startup frame
-captures at fixed timestamps, PNG import round-trips, clean/scene metadata
-inspection, safe-area inset checks, and pixel-level Wall Style shadow
-invariants. These can be added without changing the production page.
+The remaining backlog is limited to exact startup visual frame captures at
+fixed timestamps. These can be added without changing the production page.
 
 ## Recommended test stack
 

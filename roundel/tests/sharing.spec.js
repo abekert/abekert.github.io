@@ -1,6 +1,37 @@
 const { test, expect } = require("@playwright/test");
 const { loadEditor, setText } = require("./helpers");
 
+function readPngTextMetadata(buffer) {
+  const metadata = {};
+  let offset = 8;
+
+  while (offset + 12 <= buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.toString("ascii", offset + 4, offset + 8);
+    const data = buffer.subarray(offset + 8, offset + 8 + length);
+
+    if (type === "iTXt") {
+      const keywordEnd = data.indexOf(0);
+      const keyword = data.toString("utf8", 0, keywordEnd);
+      let cursor = keywordEnd + 1;
+      const compressionFlag = data[cursor];
+      cursor += 2;
+      const languageEnd = data.indexOf(0, cursor);
+      cursor = languageEnd + 1;
+      const translatedEnd = data.indexOf(0, cursor);
+      cursor = translatedEnd + 1;
+      if (compressionFlag === 0) {
+        metadata[keyword] = data.toString("utf8", cursor);
+      }
+    }
+
+    offset += length + 12;
+    if (type === "IEND") break;
+  }
+
+  return metadata;
+}
+
 test.describe("sharing", () => {
   test("opens and closes Share without changing editor text", async ({ page }) => {
     await loadEditor(page);
@@ -90,8 +121,32 @@ test.describe("sharing", () => {
       expect(download.suggestedFilename()).toMatch(/\.png$/);
       expect(png.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
       expect(png.length).toBeGreaterThan(1000);
+      const metadata = readPngTextMetadata(png);
+      const state = JSON.parse(metadata["Roundel:State"]);
+      expect(metadata["Roundel:Format"]).toBe(format);
+      expect(metadata["Roundel:URL"]).toContain("/roundel/index.html");
+      expect(state.text).toBe("MAKE");
       await expect(page.locator("#export-status")).toContainText(format === "card" ? "Share card" : "PNG");
     }
+  });
+
+  test("PNG export can restore the complete editor state", async ({ page }) => {
+    test.setTimeout(60_000);
+    await loadEditor(page);
+    await setText(page, "ROUND TRIP");
+    await page.locator("#share-button").click();
+    await page.locator(".share-more summary").click();
+    const downloadPromise = page.waitForEvent("download");
+    await page.locator("#export-button").click();
+    const download = await downloadPromise;
+    const pngPath = await download.path();
+    expect(pngPath).toBeTruthy();
+
+    await setText(page, "BROKEN");
+    await page.locator("#import-file-input").setInputFiles(pngPath);
+    await expect(page.locator("#export-status")).toHaveText("Project restored. You can edit and share your remix.", { timeout: 10_000 });
+    await expect(page.locator("#sign-text")).toHaveValue("ROUND TRIP");
+    await expect(page.locator("#roundel-text")).toHaveText("ROUND TRIP");
   });
 
   test("share capability controls reflect the current browser APIs", async ({ page }) => {
