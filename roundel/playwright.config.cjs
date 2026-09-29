@@ -27,7 +27,7 @@ module.exports = defineConfig({
       : undefined
   },
   webServer: {
-    command: `python3 -m http.server ${port} --bind 127.0.0.1 --directory ..`,
+    command: `node ../scripts/serve-site.cjs ${port}`,
     cwd: __dirname,
     url: `${baseURL}/roundel/index.html`,
     stdout: "ignore",

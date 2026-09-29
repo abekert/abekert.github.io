@@ -15,8 +15,10 @@ CSS assets, manifests and sitemap entries. Browser tests fail on console errors
 and uncaught exceptions, including malformed SVG paths. The site tests cover
 responsive portraits, delayed YouTube loading and the no-JavaScript fallback.
 
-`TEST_PORT` selects an alternate local server port. Clipboard permissions use
-the same origin. `CHROME_PATH` is an explicit diagnostic override; normal runs
+The suite starts `scripts/serve-site.cjs` using Node's built-in HTTP server, so
+preview startup uses the same runtime locally and on CI. `TEST_PORT` selects
+an alternate port. Clipboard permissions use the same origin.
+`CHROME_PATH` is an explicit diagnostic override; normal runs
 use Chromium 149.0.7827.55 installed by the locked Playwright 1.61.1 package.
 CI runs the checks on macOS 15 with Node 24. macOS and Linux font rendering are
 different, so the existing `-darwin.png` visual baselines must not be copied to
