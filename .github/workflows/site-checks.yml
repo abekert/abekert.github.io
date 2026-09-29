@@ -30,7 +30,7 @@ jobs:
         run: |
           perl -0777 -ne 'if (/<svg\b[^>]*id="roundel-svg"[\s\S]*?<\/svg>/) { print $& }' index.html | xmllint --noout -
           git diff --check
-      - run: npm test
+      - run: DEBUG=pw:webserver npm test
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

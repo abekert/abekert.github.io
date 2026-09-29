@@ -31,8 +31,8 @@ module.exports = defineConfig({
     cwd: __dirname,
     url: `${baseURL}/roundel/index.html`,
     stdout: "ignore",
-    stderr: "ignore",
+    stderr: "pipe",
     reuseExistingServer: !process.env.CI,
-    timeout: 10_000
+    timeout: 30_000
   }
 });
