@@ -22,11 +22,14 @@ test("startup begins with Make and does not flash the final Tap to start text", 
 });
 
 test("startup keeps the Make state through the early animation frames", async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-09-29T00:00:00Z") });
+  await page.clock.pauseAt(new Date("2026-09-29T00:00:01Z"));
   await loadStartup(page);
   const observations = [];
-  const startedAt = Date.now();
+  let elapsed = 0;
   for (const delay of [50, 150, 500]) {
-    await page.waitForTimeout(Math.max(0, delay - (Date.now() - startedAt)));
+    await page.clock.runFor(delay - elapsed);
+    elapsed = delay;
     observations.push(await page.evaluate(() => ({
       text: document.querySelector("#roundel-text").textContent,
       title: document.querySelector("#roundel-title").textContent,

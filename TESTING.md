@@ -25,6 +25,10 @@ different, so the existing `-darwin.png` visual baselines must not be copied to
 Linux without review.
 
 Visual tests use reduced motion to disable both CSS and JavaScript transitions.
+Their UI font is bundled under `roundel/tests/fonts/` so local font installations
+and macOS system-font updates cannot change panel snapshots. Sign artwork keeps
+its normal font choices. The early startup frame test advances a controlled
+browser clock, independently of runner load and navigation latency.
 Startup and gesture tests separately exercise animation and normal interaction.
 Review expected/actual/diff images in `roundel/test-results/` before updating
 baselines. Never increase tolerances simply to hide a failure.
