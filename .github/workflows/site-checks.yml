@@ -1,0 +1,39 @@
+name: Site checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    # Visual baselines are macOS-specific; use one OS and the locked Chromium.
+    runs-on: macos-15
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: roundel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: roundel/package-lock.json
+      - run: npm ci
+      - run: npx playwright install chromium
+      - run: npm run check
+      - name: Validate SVG and whitespace
+        run: |
+          perl -0777 -ne 'if (/<svg\b[^>]*id="roundel-svg"[\s\S]*?<\/svg>/) { print $& }' index.html | xmllint --noout -
+          git diff --check
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failure-artifacts
+          path: roundel/test-results/
+          retention-days: 7

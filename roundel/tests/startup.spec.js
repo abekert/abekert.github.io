@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { loadStartup } = require("./helpers");
 
 test("startup begins with Make and does not flash the final Tap to start text", async ({ page }) => {
@@ -48,4 +48,17 @@ test("reduced motion still starts with the Make state", async ({ page }) => {
   await loadStartup(page);
   await expect(page.locator("body")).not.toHaveClass(/is-booting/);
   await expect(page.locator("#roundel-text")).toHaveText("TAP TO START");
+});
+
+test("startup accepts frame timestamps slightly earlier than its animation start", async ({ page }) => {
+  await page.addInitScript(() => {
+    const requestFrame = window.requestAnimationFrame.bind(window);
+    // Model work already performed in a frame before the animation starts.
+    window.requestAnimationFrame = (callback) => requestFrame((timestamp) => callback(timestamp - 32));
+  });
+  await loadStartup(page);
+  await page.waitForFunction(() => !document.body.classList.contains("is-booting"), null, { timeout: 8_000 });
+  await expect(page.locator("#roundel-text")).toHaveText("TAP TO START");
+  expect(await page.locator("#roundel-svg circle").evaluateAll((circles) =>
+    circles.every((circle) => Number(circle.getAttribute("r")) >= 0))).toBe(true);
 });

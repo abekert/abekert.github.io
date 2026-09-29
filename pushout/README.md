@@ -117,10 +117,17 @@ The script also measures the actual video board position and sets `--board-rope-
 The video board should be treated as fixed-ratio artwork:
 
 - `.video-board` uses the original `670 / 420` aspect ratio.
-- The YouTube iframe is absolutely inset into the board opening.
+- The local video preview and activated YouTube iframe share the same absolute
+  inset into the board opening.
 - Avoid simple padding-only responsive embeds here; they can make the video spill outside the wooden frame.
 
-YouTube embeds use the `/embed/VIDEO_ID` URL with `origin` and `widget_referrer` parameters. When opened via `file://`, YouTube may still show Error 153 because the browser does not provide a normal HTTP origin/referrer. Test video embeds via a local server or deployed GitHub Pages URL.
+All four videos initially render local WebP thumbnails. `js/video-preview.js`
+creates a `youtube-nocookie.com/embed/VIDEO_ID` iframe only after activation;
+without JavaScript the preview remains a working YouTube link. Preserve the
+preview dimensions and visible keyboard focus when editing the shared CSS.
+Thumbnail sources are recorded in `img/video/README.md`.
+
+YouTube embeds include `origin` and `widget_referrer` parameters. When opened via `file://`, YouTube may still show Error 153 because the browser does not provide a normal HTTP origin/referrer. Test video embeds via a local server or deployed GitHub Pages URL.
 
 Local preview:
 

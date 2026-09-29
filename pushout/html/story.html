@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="../favicon.png" type="image/png">
     <script src="/assets/js/analytics.js"></script>
+    <link rel="stylesheet" href="../css/video-preview.css?v=1">
+    <script src="../js/video-preview.js?v=1" defer></script>
 </head>
 <body>
     <div id="text">
@@ -60,8 +62,10 @@
 
         <p>Pavel Ignatovich composed the light guitar soundtrack that helped the game feel more playful and alive.</p>
         
-        <iframe id="video" width="560" height="315" src="https://www.youtube-nocookie.com/embed/RrSsGB_QP7Q?origin=https%3A%2F%2Fabekert.github.io&amp;widget_referrer=https%3A%2F%2Fabekert.github.io%2Fpushout%2Fhtml%2Fstory.html" title="Push Out music story video" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-        </iframe>
+        <a id="video" class="video-preview" href="https://www.youtube.com/watch?v=RrSsGB_QP7Q" data-youtube-id="RrSsGB_QP7Q" data-video-title="Push Out music story video" aria-label="Play Push Out music story video">
+            <img src="../img/video/RrSsGB_QP7Q.webp" alt="" width="480" height="360" loading="lazy" decoding="async">
+            <span class="video-preview__play" aria-hidden="true">Play video</span>
+        </a>
         <p class="video-link"><a href="https://www.youtube.com/watch?v=RrSsGB_QP7Q">Watch this video on YouTube</a></p>
    
         <p>Roman Shabohin created the website and gave the project a proper home outside the App Store.</p>
@@ -72,8 +76,10 @@
 
         <p>I wanted a phone screen not to separate people, but to become a small table where friends could gather, compete, laugh and push each other out of the arena.</p>
 
-        <iframe id="final-video" width="560" height="315" src="https://www.youtube-nocookie.com/embed/8Z107MtCppg?origin=https%3A%2F%2Fabekert.github.io&amp;widget_referrer=https%3A%2F%2Fabekert.github.io%2Fpushout%2Fhtml%2Fstory.html" title="Push Out retrospective video" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-        </iframe>
+        <a id="final-video" class="video-preview" href="https://www.youtube.com/watch?v=8Z107MtCppg" data-youtube-id="8Z107MtCppg" data-video-title="Push Out retrospective video" aria-label="Play Push Out retrospective video">
+            <img src="../img/video/8Z107MtCppg.webp" alt="" width="480" height="360" loading="lazy" decoding="async">
+            <span class="video-preview__play" aria-hidden="true">Play video</span>
+        </a>
         <p class="video-link"><a href="https://www.youtube.com/watch?v=8Z107MtCppg">Watch this video on YouTube</a></p>
 
         <div id="island-rocks"></div>

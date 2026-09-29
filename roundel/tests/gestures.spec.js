@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { loadEditor } = require("./helpers");
 
 test.describe("touch interaction", () => {
@@ -55,8 +55,8 @@ test.describe("touch interaction", () => {
     }));
     expect(result.touchAction).toContain("pan-x");
     expect(["auto", "scroll"]).toContain(result.overflowX);
-    expect(result.viewport).toContain("user-scalable=no");
-    expect(result.viewport).toContain("maximum-scale=1");
+    expect(result.touchAction).toContain("pinch-zoom");
+    expect(result.viewport).not.toMatch(/user-scalable\s*=\s*no|maximum-scale/);
   });
 
   test("a touch tap selects a preset without a swipe", async ({ page }) => {

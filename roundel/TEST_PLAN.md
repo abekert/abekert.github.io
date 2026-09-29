@@ -13,12 +13,16 @@ the production page must not require a framework or test runtime.
 ## Current implementation status
 
 The Playwright harness and high-value regression suite are implemented in
-`tests/`. The current suite contains 67 tests and 19 visual baselines, covering
+`tests/`. The current suite contains 79 tests and 19 visual baselines, covering
 the P0 geometry, sizing, preset, panel, touch, landscape, startup, and sharing
 scenarios, plus Bar grip dragging, Heritage caret placement, Transport preset
 contracts, PNG format exports/import round-trips and metadata, safe-area
 offsets, timestamped startup states, and Wall Style cast geometry/diagonal
 invariants across independent width, height, outline, and multiline states.
+It also covers Share focus containment/restoration, mobile pinch zoom, 44 px
+resize targets, responsive homepage images and delayed Push Out video loading.
+Every browser test fails on console errors and uncaught exceptions. See
+`../TESTING.md` for the pinned browser setup, CI and local link checks.
 
 The remaining backlog is limited to exact startup visual frame captures at
 fixed timestamps. These can be added without changing the production page.
@@ -193,11 +197,12 @@ Also test:
 6. Selecting a preset on a phone does not change carousel `scrollLeft`.
 7. Initial carousel `scrollLeft` is always zero.
 8. Desktop selection may continue centring the active preset.
-9. The carousel retains `touch-action: pan-x`.
+9. The carousel retains `touch-action: pan-x pinch-zoom`.
 10. Long press does not select buttons, labels, panels, or preset cells.
 11. The text input still allows normal selection and editing.
 12. Panels and the dock do not make the document scroll.
-13. Pinch zoom and double-tap zoom are disabled.
+13. Pinch zoom remains available without editing the sign; the viewport must
+    not disable user scaling or set a maximum scale.
 14. The preset carousel remains horizontally scrollable after page scrolling is
     disabled.
 
@@ -278,8 +283,8 @@ regression tests:
 Before taking screenshots:
 
 1. Wait for `document.fonts.ready`.
-2. Disable CSS animations and transitions through a Playwright stylesheet or
-   reduced-motion context.
+2. Use a reduced-motion context to disable JavaScript SVG interpolation as well
+   as CSS animations and transitions.
 3. Wait for any SVG update frame to complete.
 4. Use a fixed browser version and device scale factor.
 5. Snapshot the SVG/stage and the UI separately where possible.

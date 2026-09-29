@@ -2,11 +2,12 @@
   "name": "roundel-tests",
   "private": true,
   "scripts": {
+    "check": "node ../scripts/test-analytics.js && node --check app.js && node --check ../pushout/js/video-preview.js && python3 ../scripts/check-links.py",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0"
+    "@playwright/test": "1.61.1"
   }
 }

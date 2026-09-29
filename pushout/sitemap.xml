@@ -3,7 +3,7 @@
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://abekert.github.io/pushout/</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>1</priority>
     <image:image>
@@ -21,7 +21,7 @@
   </url>
   <url>
     <loc>https://abekert.github.io/pushout/html/story.html</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -48,7 +48,7 @@
   </url>
   <url>
     <loc>https://abekert.github.io/pushout/html/trottoir.html</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
     <image:image>

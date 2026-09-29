@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { choosePreset, loadEditor, openMenu, setRange, setText } = require("./helpers");
 
 async function prepareArtwork(page, preset, text) {
@@ -40,7 +40,9 @@ async function expectWallCornerSnapshot(page, corner, name) {
 }
 
 test.describe("visual regression snapshots", () => {
-  test.use({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+  // Reduced motion also disables the app's requestAnimationFrame transitions;
+  // disabling CSS animations alone does not freeze SVG interpolation.
+  test.use({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: "reduce" });
 
   test("Heritage multiline hexagon composition", async ({ page }) => {
     await prepareArtwork(page, "heritage", "UNDERGROUND\nTAP TO START");
@@ -101,9 +103,7 @@ test.describe("visual regression snapshots", () => {
         await openMenu(page, "background");
       }
       await page.locator(`#menu-background [data-background="${id}"]`).click();
-      // Scene changes use the same JS visual transition as the editor. Wait
-      // for that transition to finish before capturing a deterministic frame.
-      await page.waitForTimeout(900);
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(resolve)));
       await expect(page.locator("#roundel-stage")).toHaveScreenshot(`scene-${id}.png`, {
         animations: "disabled",
         caret: "hide",

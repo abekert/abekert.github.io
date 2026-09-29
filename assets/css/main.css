@@ -212,9 +212,14 @@ h3 {
 
 .profile-panel img {
   width: 100%;
+  height: auto;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   background: var(--surface-muted);
+}
+
+.profile-panel picture {
+  display: block;
 }
 
 .profile-panel dl {

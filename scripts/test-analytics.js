@@ -1,8 +1,9 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const vm = require("node:vm");
+const path = require("node:path");
 
-const source = fs.readFileSync("assets/js/analytics.js", "utf8");
+const source = fs.readFileSync(path.join(__dirname, "../assets/js/analytics.js"), "utf8");
 const measurementId = "G-50YJXSVRJ4";
 
 function runAnalytics(options = {}) {

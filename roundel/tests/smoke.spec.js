@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { loadEditor } = require("./helpers");
 
 test("editor loads with the expected controls and no document overflow", async ({ page }) => {

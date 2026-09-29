@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { loadEditor, setText } = require("./helpers");
 
 function readPngTextMetadata(buffer) {
@@ -70,8 +70,8 @@ test.describe("sharing", () => {
     await expect(page.locator('[data-share-format="clean"]')).toHaveAttribute("aria-pressed", "true");
   });
 
-  test("copy edit link preserves the current editor state", async ({ page, context }) => {
-    await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:4173" });
+  test("copy edit link preserves the current editor state", async ({ page, context, baseURL }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: baseURL });
     await loadEditor(page);
     await setText(page, "TAP TO START");
     await page.locator("#share-button").click();

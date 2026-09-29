@@ -39,6 +39,8 @@
   var shareFormatButtons = Array.prototype.slice.call(document.querySelectorAll("[data-share-format]"));
   var shareButton = document.getElementById("share-button");
   var shareMenu = document.getElementById("share-menu");
+  var closeShareButton = document.getElementById("close-share-button");
+  var shareInertElements = [];
   var exportStatus = document.getElementById("export-status");
   var svg = document.getElementById("roundel-svg");
   var form = document.getElementById("roundel-form");
@@ -1780,6 +1782,7 @@
   function isMobileMenuIdleBlocked() {
     return Boolean(
       activeDrag ||
+      hasOpenShareMenu() ||
       document.body.classList.contains("is-booting") ||
       document.body.classList.contains("is-mobile-text-editing")
     );
@@ -1879,19 +1882,27 @@
     closeMenus();
     shareMenu.hidden = false;
     shareButton.setAttribute("aria-expanded", "true");
+    shareInertElements = Array.prototype.filter.call(document.querySelectorAll(
+      "#roundel-form, .hud-panel-triggers, .site-credit, .skip-link, #undo-button"
+    ), function (element) { return !element.inert; });
+    shareInertElements.forEach(function (element) { element.inert = true; });
+    closeShareButton.focus({ preventScroll: true });
     emitRoundelEvent("share_opened", { format: shareFormat });
     prepareShareAsset().catch(function () {});
     scheduleMobileMenuIdle();
   }
 
   function closeShareMenu() {
-    if (!shareButton || !shareMenu) {
+    if (!shareButton || !shareMenu || shareMenu.hidden) {
       return;
     }
 
     shareMenu.hidden = true;
+    shareInertElements.forEach(function (element) { element.inert = false; });
+    shareInertElements = [];
     shareButton.setAttribute("aria-expanded", "false");
     document.body.classList.remove("is-sharing");
+    shareButton.focus({ preventScroll: true });
     if (!hasOpenFloatingMenu()) {
       clearMobileMenuIdle();
     }
@@ -3262,7 +3273,7 @@
         "C" + formatSvgNumber(backCenterX + outerRadius * 0.66) + " " + formatSvgNumber(backCenterY - outerRadius * 0.76),
         formatSvgNumber(backCenterX + outerRadius * 0.88) + " " + formatSvgNumber(backCenterY - outerRadius * 0.5),
         formatSvgNumber(backCenterX + outerRadius * 0.97) + " " + formatSvgNumber(backCenterY - outerRadius * 0.24)
-      ].join(""));
+      ].join(" "));
     }
 
     if (streetDepthBarBack) {
@@ -3748,7 +3759,12 @@
     var verticalPadding = Math.max(0, (editorHeight * scale.y - lineHeight * lines.length) / 2);
     var horizontalPadding = Math.max(8, getHorizontalPadding(lines.length, barWidth) * editorScale.x / 2);
     var textColor = textNode.getAttribute("fill") || "#ffffff";
-    var gripHeight = Math.max(42, Math.min(92, editorHeight * scale.y * 0.58));
+    var gripHeight = Math.max(44, Math.min(92, editorHeight * scale.y * 0.58));
+    // Keep 44px targets outside the text hit area, independent of SVG scale.
+    var gripOffsetX = 26 / scale.x;
+    var gripOffsetY = 26 / scale.y;
+    var gripEdgeX = 22 / scale.x;
+    var gripEdgeY = 22 / scale.y;
     var heritageTypography = isHeritageTypography();
     var svgInputCaret = usesSvgInputCaret();
 
@@ -3786,26 +3802,26 @@
     input.style.transformOrigin = "50% 50%";
 
     if (leftBarGrip) {
-      leftBarGrip.style.left = ((editorX - 18) / 1200 * 100) + "%";
+      leftBarGrip.style.left = (Math.max(gripEdgeX, editorX - gripOffsetX) / 1200 * 100) + "%";
       leftBarGrip.style.top = (editorCenterY / 840 * 100) + "%";
       leftBarGrip.style.height = gripHeight + "px";
     }
 
     if (rightBarGrip) {
-      rightBarGrip.style.left = ((editorX + editorWidth + 18) / 1200 * 100) + "%";
+      rightBarGrip.style.left = (Math.min(1200 - gripEdgeX, editorX + editorWidth + gripOffsetX) / 1200 * 100) + "%";
       rightBarGrip.style.top = (editorCenterY / 840 * 100) + "%";
       rightBarGrip.style.height = gripHeight + "px";
     }
 
     if (topBarGrip) {
       topBarGrip.style.left = (editorCenterX / 1200 * 100) + "%";
-      topBarGrip.style.top = ((editorY - 18) / 840 * 100) + "%";
+      topBarGrip.style.top = (Math.max(gripEdgeY, editorY - gripOffsetY) / 840 * 100) + "%";
       topBarGrip.style.width = Math.max(82, Math.min(150, editorWidth * scale.x * 0.2)) + "px";
     }
 
     if (bottomBarGrip) {
       bottomBarGrip.style.left = (editorCenterX / 1200 * 100) + "%";
-      bottomBarGrip.style.top = ((editorY + editorHeight + 18) / 840 * 100) + "%";
+      bottomBarGrip.style.top = (Math.min(840 - gripEdgeY, editorY + editorHeight + gripOffsetY) / 840 * 100) + "%";
       bottomBarGrip.style.width = Math.max(82, Math.min(150, editorWidth * scale.x * 0.2)) + "px";
     }
   }
@@ -4181,7 +4197,9 @@
     renderVisualState(start, end, 0, false);
 
     function tick(now) {
-      var progress = Math.min(1, (now - startedAt) / animationDuration);
+      // A frame timestamp can precede performance.now() from earlier in that
+      // frame. Never extrapolate before the initial state (negative SVG radii).
+      var progress = Math.max(0, Math.min(1, (now - startedAt) / animationDuration));
       var eased = easeOutCubic(progress);
 
       renderVisualState(start, end, eased, progress >= 1);
@@ -6009,7 +6027,7 @@
   function startBarDrag(event) {
     var dragType = event.currentTarget.getAttribute("data-drag");
 
-    if (!dragType) {
+    if (!dragType || activeDrag || (event.pointerType === "touch" && !event.isPrimary)) {
       return;
     }
 
@@ -6422,6 +6440,30 @@
   if (shareButton) {
     shareButton.addEventListener("click", toggleShareMenu);
   }
+
+  closeShareButton.addEventListener("click", closeShareMenu);
+  document.addEventListener("keydown", function (event) {
+    if (!hasOpenShareMenu()) {
+      return;
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeShareMenu();
+    } else if (event.key === "Tab") {
+      var controls = Array.prototype.filter.call(shareMenu.querySelectorAll(
+        "button:not(:disabled), a[href], summary, [tabindex='0']"
+      ), function (element) { return element.getClientRects().length > 0; });
+      var first = controls[0];
+      var last = controls[controls.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !shareMenu.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !shareMenu.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
 
   rangeControls.forEach(function (control) {
     control.addEventListener("pointerdown", function (event) {

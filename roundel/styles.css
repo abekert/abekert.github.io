@@ -101,6 +101,35 @@ button {
   clip-path: inset(50%);
 }
 
+.site-credit {
+  position: fixed;
+  top: calc(14px + env(safe-area-inset-top));
+  left: 50%;
+  z-index: 59;
+  margin: 0;
+  color: rgba(214, 212, 203, 0.52);
+  font-size: 0.68rem;
+  font-weight: 620;
+  letter-spacing: 0.035em;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.site-credit a {
+  color: rgba(242, 240, 232, 0.72);
+  text-decoration: none;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.site-credit a:hover,
+.site-credit a:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
 .topbar {
   display: grid;
   grid-template-columns: minmax(120px, 0.7fr) minmax(0, 1.4fr) minmax(180px, 0.8fr);
@@ -279,6 +308,14 @@ h1 {
 .share-menu-heading {
   display: grid;
   gap: 3px;
+  padding-right: 32px;
+}
+
+.share-menu .share-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  margin: 0;
 }
 
 .share-menu-heading strong {
@@ -859,7 +896,7 @@ body.is-hud-idle .hud-panel-triggers {
   border: 0;
   background: transparent;
   cursor: pointer;
-  touch-action: none;
+  touch-action: manipulation;
 }
 
 .hotspot-background {
@@ -912,11 +949,11 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
 }
 
 .bar-grip {
-  width: 20px;
+  z-index: 8;
+  width: 44px;
   height: 72px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.56);
-  box-shadow: 0 10px 24px rgba(20, 25, 34, 0.16);
+  border-radius: 0;
+  touch-action: pinch-zoom;
   opacity: 0;
   transform: translate(-50%, -50%);
   transition: opacity 160ms ease, transform 160ms ease;
@@ -943,40 +980,40 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
 .bar-grip::after {
   content: "";
   position: absolute;
-  left: 8px;
-  width: 4px;
-  height: 34px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   border-radius: 999px;
-  background: var(--blue);
+  pointer-events: none;
 }
 
 .bar-grip::before {
-  top: 12px;
+  width: 20px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.56);
+  box-shadow: 0 10px 24px rgba(20, 25, 34, 0.16);
 }
 
 .bar-grip::after {
-  bottom: 12px;
+  width: 4px;
+  height: calc(100% - 20px);
+  background: linear-gradient(var(--blue) 40%, transparent 40% 60%, var(--blue) 60%);
 }
 
 .bar-grip-thickness {
   width: 112px;
-  height: 18px;
-}
-
-.bar-grip-thickness::before,
-.bar-grip-thickness::after {
-  left: 18px;
-  right: 18px;
-  width: auto;
-  height: 4px;
+  height: 44px;
 }
 
 .bar-grip-thickness::before {
-  top: 5px;
+  width: 100%;
+  height: 18px;
 }
 
 .bar-grip-thickness::after {
-  bottom: 5px;
+  width: calc(100% - 36px);
+  height: 8px;
+  background: linear-gradient(var(--blue) 3px, transparent 3px 5px, var(--blue) 5px);
 }
 
 .bar-grip-thickness:hover {
@@ -1605,7 +1642,7 @@ body.is-hud-idle .roundel-stage.is-guiding .hotspot::before {
   align-items: stretch;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  touch-action: pan-x;
+  touch-action: pan-x pinch-zoom;
   scrollbar-width: none;
   border: 0;
   border-radius: 0;

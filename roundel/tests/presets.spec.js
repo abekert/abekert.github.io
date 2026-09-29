@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { choosePreset, loadEditor, openMenu } = require("./helpers");
 
 test.describe("preset contracts", () => {

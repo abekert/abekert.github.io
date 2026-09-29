@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Roundel Sign Maker — Create Transport-Style Signs</title>
     <meta
       name="description"
@@ -42,7 +42,7 @@
     <meta name="twitter:image" content="https://abekert.github.io/images/roundel-og.png" />
     <meta name="twitter:image:alt" content="Preview of the Roundel Sign Maker web tool with a red-and-blue roundel graphic." />
 
-    <link rel="stylesheet" href="styles.css?v=20260717.34" />
+    <link rel="stylesheet" href="styles.css?v=20260906.36" />
     <script src="/assets/js/analytics.js"></script>
     <script type="application/ld+json">
       {
@@ -70,6 +70,7 @@
     <main id="main" class="page-shell">
       <section class="roundel-workbench" aria-labelledby="page-title">
         <h1 class="sr-only" id="page-title">Roundel Sign Maker</h1>
+        <p class="site-credit">Made by <a href="/">Alexander Bekert</a></p>
         <header class="hud-actions" aria-label="Roundel actions">
           <button class="hud-button hud-button-undo icon-button" id="undo-button" type="button" aria-label="Undo" title="Undo" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -93,7 +94,10 @@
                 <path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8" />
               </svg>
             </button>
-            <div class="share-menu" id="share-menu" role="dialog" aria-label="Share and export" hidden>
+            <div class="share-menu" id="share-menu" role="dialog" aria-modal="true" aria-label="Share and export" hidden>
+              <button class="menu-close share-close" id="close-share-button" type="button" aria-label="Close share menu">
+                <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" /></svg>
+              </button>
               <div class="share-menu-heading">
                 <strong>Share your roundel</strong>
                 <span>Anyone can open the edit link and remix it.</span>
@@ -1128,6 +1132,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260717.15"></script>
+    <script src="app.js?v=20260906.16"></script>
   </body>
 </html>

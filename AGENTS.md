@@ -49,6 +49,8 @@ overscroll does not fall back to browser white.
 Homepage assets include:
 
 - `images/alexander-bekert.jpg`
+- `images/alexander-bekert-{320,640,960,1600}.{avif,webp}` (responsive variants;
+  regenerate with `python3 scripts/optimize-portrait.py`)
 - `images/meta-logo.svg`
 - `images/og-image.svg`
 - `images/og-image.png`
@@ -126,6 +128,8 @@ node --check assets/js/analytics.js
 
 For Roundel changes, also follow `roundel/AGENTS.md`, update cache-busting query
 values when rendered CSS or runtime JS changes, and run its required checks.
+Run `npm run check` and `npm test` from `roundel/` before publishing. The setup
+and visual baseline review process are documented in `TESTING.md`.
 
 When adding or removing public pages, keep `sitemap.xml`, navigation, privacy
 links, canonical URLs, and analytics coverage consistent.

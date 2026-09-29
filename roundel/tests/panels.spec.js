@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { loadEditor, openMenu, rect } = require("./helpers");
 
 test.describe("desktop panels", () => {

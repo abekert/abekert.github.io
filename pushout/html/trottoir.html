@@ -11,6 +11,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="../favicon.png" type="image/png">
     <script src="/assets/js/analytics.js"></script>
+    <link rel="stylesheet" href="../css/video-preview.css?v=1">
+    <script src="../js/video-preview.js?v=1" defer></script>
 </head>
 <body>
     <div id="text">
@@ -19,8 +21,10 @@
 
         <p>Remember how you played hopscotch during your teens? How about a go at it on the screen of your mobile device? It’s all about your agility, speed and accuracy. How far can you get, huh? Face your friends, unlock new pictures. Maybe your name will appear on everyone’s pavement alongside the World Record!</p>
 
-        <iframe id="video" width="315" height="560" src="https://www.youtube-nocookie.com/embed/ZpXsYdWeipg" title="Trottoir trailer" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-        </iframe>
+        <a id="video" class="video-preview" href="https://www.youtube.com/watch?v=ZpXsYdWeipg" data-youtube-id="ZpXsYdWeipg" data-video-title="Trottoir trailer" aria-label="Play Trottoir trailer">
+            <img src="../img/video/ZpXsYdWeipg.webp" alt="" width="480" height="360" loading="lazy" decoding="async">
+            <span class="video-preview__play" aria-hidden="true">Play video</span>
+        </a>
 
         <a href="https://itunes.apple.com/us/app/trottoir/id935314042?ls=1&amp;mt=8" aria-label="Download Trottoir on the App Store"><div id="get-on-the-store"></div></a>
 

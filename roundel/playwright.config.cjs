@@ -1,11 +1,13 @@
-const fs = require("node:fs");
 const { defineConfig } = require("@playwright/test");
 
-const systemChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const port = Number(process.env.TEST_PORT || 4173);
+const baseURL = `http://127.0.0.1:${port}`;
 
 module.exports = defineConfig({
   testDir: "./tests",
   timeout: 30_000,
+  globalTimeout: 300_000,
+  workers: 2,
   expect: {
     timeout: 5_000
   },
@@ -14,17 +16,22 @@ module.exports = defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL,
+    browserName: "chromium",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
-    launchOptions: fs.existsSync(process.env.CHROME_PATH || systemChrome)
-      ? { executablePath: process.env.CHROME_PATH || systemChrome }
+    video: "off",
+    // Use Playwright's pinned browser unless a deliberate diagnostic override is supplied.
+    launchOptions: process.env.CHROME_PATH
+      ? { executablePath: process.env.CHROME_PATH }
       : undefined
   },
   webServer: {
-    command: "python3 -m http.server 4173 --directory ..",
-    url: "http://127.0.0.1:4173/roundel/index.html",
+    command: `python3 -m http.server ${port} --bind 127.0.0.1 --directory ..`,
+    cwd: __dirname,
+    url: `${baseURL}/roundel/index.html`,
+    stdout: "ignore",
+    stderr: "ignore",
     reuseExistingServer: !process.env.CI,
     timeout: 10_000
   }

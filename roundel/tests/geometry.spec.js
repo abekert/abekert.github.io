@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures");
 const { choosePreset, loadEditor, openMenu, readTextBounds, setRange, setText } = require("./helpers");
 
 test.describe("text geometry", () => {

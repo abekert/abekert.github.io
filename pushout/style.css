@@ -160,7 +160,8 @@ a:focus-visible {
     will-change: transform;
 }
 
-.video-board iframe {
+.video-board iframe,
+.video-board .video-preview {
     position: absolute;
     top: 11.9%;
     left: 8.2%;
