@@ -1,8 +1,24 @@
 const { test, expect } = require("./fixtures");
 const { choosePreset, loadEditor, openMenu, setRange, setText } = require("./helpers");
 
-async function prepareArtwork(page, preset, text) {
+async function loadVisualEditor(page) {
   await loadEditor(page);
+  // System UI fonts vary across macOS releases and locally installed fonts.
+  // Pin only UI typography; sign artwork keeps its production font choices.
+  await page.addStyleTag({ content: `
+    @font-face {
+      font-family: "Roundel Test UI";
+      src: url("/roundel/tests/fonts/Inter.ttf") format("truetype");
+      font-weight: 100 900;
+      font-style: normal;
+    }
+    :root { --font: "Roundel Test UI", sans-serif; }
+  ` });
+  await page.evaluate(() => document.fonts.ready);
+}
+
+async function prepareArtwork(page, preset, text) {
+  await loadVisualEditor(page);
   await choosePreset(page, preset);
   await setText(page, text);
   await page.addStyleTag({
@@ -78,7 +94,7 @@ test.describe("visual regression snapshots", () => {
   });
 
   test("panel transparency and outline pointer", async ({ page }) => {
-    await loadEditor(page);
+    await loadVisualEditor(page);
     await openMenu(page, "font-style");
     await page.addStyleTag({ content: "*, *::before, *::after { animation: none !important; transition: none !important; }" });
     await expect(page.locator("#menu-font-style")).toHaveScreenshot("style-panel.png", {
@@ -89,7 +105,7 @@ test.describe("visual regression snapshots", () => {
   });
 
   test("Scene tile previews and Wall Style remain stable", async ({ page }) => {
-    await loadEditor(page);
+    await loadVisualEditor(page);
     await openMenu(page, "background");
     await page.addStyleTag({
       content: `
