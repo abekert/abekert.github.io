@@ -149,6 +149,10 @@ h3 {
   flex: 0 0 auto;
 }
 
+.company-mark img.revolut-logo {
+  width: 0.86em;
+}
+
 .hero-copy {
   max-width: 760px;
   margin-bottom: 2rem;
