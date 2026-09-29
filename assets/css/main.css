@@ -328,6 +328,7 @@ h3 {
 .experience-item {
   display: grid;
   grid-template-columns: minmax(165px, 0.3fr) minmax(0, 1fr);
+  align-items: start;
   gap: 0.25rem 2rem;
   border: 1px solid var(--soft);
   border-radius: var(--radius);
@@ -365,13 +366,19 @@ h3 {
   line-height: 1.35;
 }
 
-.experience-item > p {
+.experience-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.experience-body > p {
   margin-bottom: 0;
   color: #34414d;
 }
 
-.experience-item ul {
-  grid-column: 2;
+.experience-body > ul {
   margin: 0;
   padding-left: 1.1rem;
   color: var(--muted);
@@ -504,10 +511,6 @@ h3 {
     max-width: none;
     justify-self: center;
     width: 100%;
-  }
-
-  .experience-item ul {
-    grid-column: auto;
   }
 }
 
